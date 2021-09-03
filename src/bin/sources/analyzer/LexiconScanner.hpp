@@ -5,6 +5,7 @@
 #include <string>
 #include <functional>
 #include <unordered_map>
+#include <stack>
 
 #include "LexiconScannerStatus.hpp"
 #include "Automatons.hpp"
@@ -19,9 +20,12 @@ class LexiconScanner {
          */
         std::function<bool()> state;
 
+        std::unordered_map<std::string, TokenTypes> tokens;
         std::unordered_map<int, std::function<bool()>> initialStates;
 
-        Automatons automatons;
+        std::stack<std::string> * stack;
+
+        Automatons * automatons;
 
         LexiconScannerStatus * tokenData;
 
@@ -36,6 +40,8 @@ class LexiconScanner {
         std::string line;
 
         std::string token;
+
+        bool error;
 
         /**
          * Flag que indica quando o cabeçote chegou no final da linha
@@ -66,7 +72,13 @@ class LexiconScanner {
 
         void nextChar();
 
+        // ======================
+
+        bool q(Automatons::Transition ** transition, int length, Automatons::Transition * defaultAction);
+
         // =============== comparadores ================
+
+        bool isStackValue(std::string value);
 
         // verifica se o token é reconhecido pelo dicionário, caso contrário pode ser um identificador ou indicar erro
         bool isUnknownToken();
@@ -100,6 +112,9 @@ class LexiconScanner {
 
     public:
 
+        /*
+            Type that tokens are classified in
+        */
         typedef enum TokenTypes {
             OPERATOR,
             OPERAND,

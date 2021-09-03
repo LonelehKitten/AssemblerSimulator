@@ -8,6 +8,10 @@
 
 // constructor
 LexiconScanner::LexiconScanner() {
+
+    this->automatons = new Automatons(this);
+    this->stack = new std::stack<std::string>();
+
     // Aqui vai o dicionário de tokens q dá acesso pelo id, e.g (id: (token, type))
     LexiconScanner::TokenSet::ADD = new LexiconScanner::TokenSetUnit("add", LexiconScanner::TokenType::OPERATOR);
     // ...
@@ -26,7 +30,7 @@ std::string LexiconScanner::TokenSetUnit::getToken() {
     return this->token;
 }
 
-LexiconScanner::TokenType LexiconScanner::TokenSetUnit::getTokenType() {
+LexiconScanner::TokenTypes LexiconScanner::TokenSetUnit::getTokenType() {
     return this->tokenType;
 }
 
@@ -100,8 +104,111 @@ void LexiconScanner::nextChar() {
 }
 
 
+/*
+q = (predicates, defaultPredicate=null) => {
+
+        for (const p in predicates) {
+            if (
+                predicates[p].condition &&
+                (!predicates[p].pop || this.isStackValue(predicates[p].pop)) &&
+                (!predicates[p].emptyStack || this.stack.isEmpty())
+            ) {
+                if(predicates[p].push) this.stack.push(predicates[p].push)
+                if(predicates[p].pop) this.stack.pop()
+                this.token += this.currentChar;
+                this.state = predicates[p].state;
+                return false;
+            }
+        }
+
+        if(defaultPredicate) {
+            if(defaultPredicate.move) this.token += this.currentChar;
+            this.state = defaultPredicate.state;
+        }
+        else this.error = true;
+
+        return false;
+
+    }
+*/
+
+
+bool LexiconScanner::q(Automatons::Transition ** transition, int length, Automatons::Transition * defaultAction) {
+
+    if(transitions != nullptr) {
+                
+        for(int i = 0; i < transitionsLength; i++) {
+            if(
+                transitions[i]->getCondition() &&
+                (!transitions[i]->whatPop() || isStackValue(transitions[i]->whatPop()->c_str())) &&
+                (!transitions[i]->shouldStackBeEmpty() || this->stack->isEmpty())
+            ) {
+                if(transitions[i]->whatPop()) this->stack->pop();
+                if(transitions[i]->whatPush()) this->stack->push(transitions[i]->whatPush()->c_str());
+                this->token += this->currentChar();
+                this->state = transitions[i]->getState();
+                return false;
+            }
+        }
+        
+    }
+    
+    if(defaultAction != nullptr)
+        this->state = defaultAction->getState();
+    else this->error = true;
+
+    return false;
+
+}
+/*
+    qEnd = ({conditions, defaultAction=null, deterministic=true, tokenType=null, stateName='[it wasn\'t given]'}) => {
+        
+        this.checkEndOfLine(deterministic);
+        
+        //let condition = conditions;
+        let condition = (this.tokens[this.token] === conditions)
+        
+        if(conditions instanceof Array) {
+            condition = false;
+            for (const c in conditions) {
+                if(this.tokens[this.token] === conditions[c]) {
+                    condition = true;
+                    break;
+                }
+            }
+        }
+
+        if (condition) {
+            console.log("qEnd Success")
+            this.accept(deterministic)
+            if(tokenType) this.setSuccessMessage(tokenType);
+            else this.setSuccessMessage();
+            return true
+        }
+
+        if(defaultAction) {
+            this.accept(defaultAction.deterministic)
+            if(defaultAction.tokenType) this.setSuccessMessage(defaultAction.tokenType);
+            else this.setSuccessMessage();
+            return true
+        }
+
+        this.error = true
+        this.setErrorMsg(stateName);
+        
+        return true
+    }
+
+*/
+
+
+
 
 // =========== comparadores ===========
+
+bool LexiconScanner::isStackValue(std::string value) {
+    return this->stack->top() == value;
+}
 
 //bool isUnknownToken = () => {
 //    this.tokens[this.token] === undefined
