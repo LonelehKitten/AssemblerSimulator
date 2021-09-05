@@ -4,13 +4,24 @@
 
 
 bool Automatons::qBegin_Operator() {
-    return true;
+    Automatons::Transition * transitions[] = {new Automatons::Transition(Automatons::scanner->isAlpha(), Automatons::q1_Operator)};
+    return Automatons::scanner->q(transitions, 1);
 }
 
+bool Automatons::q1_Operator() {
+    Automatons::Transition * transitions[] = {new Automatons::Transition(Automatons::scanner->isAlpha(), Automatons::q2_Operator)};
+    return Automatons::scanner->q(transitions, 1);
+}
 
+bool Automatons::q2_Operator() {
+    Automatons::Transition * transitions[] = {new Automatons::Transition(Automatons::scanner->isAlpha(), Automatons::qEnd_Operator)};
+    return Automatons::scanner->q(transitions, 1);
+}
 
-
-
+bool Automatons::qEnd_Operator() {
+    LexiconScanner::TokenTypes conditions[] = {LexiconScanner::TokenTypes::OPERATOR};
+    return Automatons::scanner->qEnd(new Automatons::TransitionEnd(conditions, 1));
+}
 
 
 Automatons::Transition::Transition(std::function<bool()> state) {
@@ -39,6 +50,57 @@ Automatons::Transition::Transition(bool condition, std::function<bool()> state,
 }
 
 
+
+Automatons::TransitionEnd::TransitionEnd(LexiconScanner::TokenTypes * conditions, int conditionLength, Automatons::TransitionEnd::DefaultAction * defaultAction) {
+    this->conditions = conditions;
+    this->conditionLength = conditionLength;
+    this->defaultAction = defaultAction;
+    this->nonDefaultAction = new Automatons::TransitionEnd::DefaultAction(LexiconScanner::TokenTypes::NULL_TYPE, true);
+}
+
+Automatons::TransitionEnd::TransitionEnd(LexiconScanner::TokenTypes * conditions, int conditionLength, 
+LexiconScanner::TokenTypes tokenType=LexiconScanner::TokenTypes::NULL_TYPE, 
+bool deterministic=false, TransitionEnd::DefaultAction * defaultAction=nullptr) {
+    this->conditions = conditions;
+    this->conditionLength = conditionLength;
+    this->defaultAction = defaultAction;
+    this->nonDefaultAction = new Automatons::TransitionEnd::DefaultAction(tokenType, deterministic);
+}
+
+LexiconScanner::TokenTypes * Automatons::TransitionEnd::getConditions() {
+    return this->conditions;
+}
+
+int Automatons::TransitionEnd::getConditionLength() {
+    return this->conditionLength;
+}
+
+Automatons::TransitionEnd::DefaultAction * Automatons::TransitionEnd::getDefaultAction() {
+    return this->defaultAction;
+}
+
+bool Automatons::TransitionEnd::isDeterministic() {
+    return this->nonDefaultAction->isDeterministic();
+}
+
+LexiconScanner::TokenTypes Automatons::TransitionEnd::getTokenType() {
+    return this->nonDefaultAction->getTokenType();
+}
+
+Automatons::TransitionEnd::DefaultAction::DefaultAction(LexiconScanner::TokenTypes tokenType, bool deterministic=false) {
+    this->tokenType = tokenType;
+    this->deterministic = deterministic;
+}
+
+LexiconScanner::TokenTypes Automatons::TransitionEnd::DefaultAction::getTokenType() {
+    return this->tokenType;
+}
+
+bool Automatons::TransitionEnd::DefaultAction::isDeterministic() {
+    return this->deterministic;
+}
+
+
 /*
     Condição da transição, só muda de estado quando satisfeita
 */
@@ -55,13 +117,13 @@ std::function<bool()> Automatons::Transition::getState() {
     Informa que deve além da condição ser satisfeita, a pilha deve desempilhar um conteúdo específico
 */
 std::string * Automatons::Transition::whatPop() {
-    return this->whatPop;
+    return this->pop;
 }
 /*
     Informa que caso a condição seja satisfeita, a pilha deve empilhar um conteúdo específico
 */
 std::string * Automatons::Transition::whatPush() {
-    return this->whatPush;
+    return this->push;
 }
 /*
     Informa que além da condição ser satisfeita, a pilha deve estar vazia

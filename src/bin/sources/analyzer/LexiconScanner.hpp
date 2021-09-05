@@ -12,6 +12,17 @@
 
 class LexiconScanner {
 
+    public:
+        /*
+            Type that tokens are classified in
+        */
+        typedef enum TokenTypes {
+            NULL_TYPE = -1,
+            OPERATOR,
+            OPERAND,
+            LITERAL
+        } TokenTypes;
+
     private:
 
         /**
@@ -20,12 +31,10 @@ class LexiconScanner {
          */
         std::function<bool()> state;
 
-        std::unordered_map<std::string, TokenTypes> tokens;
+        std::unordered_map<std::string, LexiconScanner::TokenTypes> tokens;
         std::unordered_map<int, std::function<bool()>> initialStates;
 
         std::stack<std::string> * stack;
-
-        Automatons * automatons;
 
         LexiconScannerStatus * tokenData;
 
@@ -72,9 +81,55 @@ class LexiconScanner {
 
         void nextChar();
 
+        void checkEndOfLine(bool deterministic);
+
+        void accept(bool deterministic=true);
+
+        void setSuccessMessage(LexiconScanner::TokenTypes tokenType);
+
+    public:
+
+        typedef struct TokenSetUnit {
+            private:
+                std::string token;
+                LexiconScanner::TokenTypes tokenType;
+            public:
+                TokenSetUnit(std::string token, LexiconScanner::TokenTypes tokenType);
+                std::string getToken();
+                LexiconScanner::TokenTypes getTokenType();
+        } TokenSetUnit;
+
+        struct TokenSet {
+            public:
+                static TokenSetUnit * ADD;
+        };
+
+        /**
+         * Seta a próxima linha a ser lida e reseta as configurações do analisador léxico
+         * @param line linha a ser lida
+         */
+        void setLine(std::string line);
+
+        /**
+         * desfaz a ultima leitura
+         * Alert: apenas 1 vez
+         */
+        void undo();
+
+        /**
+         * Lê o próximo token de line usando o estado inicial referente ao tipo de token informado
+         * 
+         * @param tokenType O tipo do próximo token que deve ser reconhecido
+         * @returns Retorna o token reconhecido, seu tipo, o indicador de final de linha e qual analisador lexico foi utilisado
+         */
+        LexiconScannerStatus * nextToken(TokenTypes tokenType);
+
         // ======================
 
-        bool q(Automatons::Transition ** transition, int length, Automatons::Transition * defaultAction);
+        bool q(Automatons::Transition ** transition, int length, Automatons::Transition * defaultAction=nullptr);
+
+        bool qEnd(Automatons::TransitionEnd * transitionEnd);
+
 
         // =============== comparadores ================
 
@@ -110,52 +165,6 @@ class LexiconScanner {
 
         // =============================================
 
-    public:
-
-        /*
-            Type that tokens are classified in
-        */
-        typedef enum TokenTypes {
-            OPERATOR,
-            OPERAND,
-            LITERAL
-        } TokenTypes;
-
-        typedef struct TokenSetUnit {
-            private:
-                std::string token;
-                LexiconScanner::TokenTypes tokenType;
-            public:
-                TokenSetUnit(std::string token, LexiconScanner::TokenTypes tokenType);
-                std::string getToken();
-                LexiconScanner::TokenTypes getTokenType();
-        } TokenSetUnit;
-
-        struct TokenSet {
-            public:
-                static TokenSetUnit * ADD;
-        };
-
-        /**
-         * Seta a próxima linha a ser lida e reseta as configurações do analisador léxico
-         * @param line linha a ser lida
-         */
-        void setLine(std::string line);
-
-        /**
-         * desfaz a ultima leitura
-         * Alert: apenas 1 vez
-         */
-        void undo();
-
-        /**
-         * Lê o próximo token de line usando o estado inicial referente ao tipo de token informado
-         * 
-         * @param tokenType O tipo do próximo token que deve ser reconhecido
-         * @returns Retorna o token reconhecido, seu tipo, o indicador de final de linha e qual analisador lexico foi utilisado
-         */
-        LexiconScannerStatus * nextToken(TokenType tokenType);
-
-}
+};
 
 #endif /* LEXICON_SCANNER_HPP */

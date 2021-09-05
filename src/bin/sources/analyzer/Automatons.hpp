@@ -6,15 +6,9 @@
 
 #include "LexiconScanner.hpp"
 
-class Automatons {
-
-    private:
+namespace Automatons {
 
         LexiconScanner * scanner;
-    
-    public:
-
-        Automatons(LexiconScanner * scanner);
 
         /*
             Classe que representa a transição de um estado para outro mediante a satisfação
@@ -66,9 +60,38 @@ class Automatons {
                     Informa que além da condição ser satisfeita, a pilha deve estar vazia
                 */
                 bool shouldStackBeEmpty();
-        }
+        };
+
+        class TransitionEnd {
+            public:
+                class DefaultAction {
+                    private:
+                        LexiconScanner::TokenTypes tokenType;
+                        bool deterministic;
+                    public:
+                        DefaultAction(LexiconScanner::TokenTypes tokenType, bool deterministic=false);
+                        LexiconScanner::TokenTypes getTokenType();
+                        bool isDeterministic();
+                };
+            private:
+                LexiconScanner::TokenTypes * conditions;
+                int conditionLength;
+                TransitionEnd::DefaultAction * defaultAction, * nonDefaultAction;
+            public:
+                TransitionEnd(LexiconScanner::TokenTypes * conditions, int conditionLength, TransitionEnd::DefaultAction * defaultAction);
+                TransitionEnd(LexiconScanner::TokenTypes * conditions, int conditionLength, LexiconScanner::TokenTypes tokenType, 
+                    bool deterministic=false, TransitionEnd::DefaultAction * defaultAction=nullptr);
+                LexiconScanner::TokenTypes * getConditions();
+                int getConditionLength();
+                TransitionEnd::DefaultAction * getDefaultAction();
+                bool isDeterministic();
+                LexiconScanner::TokenTypes getTokenType();
+        };
 
         bool qBegin_Operator();
+        bool q1_Operator();
+        bool q2_Operator();
+        bool qEnd_Operator();
 
 };
 
