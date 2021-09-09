@@ -10,15 +10,15 @@ import Dragger from './utils/dragger';
 
 const theme = createTheme({
   palette: {
-    /*
+    
     primary: {
-      main: '#1eb2a6',
+      main: '#282a36',
       contrastText: '#fff',
     },
     secondary: {
-      main: '#ffa34d',
+      main: '#44475a',
       contrastText: '#fff',
-    },*/
+    },
   },
 });
 
@@ -37,10 +37,10 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function App() {
+function App2() {
   const classes = useStyles();
 
-  const [EtoC, setEtoC] = useState(50); // EtoC = Editor to Console
+  const [EtoC, setEtoC] = useState(250); // EtoC = Editor to Console
   const [EtoR, setEtoR] = useState(460); // EtoR = Editor to Register
 
   const handleVertical = (e) => {
@@ -58,7 +58,7 @@ function App() {
   };
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <Header />
       <main className={classes.main} style={{ width: `calc(100% - ${EtoR}px)` }}>
         <Editor style={{ height: `calc(100vh - 48px - ${EtoC}px)` }} />
@@ -69,8 +69,12 @@ function App() {
         <Dragger onMouse={handleVertical} />
         <Register />
       </aside>
-    </ThemeProvider>
+    </>
   );
 }
+
+const App = () => (
+<ThemeProvider theme={theme}><App2 /></ThemeProvider>
+);
 
 export default App;

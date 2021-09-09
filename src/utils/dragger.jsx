@@ -3,10 +3,10 @@ import { makeStyles } from '@material-ui/core/styles';
 const useStyles = makeStyles(theme => ({
     dragger: {
         padding: "4px 0 0",
-        borderTop: "1px solid #ddd",
+        borderTop: "1px solid #363a52",
         position: "absolute",
         zIndex: 100,
-        backgroundColor: "#f4f7f9"
+        backgroundColor: "#363a52"
     },
     horizontal:{
         cursor: "n-resize",
