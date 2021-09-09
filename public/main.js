@@ -7,16 +7,19 @@ require('@electron/remote/main').initialize();
 function createWindow() {
     // Create the browser window.
     const window = new BrowserWindow({
-        width: 800,
-        height: 600,
+        useContentSize: true,
+        resizable:true,
         webPreferences: {
             nodeIntegration: true,
+            preload: __dirname + '/preload.js',
             enableRemoteModule: true,
         }
     });
+    window.removeMenu();
     window.loadURL(
         isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`
     );
+    if(isDev) window.webContents.openDevTools();
 }
 
 app.on('ready', createWindow);
