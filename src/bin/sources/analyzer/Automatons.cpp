@@ -1,30 +1,28 @@
-#include "Automatons.hpp"
+#include "Automatons.h"
+#include "LexiconScanner.h"
 
-
-
-
-bool Automatons::qBegin_Operator() {
-    Automatons::Transition * transitions[] = {new Automatons::Transition(Automatons::scanner->isAlpha(), Automatons::q1_Operator)};
-    return Automatons::scanner->q(transitions, 1);
+bool Automatons::qBegin_Operator(LexiconScanner * scanner) {
+    Automatons::Transition * transitions = new Automatons::Transition(scanner->isAlpha(), Automatons::q1_Operator);
+    return scanner->q(&transitions, 1);
 }
 
-bool Automatons::q1_Operator() {
-    Automatons::Transition * transitions[] = {new Automatons::Transition(Automatons::scanner->isAlpha(), Automatons::q2_Operator)};
-    return Automatons::scanner->q(transitions, 1);
+bool Automatons::q1_Operator(LexiconScanner * scanner) {
+    Automatons::Transition * transitions = new Automatons::Transition(scanner->isAlpha(), Automatons::q2_Operator);
+    return scanner->q(&transitions, 1);
 }
 
-bool Automatons::q2_Operator() {
-    Automatons::Transition * transitions[] = {new Automatons::Transition(Automatons::scanner->isAlpha(), Automatons::qEnd_Operator)};
-    return Automatons::scanner->q(transitions, 1);
+bool Automatons::q2_Operator(LexiconScanner * scanner) {
+    Automatons::Transition * transitions = new Automatons::Transition(scanner->isAlpha(), Automatons::qEnd_Operator);
+    return scanner->q(&transitions, 1);
 }
 
-bool Automatons::qEnd_Operator() {
-    LexiconScanner::TokenTypes conditions[] = {LexiconScanner::TokenTypes::OPERATOR};
-    return Automatons::scanner->qEnd(new Automatons::TransitionEnd(conditions, 1));
+bool Automatons::qEnd_Operator(LexiconScanner * scanner) {
+    TokenTypes conditions = TokenTypes::tOPERATOR;
+    return scanner->qEnd(new Automatons::TransitionEnd(&conditions, 1, TokenTypes::tNULL_TYPE));
 }
 
 
-Automatons::Transition::Transition(std::function<bool()> state) {
+Automatons::Transition::Transition(std::function<bool(LexiconScanner *)> state) {
     this->condition = true;
     this->state = state;
     this->push = nullptr;
@@ -32,7 +30,7 @@ Automatons::Transition::Transition(std::function<bool()> state) {
     this->stackBeEmpty = false;
 }
 
-Automatons::Transition::Transition(bool condition, std::function<bool()> state, bool stackBeEmpty) {
+Automatons::Transition::Transition(bool condition, std::function<bool(LexiconScanner *)> state, bool stackBeEmpty) {
     this->condition = condition;
     this->state = state;
     this->push = nullptr;
@@ -40,8 +38,8 @@ Automatons::Transition::Transition(bool condition, std::function<bool()> state, 
     this->stackBeEmpty = stackBeEmpty;
 }
 
-Automatons::Transition::Transition(bool condition, std::function<bool()> state, 
-    std::string * push=nullptr, std::string * pop=nullptr) {
+Automatons::Transition::Transition(bool condition, std::function<bool(LexiconScanner *)> state,
+    std::string * push, std::string * pop) {
     this->condition = condition;
     this->state = state;
     this->push = push;
@@ -51,23 +49,22 @@ Automatons::Transition::Transition(bool condition, std::function<bool()> state,
 
 
 
-Automatons::TransitionEnd::TransitionEnd(LexiconScanner::TokenTypes * conditions, int conditionLength, Automatons::TransitionEnd::DefaultAction * defaultAction) {
+Automatons::TransitionEnd::TransitionEnd(TokenTypes * conditions, int conditionLength, Automatons::TransitionEnd::DefaultAction * defaultAction) {
     this->conditions = conditions;
     this->conditionLength = conditionLength;
     this->defaultAction = defaultAction;
-    this->nonDefaultAction = new Automatons::TransitionEnd::DefaultAction(LexiconScanner::TokenTypes::NULL_TYPE, true);
+    this->nonDefaultAction = new Automatons::TransitionEnd::DefaultAction(TokenTypes::tNULL_TYPE, true);
 }
 
-Automatons::TransitionEnd::TransitionEnd(LexiconScanner::TokenTypes * conditions, int conditionLength, 
-LexiconScanner::TokenTypes tokenType=LexiconScanner::TokenTypes::NULL_TYPE, 
-bool deterministic=false, TransitionEnd::DefaultAction * defaultAction=nullptr) {
+Automatons::TransitionEnd::TransitionEnd(TokenTypes * conditions, int conditionLength,
+TokenTypes tokenType, bool deterministic, TransitionEnd::DefaultAction * defaultAction) {
     this->conditions = conditions;
     this->conditionLength = conditionLength;
     this->defaultAction = defaultAction;
     this->nonDefaultAction = new Automatons::TransitionEnd::DefaultAction(tokenType, deterministic);
 }
 
-LexiconScanner::TokenTypes * Automatons::TransitionEnd::getConditions() {
+TokenTypes * Automatons::TransitionEnd::getConditions() {
     return this->conditions;
 }
 
@@ -83,16 +80,16 @@ bool Automatons::TransitionEnd::isDeterministic() {
     return this->nonDefaultAction->isDeterministic();
 }
 
-LexiconScanner::TokenTypes Automatons::TransitionEnd::getTokenType() {
+TokenTypes Automatons::TransitionEnd::getTokenType() {
     return this->nonDefaultAction->getTokenType();
 }
 
-Automatons::TransitionEnd::DefaultAction::DefaultAction(LexiconScanner::TokenTypes tokenType, bool deterministic=false) {
+Automatons::TransitionEnd::DefaultAction::DefaultAction(TokenTypes tokenType, bool deterministic) {
     this->tokenType = tokenType;
     this->deterministic = deterministic;
 }
 
-LexiconScanner::TokenTypes Automatons::TransitionEnd::DefaultAction::getTokenType() {
+TokenTypes Automatons::TransitionEnd::DefaultAction::getTokenType() {
     return this->tokenType;
 }
 
@@ -110,7 +107,7 @@ bool Automatons::Transition::getCondition() {
 /*
     Estado para qual leva a transição caso a condição seja satifeita
 */
-std::function<bool()> Automatons::Transition::getState() {
+std::function<bool(LexiconScanner *)> Automatons::Transition::getState() {
     return this->state;
 }
 /*
@@ -131,7 +128,6 @@ std::string * Automatons::Transition::whatPush() {
 bool Automatons::Transition::shouldStackBeEmpty() {
     return this->stackBeEmpty;
 }
-
 
 /*
 

@@ -1,27 +1,26 @@
-#ifndef LEXICON_SCANNER_HPP
-#define LEXICON_SCANNER_HPP
+#ifndef LEXICON_SCANNER_H
+#define LEXICON_SCANNER_H
 
 #include <iostream>
 #include <string>
 #include <functional>
 #include <unordered_map>
 #include <stack>
+#include <utility>
 
-#include "LexiconScannerStatus.hpp"
-#include "Automatons.hpp"
+#include "LexiconScannerStatus.h"
+#include "Automatons.h"
+#include "Dictionaries.h"
 
+/*
+    token pattern recognizing scanner
+*/
 class LexiconScanner {
 
     public:
         /*
             Type that tokens are classified in
         */
-        typedef enum TokenTypes {
-            NULL_TYPE = -1,
-            OPERATOR,
-            OPERAND,
-            LITERAL
-        } TokenTypes;
 
     private:
 
@@ -29,10 +28,10 @@ class LexiconScanner {
          * Ponteiro para os estados dos autômatos
          * @returns - true se o token for aceito, false caso contrário
          */
-        std::function<bool()> state;
+        std::function<bool(LexiconScanner *)> state;
 
-        std::unordered_map<std::string, LexiconScanner::TokenTypes> tokens;
-        std::unordered_map<int, std::function<bool()>> initialStates;
+        std::unordered_map<std::string, TokenTypes> tokens;
+        std::unordered_map<TokenTypes, std::function<bool(LexiconScanner *)>> initialStates;
 
         std::stack<std::string> * stack;
 
@@ -73,7 +72,7 @@ class LexiconScanner {
         int lastTokenEndPosition;
 
 
-        void start(int tokenType);
+        void start(TokenTypes tokenType);
 
         void snap();
         
@@ -85,24 +84,26 @@ class LexiconScanner {
 
         void accept(bool deterministic=true);
 
-        void setSuccessMessage(LexiconScanner::TokenTypes tokenType);
+        void setSuccessMessage(TokenTypes tokenType);
 
     public:
+
+        LexiconScanner();
 
         typedef struct TokenSetUnit {
             private:
                 std::string token;
-                LexiconScanner::TokenTypes tokenType;
+                TokenTypes tokenType;
             public:
-                TokenSetUnit(std::string token, LexiconScanner::TokenTypes tokenType);
+                TokenSetUnit(std::string token, TokenTypes tokenType);
                 std::string getToken();
-                LexiconScanner::TokenTypes getTokenType();
+                TokenTypes getTokenType();
         } TokenSetUnit;
 
-        struct TokenSet {
-            public:
-                static TokenSetUnit * ADD;
-        };
+        static void createDictionary(std::unordered_map<TokenNames, LexiconScanner::TokenSetUnit *>& tokenSet,
+            std::unordered_map<std::string, TokenTypes>& tokens);
+
+        std::unordered_map<TokenNames, LexiconScanner::TokenSetUnit *> tokenSet;
 
         /**
          * Seta a próxima linha a ser lida e reseta as configurações do analisador léxico
@@ -129,7 +130,6 @@ class LexiconScanner {
         bool q(Automatons::Transition ** transition, int length, Automatons::Transition * defaultAction=nullptr);
 
         bool qEnd(Automatons::TransitionEnd * transitionEnd);
-
 
         // =============== comparadores ================
 
@@ -167,4 +167,4 @@ class LexiconScanner {
 
 };
 
-#endif /* LEXICON_SCANNER_HPP */
+#endif /* LEXICON_SCANNER_H */

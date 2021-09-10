@@ -1,14 +1,14 @@
-#ifndef AUTOMATONS_HPP
-#define AUTOMATONS_HPP
+#ifndef AUTOMATONS_H
+#define AUTOMATONS_H
 
 #include <string>
 #include <functional>
 
-#include "LexiconScanner.hpp"
+#include "Dictionaries.h"
+
+class LexiconScanner;
 
 namespace Automatons {
-
-        LexiconScanner * scanner;
 
         /*
             Classe que representa a transição de um estado para outro mediante a satisfação
@@ -23,7 +23,7 @@ namespace Automatons {
                 /*
                     Estado para qual leva a transição caso a condição seja satifeita
                 */
-                std::function<bool()> state;
+                std::function<bool(LexiconScanner *)> state;
                 /*
                     Informa que deve além da condição ser satisfeita, a pilha deve desempilhar um conteúdo específico
                 */
@@ -37,9 +37,9 @@ namespace Automatons {
                 */
                 bool stackBeEmpty;
             public:
-                Transition(std::function<bool()> state);
-                Transition(bool condition, std::function<bool()> state, bool stackBeEmpty);
-                Transition(bool condition, std::function<bool()> state, std::string * push=nullptr, std::string * pop=nullptr);
+                Transition(std::function<bool(LexiconScanner *)> state);
+                Transition(bool condition, std::function<bool(LexiconScanner *)> state, bool stackBeEmpty);
+                Transition(bool condition, std::function<bool(LexiconScanner *)> state, std::string * push=nullptr, std::string * pop=nullptr);
                 /*
                     Condição da transição, só muda de estado quando satisfeita
                 */
@@ -47,7 +47,7 @@ namespace Automatons {
                 /*
                     Estado para qual leva a transição caso a condição seja satifeita
                 */
-                std::function<bool()> getState();
+                std::function<bool(LexiconScanner *)> getState();
                 /*
                     Informa que deve além da condição ser satisfeita, a pilha deve desempilhar um conteúdo específico
                 */
@@ -66,33 +66,35 @@ namespace Automatons {
             public:
                 class DefaultAction {
                     private:
-                        LexiconScanner::TokenTypes tokenType;
+                        TokenTypes tokenType;
                         bool deterministic;
                     public:
-                        DefaultAction(LexiconScanner::TokenTypes tokenType, bool deterministic=false);
-                        LexiconScanner::TokenTypes getTokenType();
+                        DefaultAction(TokenTypes tokenType, bool deterministic=true);
+                        TokenTypes getTokenType();
                         bool isDeterministic();
                 };
             private:
-                LexiconScanner::TokenTypes * conditions;
+                TokenTypes * conditions;
                 int conditionLength;
                 TransitionEnd::DefaultAction * defaultAction, * nonDefaultAction;
             public:
-                TransitionEnd(LexiconScanner::TokenTypes * conditions, int conditionLength, TransitionEnd::DefaultAction * defaultAction);
-                TransitionEnd(LexiconScanner::TokenTypes * conditions, int conditionLength, LexiconScanner::TokenTypes tokenType, 
-                    bool deterministic=false, TransitionEnd::DefaultAction * defaultAction=nullptr);
-                LexiconScanner::TokenTypes * getConditions();
+                TransitionEnd(TokenTypes * conditions, int conditionLength, TransitionEnd::DefaultAction * defaultAction);
+                TransitionEnd(TokenTypes * conditions, int conditionLength,
+                              TokenTypes tokenType=TokenTypes::tNULL_TYPE,
+                              bool deterministic=false, TransitionEnd::DefaultAction * defaultAction=nullptr);
+                TokenTypes * getConditions();
                 int getConditionLength();
                 TransitionEnd::DefaultAction * getDefaultAction();
                 bool isDeterministic();
-                LexiconScanner::TokenTypes getTokenType();
+                TokenTypes getTokenType();
         };
 
-        bool qBegin_Operator();
-        bool q1_Operator();
-        bool q2_Operator();
-        bool qEnd_Operator();
+        bool qBegin_Operator(LexiconScanner * scanner);
+        bool q1_Operator(LexiconScanner * scanner);
+        bool q2_Operator(LexiconScanner * scanner);
+        bool qEnd_Operator(LexiconScanner * scanner);
 
 };
 
-#endif /* AUTOMATONS_HPP */
+
+#endif /* AUTOMATONS_H */
