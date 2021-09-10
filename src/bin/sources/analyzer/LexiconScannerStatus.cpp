@@ -1,8 +1,13 @@
-#include "LexiconScannerStatus.hpp"
+#include "LexiconScannerStatus.h"
 
-LexiconScannerStatus::LexiconScannerStatus(bool accepted) {
-    this->accepted = accepted;
-}
+//* =========================================================================
+//*
+//*                             STATUS RELATED
+//*
+//* =========================================================================
+
+LexiconScannerStatus::LexiconScannerStatus(bool accepted)
+: accepted(accepted) {}
 
 bool LexiconScannerStatus::isAccepted() {
     return accepted;
@@ -10,18 +15,15 @@ bool LexiconScannerStatus::isAccepted() {
 
 // ================
 
-SuccessStatus::SuccessStatus(std::string token, int tokenType, bool endOfLine)
-: LexiconScannerStatus::LexiconScannerStatus(true) {
-    this->token = token;
-    this->tokenType = tokenType;
-    this->endOfLine = endOfLine;
-}
+SuccessStatus::SuccessStatus(std::string token, TokenTypes tokenType, bool endOfLine)
+: LexiconScannerStatus(true),
+token(token), tokenType(tokenType), endOfLine(endOfLine) {}
 
 std::string SuccessStatus::getToken() {
     return this->token;
 }
 
-int SuccessStatus::getTokenType() {
+TokenTypes SuccessStatus::getTokenType() {
     return this->tokenType;
 }
 bool SuccessStatus::isEndOfLine() {
@@ -30,10 +32,9 @@ bool SuccessStatus::isEndOfLine() {
 
 // ================
 
-FailStatus::FailStatus(std::string errorMessage) 
-: LexiconScannerStatus::LexiconScannerStatus(false) {
-    this->errorMessage = errorMessage;
-}
+FailStatus::FailStatus(std::string errorMessage)
+: LexiconScannerStatus(false),
+errorMessage(errorMessage) {}
 
 std::string FailStatus::getErrorMessage() {
     return this->errorMessage;

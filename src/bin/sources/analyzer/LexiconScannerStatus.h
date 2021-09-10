@@ -3,6 +3,8 @@
 
 #include <string>
 
+#include "Dictionaries.h"
+
 class LexiconScannerStatus {
     private:
         bool accepted;
@@ -15,12 +17,12 @@ class LexiconScannerStatus {
 class SuccessStatus : public LexiconScannerStatus {
     private:
         std::string token;
-        int tokenType;
+        TokenTypes tokenType;
         bool endOfLine;
     public:
-        SuccessStatus(std::string token, int tokenType, bool endOfLine);
+        SuccessStatus(std::string token, TokenTypes tokenType, bool endOfLine);
         std::string getToken();
-        int getTokenType();
+        TokenTypes getTokenType();
         bool isEndOfLine();
 };
 

@@ -1,27 +1,30 @@
-#include "LexiconScanner.hpp"
+#include "LexiconScanner.h"
 
-/*
 
-    TODO: traduzir a função transição q cada estado chama
-
-*/
+//* =========================================================================
+//*
+//*                        LEXICON SCANNER RELATED
+//*
+//* =========================================================================
 
 // constructor
 LexiconScanner::LexiconScanner() {
 
-    this->automatons = new Automatons(this);
     this->stack = new std::stack<std::string>();
 
     // Aqui vai o dicionário de tokens q dá acesso pelo id, e.g (id: (token, type))
-    LexiconScanner::TokenSet::ADD = new LexiconScanner::TokenSetUnit("add", LexiconScanner::TokenType::OPERATOR);
+    //LexiconScanner::TokenSet::ADD = new LexiconScanner::TokenSetUnit("add", LexiconScanner::TokenTypes::OPERATOR);
+    this->tokenSet[TokenNames::nADD] = new LexiconScanner::TokenSetUnit("add", TokenTypes::tOPERATOR);
     // ...
 
     // Aqui vai o dicionário de estados iniciais pelo tokenType, e.g (type: state)
-    this->initialStates[LexiconScanner::TokenType::OPERATOR] = this->automatons.qBegin_Operator;
+    this->initialStates[TokenTypes::tOPERATOR] = Automatons::qBegin_Operator;
     // ...
+
+    LexiconScanner::createDictionary(this->tokenSet, this->tokens);
 }
 
-LexiconScanner::TokenSetUnit::TokenSetUnit(std::string token, LexiconScanner::TokenType tokenType) {
+LexiconScanner::TokenSetUnit::TokenSetUnit(std::string token, TokenTypes tokenType) {
     this->token = token;
     this->tokenType = tokenType;
 }
@@ -30,12 +33,33 @@ std::string LexiconScanner::TokenSetUnit::getToken() {
     return this->token;
 }
 
-LexiconScanner::TokenTypes LexiconScanner::TokenSetUnit::getTokenType() {
+TokenTypes LexiconScanner::TokenSetUnit::getTokenType() {
     return this->tokenType;
 }
 
+/* 
+
+static createDictionary = (tokenSet) => {
+        let dictionary = {};
+        Object.keys(tokenSet).forEach(key => {
+            dictionary[tokenSet[key][0]] = tokenSet[key][1]
+        })
+
+        console.log(dictionary)
+        return dictionary;
+    }
+
+*/
+
+void LexiconScanner::createDictionary(std::unordered_map<TokenNames, LexiconScanner::TokenSetUnit *>& tokenSet,
+    std::unordered_map<std::string, TokenTypes>& tokens) {
+    for(std::pair<TokenNames, LexiconScanner::TokenSetUnit *> p : tokenSet) {
+        tokens[p.second->getToken()] = p.second->getTokenType();
+    }
+}
+
 void LexiconScanner::setLine(std::string line) {
-    this->currentChar = line[0]
+    this->currentChar = line[0];
     this->line = line;
     this->endOfLine = false;
     this->lineIndex = 0;
@@ -48,15 +72,15 @@ void LexiconScanner::undo() {
     this->lastTokenEndPosition = this->lastTokenBeginPosition;
 }
 
-LexiconScannerStatus * LexiconScanner::nextToken(TokenType tokenType) {
+LexiconScannerStatus * LexiconScanner::nextToken(TokenTypes tokenType) {
 
-    start();
+    start(tokenType);
 
     while(true) {
 
         log();
 
-        if(this->state() && !this->error) {
+        if(this->state(this) && !this->error) {
             return this->tokenData;
         }
 
@@ -73,14 +97,14 @@ LexiconScannerStatus * LexiconScanner::nextToken(TokenType tokenType) {
 
 void LexiconScanner::log() {
     std::string column = "";
-    for(let i = 0; i < this->lineIndex; i++)
-        column += " ";
-    column += "^";
+    for(int i = 0; i < this->lineIndex; i++)
+        column += ' ';
+    column += '^';
     std::cout << this->line << std::endl;
     std::cout << column << std::endl;
 }
 
-void LexiconScanner::start(int tokenType) {
+void LexiconScanner::start(TokenTypes tokenType) {
     this->token = "";
     snap();
     this->lastTokenBeginPosition = this->lineIndex;
@@ -94,13 +118,32 @@ void LexiconScanner::snap() {
             this->lastTokenEndPosition++;
         }
     }
-    this->lineIndex = this->lineTokenEndPosition;
-    this->currentChar = this->line[this->lastIndex];
+    this->lineIndex = this->lastTokenEndPosition;
+    this->currentChar = this->line[this->lineIndex];
 }
 
 void LexiconScanner::nextChar() {
     this->lineIndex++;
     this->currentChar = this->line[this->lineIndex];
+}
+
+void LexiconScanner::checkEndOfLine(bool deterministic) {
+    if(deterministic) this->endOfLine = (this->line[this->lineIndex-1] == '\n');
+    else this->endOfLine = (this->line[this->lineIndex] == '\n');
+}
+
+void LexiconScanner::accept(bool deterministic) {
+    this->lastTokenEndPosition = this->lineIndex;
+    if(!deterministic) {
+        this->lastTokenEndPosition--;
+    }
+}
+
+void LexiconScanner::setSuccessMessage(TokenTypes tokenType) {
+    if(tokenType == TokenTypes::tNULL_TYPE) {
+        tokenType = this->tokens[this->token];
+    }
+    this->tokenData = new SuccessStatus(this->token, tokenType, this->endOfLine);
 }
 
 
@@ -133,7 +176,7 @@ q = (predicates, defaultPredicate=null) => {
 */
 
 
-bool LexiconScanner::q(Automatons::Transition ** transition, int length, Automatons::Transition * defaultAction) {
+bool LexiconScanner::q(Automatons::Transition ** transitions, int transitionsLength, Automatons::Transition * defaultAction) {
 
     if(transitions != nullptr) {
                 
@@ -141,11 +184,11 @@ bool LexiconScanner::q(Automatons::Transition ** transition, int length, Automat
             if(
                 transitions[i]->getCondition() &&
                 (!transitions[i]->whatPop() || isStackValue(transitions[i]->whatPop()->c_str())) &&
-                (!transitions[i]->shouldStackBeEmpty() || this->stack->isEmpty())
+                (!transitions[i]->shouldStackBeEmpty() || this->stack->empty())
             ) {
                 if(transitions[i]->whatPop()) this->stack->pop();
                 if(transitions[i]->whatPush()) this->stack->push(transitions[i]->whatPush()->c_str());
-                this->token += this->currentChar();
+                this->token += this->currentChar;
                 this->state = transitions[i]->getState();
                 return false;
             }
@@ -201,8 +244,34 @@ bool LexiconScanner::q(Automatons::Transition ** transition, int length, Automat
 
 */
 
+bool LexiconScanner::qEnd(Automatons::TransitionEnd * transitionEnd) {
+    checkEndOfLine(transitionEnd->isDeterministic());
 
+    bool condition = false;
 
+    for(int i = 0; i < transitionEnd->getConditionLength(); i++) {
+        if(this->tokens[this->token] == transitionEnd->getConditions()[i]) {
+            condition = true;
+            break;
+        }
+    }
+
+    if(condition) {
+        std::cout << "qEnd Success" << std::endl;
+        accept(transitionEnd->isDeterministic());
+        setSuccessMessage(transitionEnd->getTokenType());
+        return true;
+    }
+
+    if(transitionEnd->getDefaultAction()) {
+        accept(transitionEnd->getDefaultAction()->isDeterministic());
+        setSuccessMessage(transitionEnd->getDefaultAction()->getTokenType());
+        return true;
+    }
+
+    this->error = true;
+    return true;
+}
 
 // =========== comparadores ===========
 
@@ -258,3 +327,9 @@ bool LexiconScanner::isLineBreak() {
 bool LexiconScanner::isSpecial() {
     return !isAlpha() && !isNumeric() && !isLineBreak() && !isNull();
 }
+
+//* =========================================================================
+//*
+//*                          AUTOMATONS RELATED
+//*
+//* =========================================================================

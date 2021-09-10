@@ -7,10 +7,13 @@
 
 # testing
 /coverage
+/src/bin/test/*
+/src/bin/teste.pro
+/src/bin/teste.pro.user
+/src/bin/obj
 
 # production
 /build
-/src/bin/test/*
 
 # misc
 .DS_Store
