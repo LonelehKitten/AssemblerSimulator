@@ -7,13 +7,16 @@ require('@electron/remote/main').initialize();
 function createWindow() {
     // Create the browser window.
     const window = new BrowserWindow({
+        width:'100%',
+        height: '100%',
         useContentSize: true,
         resizable:true,
         webPreferences: {
             nodeIntegration: true,
             preload: __dirname + '/preload.js',
             enableRemoteModule: true,
-        }
+        },
+        icon: path.join(__dirname,'AS.ico')
     });
     window.removeMenu();
     window.loadURL(

@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { ThemeProvider, createTheme, makeStyles } from '@material-ui/core/styles';
+import Backdrop from '@material-ui/core/Backdrop';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 import Header from './theme/header';
 import Editor from './view/editor';
@@ -63,7 +65,7 @@ function App2() {
       <main className={classes.main} style={{ width: `calc(100% - ${EtoR}px)` }}>
         <Editor style={{ height: `calc(100vh - 48px - ${EtoC}px)` }} />
         <Dragger orientation="horizontal" onMouse={handleHorizontal} />
-        <Console style={{ height: `calc(${EtoC}px - 48px)` }} />
+        <Console style={{ height: `calc(${EtoC}px - 8px)`, marginLeft: "10px" }} />
       </main>
       <aside className={classes.sidebar} style={{ width: EtoR + "px" }}>
         <Dragger onMouse={handleVertical} />
@@ -73,8 +75,19 @@ function App2() {
   );
 }
 
-const App = () => (
-<ThemeProvider theme={theme}><App2 /></ThemeProvider>
-);
+const Loading = () => <Backdrop style={{color:"#fff"}} open={true}> <CircularProgress color="inherit" /></Backdrop> ;
+
+
+const App = () => {
+  const [loading,setLoading] = useState(true);
+
+  useState(() => {
+    setTimeout(() => {
+        setLoading(false);
+    },5000);
+  },[]);
+
+  return loading ? <Loading /> : <ThemeProvider theme={theme}><App2 /></ThemeProvider>;
+  };
 
 export default App;

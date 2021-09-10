@@ -5,6 +5,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  color:#f1f1f1;
 }
 #root{
   width:100vw;
@@ -18,6 +19,8 @@ code {
 
 #console{
   margin-top:3px;
+  display: flex;
+  align-items: flex-end;
 }
 #register{
   margin-left:5px;
