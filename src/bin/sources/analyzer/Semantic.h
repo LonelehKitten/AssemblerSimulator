@@ -42,22 +42,31 @@ enum Instruction{
     iSEGMENT,
     iENDS,
     iDW,
-    iDUP,
+    //iDUP, n precisa
     iEQU,
     iORG,
-    iOFFSET,
+    //iOFFSET, n precisa
     iASSUME,
     iPROC,
-    iENDP
+    iENDP,
+    iMACRO,
+    iENDM
 };
 
 class Semantic {
     private:
-        Instruction type;
         std::string line;      //linha do arquivo
+        Instruction type;
         int opcode;
     protected:
         Semantic(std::string line);
+    public:
+    // ========== ONLY FOR TEST
+        Semantic(std::string line, Instruction type);
+    // ==========
+
+    Instruction getType();
+    std::string getLine();
 };
 
 //aritmeticas
