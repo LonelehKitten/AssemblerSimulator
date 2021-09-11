@@ -55,7 +55,7 @@ enum Instruction{
 
 class Semantic {
     private:
-        std::string line;      //linha do arquivo
+        std::string line, name;      //linha do arquivo
         Instruction type;
         int opcode;
     protected:
@@ -63,6 +63,7 @@ class Semantic {
     public:
     // ========== ONLY FOR TEST
         Semantic(std::string line, Instruction type);
+        Semantic(std::string line, std::string name, Instruction type);
     // ==========
 
         std::string getLine();
