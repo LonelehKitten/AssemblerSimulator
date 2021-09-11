@@ -1,4 +1,4 @@
-const {app, BrowserWindow} = require('electron');
+const {app, BrowserWindow, ipcMain} = require('electron');
 const isDev = require('electron-is-dev');
 const path = require('path');
 
@@ -12,16 +12,18 @@ function createWindow() {
         useContentSize: true,
         resizable:true,
         webPreferences: {
-            nodeIntegration: true,
             preload: __dirname + '/preload.js',
             enableRemoteModule: true,
+            nodeIntegration: true,
+            contextIsolation: false,
         },
         icon: path.join(__dirname,'AS.ico')
-    });
+    });//'http://localhost:3000'
     window.removeMenu();
     window.loadURL(
         isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`
     );
+    //window.loadFile('public/dev.html');
     if(isDev) window.webContents.openDevTools();
 }
 
@@ -39,4 +41,10 @@ app.on('activate', function () {
     // On OS X it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
+})
+
+ipcMain.on('invokeAction', (event, data) => {
+    console.log("Chamou");
+    var result = "test result!";
+    event.sender.send('actionReply', result);
 })

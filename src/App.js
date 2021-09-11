@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ThemeProvider, createTheme, makeStyles } from '@material-ui/core/styles';
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
@@ -9,10 +9,11 @@ import Console from './view/console';
 import Register from './view/register';
 
 import Dragger from './utils/dragger';
+import { Context } from './utils/context';
 
 const theme = createTheme({
   palette: {
-    
+
     primary: {
       main: '#282a36',
       contrastText: '#fff',
@@ -39,9 +40,21 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
+
+/*
+const {ipcRenderer} = window.electron;
+ipcRenderer.once(event, callback); // Para receber o evento Electron -> React
+ipcRenderer.send(event, data?); // Para enviar o evento React -> Electron
+
+*/
 function App2() {
   const classes = useStyles();
 
+  const [listFiles, setListFiles] = useState({
+    abc:{name:"Arquivo 1",code: "add"},
+    abce:{name:"Arquivo 2",code: "add aX"}
+  });
+  const [currentFile, setCurrentFile] = useState(null);
   const [EtoC, setEtoC] = useState(250); // EtoC = Editor to Console
   const [EtoR, setEtoR] = useState(460); // EtoR = Editor to Register
 
@@ -59,35 +72,50 @@ function App2() {
     }
   };
 
+  const changeFile = (id) => {
+    if (listFiles[id] !== undefined) {
+      setCurrentFile(listFiles[id]);
+    }
+  }
+
+  const setFile = (value) => {
+    if (currentFile !== null) {
+      setCurrentFile((file) => {
+        file.code = value;
+        return file;
+      });
+    }
+  }
+
   return (
-    <>
+    <Context.Provider value={{ currentFile, listFiles, setFile, changeFile }}>
       <Header />
       <main className={classes.main} style={{ width: `calc(100% - ${EtoR}px)` }}>
         <Editor style={{ height: `calc(100vh - 48px - ${EtoC}px)` }} />
         <Dragger orientation="horizontal" onMouse={handleHorizontal} />
-        <Console style={{ height: `calc(${EtoC}px - 8px)`, marginLeft: "10px" }} />
+        <Console style={{ height: `calc(${EtoC}px - 8px)`, marginLeft: "3px" }} />
       </main>
       <aside className={classes.sidebar} style={{ width: EtoR + "px" }}>
         <Dragger onMouse={handleVertical} />
         <Register />
       </aside>
-    </>
+    </Context.Provider>
   );
 }
 
-const Loading = () => <Backdrop style={{color:"#fff"}} open={true}> <CircularProgress color="inherit" /></Backdrop> ;
+const Loading = () => <Backdrop style={{ color: "#fff" }} open={true}> <CircularProgress color="inherit" /></Backdrop>;
 
 
 const App = () => {
-  const [loading,setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useState(() => {
     setTimeout(() => {
-        setLoading(false);
-    },5000);
-  },[]);
+      setLoading(false);
+    }, 1000);
+  }, []);
 
   return loading ? <Loading /> : <ThemeProvider theme={theme}><App2 /></ThemeProvider>;
-  };
+};
 
 export default App;

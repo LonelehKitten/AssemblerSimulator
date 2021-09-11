@@ -18,9 +18,15 @@ code {
 }
 
 #console{
-  margin-top:3px;
+  margin-top: 3px;
   display: flex;
-  align-items: flex-end;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+#console>div{
+  display:block;
+  width: 100%;
+  color: #dedede;
 }
 #register{
   margin-left:5px;
