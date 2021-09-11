@@ -65,8 +65,8 @@ class Semantic {
         Semantic(std::string line, Instruction type);
     // ==========
 
-    Instruction getType();
-    std::string getLine();
+        std::string getLine();
+        Instruction getType();
 };
 
 //aritmeticas
