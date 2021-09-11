@@ -2,9 +2,30 @@
 
 # Como rodar o Electron em desenvolvimento
 
-Use o comando *npm run electron:serve*
-Isso executa o npm start e o electron juntos.
-NÃO EXECUTE *NPM START*, esse comando *JÁ* faz isso
+Para iniciar o aplicativo em modo de desenvolvimento, utilize o comando *npm run dev*.
+Para complicar o aplicativo, utilize o comando *npm run electron:build*
+
+### Organização na pasta
+* **Bin**: Referente ao código C++.
+* **Theme**: Referente ao header.
+* **Utils**: Para generalização do código.
+* **View**: Para a separação das abas. *Console*, *Editor* e *Register*.
+
+
+### Como usar a conexão Electron <-> React
+```js
+const {ipcRenderer} = window.electron;
+ipcRenderer.once(event, callback); // Para receber o evento Electron -> React
+ipcRenderer.send(event, data?); // Para enviar o evento React -> Electron
+```
+
+### Libs
+* Electron
+* ReactJS
+* Material-UI
+* Material-UI/Icons
+* Material-UI/Labs
+* React ACE
 
 ===========================================
 
