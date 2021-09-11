@@ -10,6 +10,7 @@ import Register from './view/register';
 
 import Dragger from './utils/dragger';
 import { Context } from './utils/context';
+import Alert from './utils/alert';
 
 const theme = createTheme({
   palette: {
@@ -46,15 +47,22 @@ const {ipcRenderer} = window.electron;
 ipcRenderer.once(event, callback); // Para receber o evento Electron -> React
 ipcRenderer.send(event, data?); // Para enviar o evento React -> Electron
 
+    abc: { name: "Arquivo 1", code: "add" },
+    abce: { name: "Arquivo 2", code: "add aX" }
+  
 */
 function App2() {
   const classes = useStyles();
 
-  const [listFiles, setListFiles] = useState({
-    abc:{name:"Arquivo 1",code: "add"},
-    abce:{name:"Arquivo 2",code: "add aX"}
+  const [listFiles, setListFiles] = useState(() => {
+    const list = JSON.parse(window.localStorage.getItem("_listFiles"));
+
+    return list || {};
   });
+
+  const [currentID, setCurrentID] = useState("");
   const [currentFile, setCurrentFile] = useState(null);
+  const [alertMessage, setAlertMessage] = useState(null);
   const [EtoC, setEtoC] = useState(250); // EtoC = Editor to Console
   const [EtoR, setEtoR] = useState(460); // EtoR = Editor to Register
 
@@ -75,10 +83,35 @@ function App2() {
   const changeFile = (id) => {
     if (listFiles[id] !== undefined) {
       setCurrentFile(listFiles[id]);
+      setCurrentID(id);
     }
   }
 
-  const setFile = (value) => {
+  const addFile = (path, code, name = null) => {/*
+    const newValue = listFiles;
+    newValue[id] = {name,path,code};*/
+    let idExists = null;
+    Object.entries(listFiles).forEach(([k, item]) => {
+      if (item.path === path) idExists = k;
+    });
+    if (idExists !== null) {
+      setCurrentID(idExists);
+      setCurrentFile(listFiles[idExists]);
+      alertShow("info", "Esse arquivo já está aberto.");
+      return;
+    };
+    if(name == null ) name = path.split("\\").slice(-1)[0];
+    const id = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5);
+    const newValue = {
+      ...listFiles,
+      [id]: { name, path, code }
+    }
+    setCurrentID(id);
+    setCurrentFile(newValue[id]);
+    setListFiles(newValue);
+  }
+
+  const setCode = (value) => {
     if (currentFile !== null) {
       setCurrentFile((file) => {
         file.code = value;
@@ -87,8 +120,17 @@ function App2() {
     }
   }
 
+  const alertShow = (color, text, time = 6000) => {
+    setAlertMessage({ color, text, time });
+  }
+
+  useEffect(() => {
+    window.localStorage.setItem("_listFiles", JSON.stringify(listFiles));
+  }, [listFiles]);
+
   return (
-    <Context.Provider value={{ currentFile, listFiles, setFile, changeFile }}>
+    <Context.Provider value={{ currentFile, listFiles, currentID, addFile, setCode, changeFile, alertShow }}>
+      <Alert onClose={setAlertMessage} message={alertMessage} />
       <Header />
       <main className={classes.main} style={{ width: `calc(100% - ${EtoR}px)` }}>
         <Editor style={{ height: `calc(100vh - 48px - ${EtoC}px)` }} />
