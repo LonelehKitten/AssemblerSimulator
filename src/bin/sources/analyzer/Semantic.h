@@ -2,6 +2,7 @@
 #define SEMANTIC_H
 
 #include <string>
+#include <vector>
 /*
  * tipo e linha
  * operador / parametros
@@ -58,12 +59,15 @@ class Semantic {
         std::string line, name;      //linha do arquivo
         Instruction type;
         int opcode;
+
+        std::vector<std::string> * params;
     protected:
         Semantic(std::string line);
     public:
     // ========== ONLY FOR TEST
         Semantic(std::string line, Instruction type);
         Semantic(std::string line, std::string name, Instruction type);
+        Semantic(std::string line, std::string name, Instruction type, std::vector<std::string> * params);
     // ==========
 
         std::string getLine();
