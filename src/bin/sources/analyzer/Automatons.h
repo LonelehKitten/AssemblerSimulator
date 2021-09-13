@@ -3,6 +3,7 @@
 
 #include <string>
 #include <functional>
+#include <cstdlib>
 
 #include "Dictionaries.h"
 
@@ -76,10 +77,12 @@ namespace Automatons {
             private:
                 TokenTypes * conditions;
                 int conditionLength;
+                bool caseSensitive;
                 TransitionEnd::DefaultAction * defaultAction, * nonDefaultAction;
             public:
-                TransitionEnd(TokenTypes * conditions, int conditionLength, TransitionEnd::DefaultAction * defaultAction);
-                TransitionEnd(TokenTypes * conditions, int conditionLength,
+                TransitionEnd(TokenTypes * conditions, int conditionLength, bool caseSensitive,
+                              TransitionEnd::DefaultAction * defaultAction);
+                TransitionEnd(TokenTypes * conditions, int conditionLength, bool caseSensitive,
                               TokenTypes tokenType=TokenTypes::tNULL_TYPE,
                               bool deterministic=false, TransitionEnd::DefaultAction * defaultAction=nullptr);
                 TokenTypes * getConditions();
@@ -87,12 +90,15 @@ namespace Automatons {
                 TransitionEnd::DefaultAction * getDefaultAction();
                 bool isDeterministic();
                 TokenTypes getTokenType();
+                bool isCaseSensitive();
         };
 
-        bool qBegin_Operator(LexiconScanner * scanner);
-        bool q1_Operator(LexiconScanner * scanner);
-        bool q2_Operator(LexiconScanner * scanner);
-        bool qEnd_Operator(LexiconScanner * scanner);
+        bool qBegin_labelPattern(LexiconScanner * scanner);
+        bool q1_labelPattern(LexiconScanner * scanner);
+        bool qEnd_labelPattern(LexiconScanner * scanner);
+        //bool q1_Operator(LexiconScanner * scanner);
+        //bool q2_Operator(LexiconScanner * scanner);
+        //bool qEnd_Operator(LexiconScanner * scanner);
 
 };
 

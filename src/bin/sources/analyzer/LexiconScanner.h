@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <stack>
 #include <utility>
+#include <algorithm>
 
 #include "LexiconScannerStatus.h"
 #include "Automatons.h"
@@ -71,6 +72,7 @@ class LexiconScanner {
          */
         int lastTokenEndPosition;
 
+        void initTokenSet();
 
         void start(TokenTypes tokenType);
 

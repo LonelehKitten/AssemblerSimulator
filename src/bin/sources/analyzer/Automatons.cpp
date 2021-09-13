@@ -1,6 +1,37 @@
 #include "Automatons.h"
 #include "LexiconScanner.h"
 
+#define qEndLPCONDITIONS 3
+
+
+
+
+
+bool Automatons::qBegin_labelPattern(LexiconScanner * scanner) {
+    Automatons::Transition * transitions = new Automatons::Transition(scanner->isAlpha() || scanner->is('_'),
+                                                                      Automatons::q1_labelPattern);
+    return scanner->q(&transitions, 1);
+}
+
+
+bool Automatons::q1_labelPattern(LexiconScanner * scanner) {
+    Automatons::Transition * transitions = new Automatons::Transition(scanner->isAlphaNumeric() || scanner->is('_'),
+                                                                      Automatons::q1_labelPattern);
+    return scanner->q(&transitions, 1, new Automatons::Transition(Automatons::qEnd_labelPattern));
+}
+
+
+bool Automatons::qEnd_labelPattern(LexiconScanner * scanner) {
+    TokenTypes * conditions = (TokenTypes *) malloc(sizeof(TokenTypes)*qEndLPCONDITIONS);
+    conditions[0] = TokenTypes::tBLOCKDEF;
+    conditions[1] = TokenTypes::tBLOCKEND;
+    conditions[2] = TokenTypes::tEND;
+    return scanner->qEnd(new Automatons::TransitionEnd(conditions, qEndLPCONDITIONS, false, TokenTypes::tNULL_TYPE));
+}
+
+
+
+/*
 bool Automatons::qBegin_Operator(LexiconScanner * scanner) {
     Automatons::Transition * transitions = new Automatons::Transition(scanner->isAlpha(), Automatons::q1_Operator);
     return scanner->q(&transitions, 1);
@@ -20,6 +51,8 @@ bool Automatons::qEnd_Operator(LexiconScanner * scanner) {
     TokenTypes conditions = TokenTypes::tOPERATOR;
     return scanner->qEnd(new Automatons::TransitionEnd(&conditions, 1, TokenTypes::tNULL_TYPE));
 }
+*/
+
 
 
 Automatons::Transition::Transition(std::function<bool(LexiconScanner *)> state) {
@@ -49,20 +82,22 @@ Automatons::Transition::Transition(bool condition, std::function<bool(LexiconSca
 
 
 
-Automatons::TransitionEnd::TransitionEnd(TokenTypes * conditions, int conditionLength, Automatons::TransitionEnd::DefaultAction * defaultAction) {
-    this->conditions = conditions;
-    this->conditionLength = conditionLength;
-    this->defaultAction = defaultAction;
-    this->nonDefaultAction = new Automatons::TransitionEnd::DefaultAction(TokenTypes::tNULL_TYPE, true);
-}
+Automatons::TransitionEnd::TransitionEnd(TokenTypes * conditions, int conditionLength,  bool caseSensitive,
+                                         Automatons::TransitionEnd::DefaultAction * defaultAction) :
+    conditions(conditions), conditionLength(conditionLength),
+    caseSensitive(caseSensitive),
+    defaultAction(defaultAction),
+    nonDefaultAction(new Automatons::TransitionEnd::DefaultAction(TokenTypes::tNULL_TYPE, true))
+{}
 
-Automatons::TransitionEnd::TransitionEnd(TokenTypes * conditions, int conditionLength,
-TokenTypes tokenType, bool deterministic, TransitionEnd::DefaultAction * defaultAction) {
-    this->conditions = conditions;
-    this->conditionLength = conditionLength;
-    this->defaultAction = defaultAction;
-    this->nonDefaultAction = new Automatons::TransitionEnd::DefaultAction(tokenType, deterministic);
-}
+Automatons::TransitionEnd::TransitionEnd(TokenTypes * conditions, int conditionLength, bool caseSensitive,
+TokenTypes tokenType, bool deterministic, TransitionEnd::DefaultAction * defaultAction) :
+    conditions(conditions),
+    conditionLength(conditionLength),
+    caseSensitive(caseSensitive),
+    defaultAction(defaultAction),
+    nonDefaultAction(new Automatons::TransitionEnd::DefaultAction(tokenType, deterministic))
+{}
 
 TokenTypes * Automatons::TransitionEnd::getConditions() {
     return this->conditions;
@@ -78,6 +113,10 @@ Automatons::TransitionEnd::DefaultAction * Automatons::TransitionEnd::getDefault
 
 bool Automatons::TransitionEnd::isDeterministic() {
     return this->nonDefaultAction->isDeterministic();
+}
+
+bool Automatons::TransitionEnd::isCaseSensitive() {
+    return this->caseSensitive;
 }
 
 TokenTypes Automatons::TransitionEnd::getTokenType() {
