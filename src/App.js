@@ -60,6 +60,8 @@ function App2() {
     return list || {};
   });
 
+  document.body.classList.add("no-sroll");
+
   const [currentID, setCurrentID] = useState("");
   const [currentFile, setCurrentFile] = useState(null);
   const [alertMessage, setAlertMessage] = useState(null);
@@ -68,14 +70,14 @@ function App2() {
 
   const handleVertical = (e) => {
     const newWidth = Math.abs(e.clientX - document.body.offsetLeft - document.body.offsetWidth);
-    if (newWidth > 300 && newWidth < document.body.offsetWidth / 2 || true) {
+    if (newWidth > 300 && newWidth < document.body.offsetWidth / 2) {
       setEtoR(newWidth);
     }
   };
 
   const handleHorizontal = (e) => {
     const newHeight = Math.abs(e.clientY - document.body.offsetHeight - document.body.offsetTop);
-    if (newHeight > 300 && newHeight < document.body.offsetHeight / 2 || true) {
+    if (newHeight > 200 && newHeight < document.body.offsetHeight / 2) {
       setEtoC(newHeight);
     }
   };
@@ -135,11 +137,11 @@ function App2() {
       <main className={classes.main} style={{ width: `calc(100% - ${EtoR}px)` }}>
         <Editor style={{ height: `calc(100vh - 48px - ${EtoC}px)` }} />
         <Dragger orientation="horizontal" onMouse={handleHorizontal} />
-        <Console style={{ height: `calc(${EtoC}px - 8px)`, marginLeft: "3px" }} />
+        <Console style={{ height: `calc(${EtoC}px - 8px)`, marginLeft: "3px" }} width={EtoR} />
       </main>
       <aside className={classes.sidebar} style={{ width: EtoR + "px" }}>
         <Dragger onMouse={handleVertical} />
-        <Register />
+        <Register style={{ minWidth: "15vw" }} width={EtoR} />
       </aside>
     </Context.Provider>
   );
