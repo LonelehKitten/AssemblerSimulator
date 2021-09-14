@@ -1,5 +1,6 @@
 import { makeStyles } from '@material-ui/core/styles';
-import UpperMenu from './upperMenu/upperMenu';
+import UpperMenu from './upperMenu';
+import LowerMenu from './lowerMenu';
 //import Grid from '@material-ui/core/Grid';
 
 // Esse não tem, mas ussa esse aqui: https://material-ui.com/pt/components/tables/
@@ -16,7 +17,8 @@ import UpperMenu from './upperMenu/upperMenu';
 const Register = (props) => {
     return (
         <> 
-            <UpperMenu width={props.width} ></UpperMenu>            
+            <UpperMenu width={props.width} ></UpperMenu>
+            <LowerMenu width={props.width}></LowerMenu>            
         </>
     );
 }

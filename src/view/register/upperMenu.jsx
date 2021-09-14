@@ -5,8 +5,8 @@ const UpperMenu = (props) => {
         root: {
             display: "flex",
             width: `${props.width}`,
-            height: "80px",
-            margin: "5px",
+            height: "7rem",
+            margin: "1rem",
             padding: "10px",
         },
         sector: {
