@@ -37,7 +37,7 @@ const Console = (props) => {
         <div id="console" {...props}>
             {history.map((item) => <div>{"> "+item}</div>)}
             <br />
-            <input onKeyDown={handleSubmit} placeholder="Digite um comando..." className={classes.textField} />
+            <input onKeyDown={handleSubmit} placeholder="Digite um comando . . ." className={classes.textField} />
         </div>
     )
 }

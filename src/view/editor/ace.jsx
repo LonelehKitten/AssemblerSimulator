@@ -48,7 +48,7 @@ const Ace = ({ onChange }) => {
             readOnly={currentFile === null}
             mode="assembly_x86"
             theme="dracula"
-            placeholder={currentFile === null ? "Crie um arquivo..." : "" }
+            placeholder={currentFile === null ? "Crie um arquivo . . ." : "" }
             onChange={handleChange}
             name="UNIQUE_ID_OF_DIV"
             value={currentFile?.code}

@@ -60,8 +60,6 @@ function App2() {
     return list || {};
   });
 
-  document.body.classList.add("no-sroll");
-
   const [currentID, setCurrentID] = useState("");
   const [currentFile, setCurrentFile] = useState(null);
   const [alertMessage, setAlertMessage] = useState(null);

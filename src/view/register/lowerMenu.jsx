@@ -14,15 +14,13 @@ function createData(Origin, OpCode, Value, Destiny ) {
 
 const rows = [
     createData(159, 6.0, 24, 4.0),
-    createData(237, 9.0, 37, 4.3),
-    createData(262, 16.0, 24, 6.0),
-    createData(305, 3.7, 67, 4.3),
-    createData(356, 16.0, 49, 3.9),
     createData(159, 6.0, 24, 4.0),
-    createData(237, 9.0, 37, 4.3),
-    createData(262, 16.0, 24, 6.0),
-    createData(305, 3.7, 67, 4.3),
-    createData(356, 16.0, 49, 3.9),
+    createData(159, 6.0, 24, 4.0),
+    createData(159, 6.0, 24, 4.0),
+    createData(159, 6.0, 24, 4.0),
+    createData(159, 6.0, 24, 4.0),
+    createData(159, 6.0, 24, 4.0),
+    createData(159, 6.0, 24, 4.0),    
 ];
 
 const LowerMenu = (props) => {
@@ -33,15 +31,14 @@ const LowerMenu = (props) => {
                 height: '0.4em',
             },
             '*::-webkit-scrollbar-track': {
-                '-webkit-box-shadow': 'inset 0 0 6px rgba(0,0,0,0.8)'
+                '-webkit-box-shadow': 'inset 0 0 6px rgba(0,0,0,0.02)'
             },
             '*::-webkit-scrollbar-thumb': {
                 backgroundColor: '#191b24',
-                outline: '3px solid '
+                outline: '1px solid '
             }
         },
         root: {
-            color: theme.palette.primary.contrastText,
             display: "flex",
             margin: "1rem",
             marginTop: "0",
@@ -63,7 +60,7 @@ const LowerMenu = (props) => {
 
     return (
         <section className={classes.root}>
-            <TableContainer component={Paper}>
+            <TableContainer component={Paper} style={{backgroundColor: "#282a36"}}>
                 <Table className={classes.table} aria-label="resgistry operation table">
                     <TableHead >
                         <TableRow>
