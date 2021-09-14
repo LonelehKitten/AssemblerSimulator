@@ -141,7 +141,7 @@ function App2() {
       </main>
       <aside className={classes.sidebar} style={{ width: EtoR + "px" }}>
         <Dragger onMouse={handleVertical} />
-        <Register style={{ minWidth: "15vw" }} width={EtoR} />
+        <Register style={{ minWidth: "15vw" }} width={EtoR} height={`calc(100vh)`}/>
       </aside>
     </Context.Provider>
   );

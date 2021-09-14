@@ -18,7 +18,7 @@ const Register = (props) => {
     return (
         <> 
             <UpperMenu width={props.width} ></UpperMenu>
-            <LowerMenu width={props.width}></LowerMenu>            
+            <LowerMenu width={props.width} height={props.height}></LowerMenu>            
         </>
     );
 }

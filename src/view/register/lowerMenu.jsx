@@ -18,15 +18,35 @@ const rows = [
     createData(262, 16.0, 24, 6.0),
     createData(305, 3.7, 67, 4.3),
     createData(356, 16.0, 49, 3.9),
+    createData(159, 6.0, 24, 4.0),
+    createData(237, 9.0, 37, 4.3),
+    createData(262, 16.0, 24, 6.0),
+    createData(305, 3.7, 67, 4.3),
+    createData(356, 16.0, 49, 3.9),
 ];
 
 const LowerMenu = (props) => {
     const useStyles = makeStyles((theme) => ({
+        '@global': {
+            '*::-webkit-scrollbar': {
+                width: '0.4em'
+            },
+            '*::-webkit-scrollbar-track': {
+                '-webkit-box-shadow': 'inset 0 0 6px rgba(0,0,0,0.07)'
+            },
+            '*::-webkit-scrollbar-thumb': {
+                backgroundColor: 'rgba(0,0,0,.1)',
+                outline: '122010000px solid slategrey'
+            }
+        },
         root: {
             color: theme.palette.primary.contrastText,
             display: "flex",
             margin: "1rem",
+            marginTop: "0",
             padding: "10px",
+            overflow: "auto",
+            height: `calc( ${props.height} - 16rem )`
         },
         table: {
             alignContent: "center",
@@ -34,13 +54,7 @@ const LowerMenu = (props) => {
             justifyContent: "center",
             color: "inherit",
             backgroundColor: theme.palette.primary.main,
-        },
-        override: {
-            MuiTable: {
-                body: {
-                    color: theme.palette.primary.contrastText,
-                },
-            },
+            overflow: "auto",
         },
     }));
 
@@ -50,21 +64,21 @@ const LowerMenu = (props) => {
         <section className={classes.root}>
             <TableContainer component={Paper}>
                 <Table className={classes.table} aria-label="resgistry operation table">
-                    <TableHead className={classes.textColor}>
+                    <TableHead >
                         <TableRow>
-                            <TableCell align="center">Origin</TableCell>
-                            <TableCell align="center">OpCode</TableCell>
-                            <TableCell align="center">Value</TableCell>
-                            <TableCell align="center">Destiny</TableCell>
+                            <TableCell align="center" style={{color: "#fff"}}>Origin</TableCell>
+                            <TableCell align="center" style={{color: "#fff"}}>OpCode</TableCell>
+                            <TableCell align="center" style={{color: "#fff"}}>Value</TableCell>
+                            <TableCell align="center" style={{color: "#fff"}}>Destiny</TableCell>
                         </TableRow>
                     </TableHead>
-                    <TableBody className={classes.textColor}>
+                    <TableBody >
                     {rows.map((row) => (
                         <TableRow key={row.name}>
-                        <TableCell align="center">{row.Origin}</TableCell>
-                        <TableCell align="center">{row.OpCode}</TableCell>
-                        <TableCell align="center">{row.Value}</TableCell>
-                        <TableCell align="center">{row.Destiny}</TableCell>
+                        <TableCell align="center" style={{color: "#fff"}}>{row.Origin}</TableCell>
+                        <TableCell align="center" style={{color: "#fff"}}>{row.OpCode}</TableCell>
+                        <TableCell align="center" style={{color: "#fff"}}>{row.Value}</TableCell>
+                        <TableCell align="center" style={{color: "#fff"}}>{row.Destiny}</TableCell>
                         </TableRow>
                     ))}
                     </TableBody>
