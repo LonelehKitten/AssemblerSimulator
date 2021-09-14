@@ -14,13 +14,15 @@ function createData(Origin, OpCode, Value, Destiny ) {
 
 const rows = [
     createData(159, 6.0, 24, 4.0),
-    createData(159, 6.0, 24, 4.0),
-    createData(159, 6.0, 24, 4.0),
-    createData(159, 6.0, 24, 4.0),
-    createData(159, 6.0, 24, 4.0),
-    createData(159, 6.0, 24, 4.0),
-    createData(159, 6.0, 24, 4.0),
-    createData(159, 6.0, 24, 4.0),    
+    createData(158, 6.0, 24, 4.0),
+    createData(157, 6.0, 24, 4.0),
+    createData(156, 6.0, 24, 4.0),
+    createData(155, 6.0, 24, 4.0),
+    createData(154, 6.0, 24, 4.0),
+    createData(153, 6.0, 24, 4.0),
+    createData(152, 6.0, 24, 4.0),    
+    createData(151, 6.0, 24, 4.0),    
+    createData(150, 6.0, 24, 4.0),    
 ];
 
 const LowerMenu = (props) => {
@@ -72,7 +74,7 @@ const LowerMenu = (props) => {
                     </TableHead>
                     <TableBody >
                     {rows.map((row) => (
-                        <TableRow key={row.name}>
+                        <TableRow key={row.Origin}>
                         <TableCell align="center" style={{color: "#fff"}}>{row.Origin}</TableCell>
                         <TableCell align="center" style={{color: "#fff"}}>{row.OpCode}</TableCell>
                         <TableCell align="center" style={{color: "#fff"}}>{row.Value}</TableCell>

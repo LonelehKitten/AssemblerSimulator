@@ -16,10 +16,10 @@ import LowerMenu from './lowerMenu';
 
 const Register = (props) => {
     return (
-        <> 
+        <div id="register"> 
             <UpperMenu width={props.width} ></UpperMenu>
             <LowerMenu width={props.width} height={props.height}></LowerMenu>            
-        </>
+        </div>
     );
 }
 

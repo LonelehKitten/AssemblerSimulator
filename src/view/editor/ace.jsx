@@ -52,7 +52,7 @@ const Ace = ({ onChange }) => {
             onChange={handleChange}
             name="UNIQUE_ID_OF_DIV"
             value={currentFile?.code}
-            style={{ width: "100%", height: "calc(100% - 2rem)" }}
+            style={{ width: "100%", height: "calc(100% - 2rem)", fontFamily: "Share Tech Mono", }}
             editorProps={{ $blockScrolling: true }}
             setOptions={{
                 showInvisibles: true,

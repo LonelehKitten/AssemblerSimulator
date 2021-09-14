@@ -12,6 +12,7 @@ import { useContext } from "../../utils/context";
 
 const useStyles = makeStyles((theme) => ({
     root: {
+        
         backgroundColor: '#222534 ',
         color: '#fff',
         minHeight: '2rem',
@@ -85,6 +86,7 @@ const Tabs = ({ value, onChange, listFiles }) => {
                 variant="scrollable"
                 scrollButtons="auto"
                 className={classes.root}
+                
             >
 
                 <Tab value="" onClick={handleClick} icon={<AddIcon />} className={classes.plus} />

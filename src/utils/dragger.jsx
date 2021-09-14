@@ -2,24 +2,25 @@ import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles(theme => ({
     dragger: {
-        padding: "4px 0 0",
+        padding: "0px 0 0",
         borderTop: "1px solid #363a52",
         position: "absolute",
         zIndex: 100,
-        backgroundColor: "#363a52"
     },
     horizontal:{
+        backgroundColor: "#e094ff",
         cursor: "n-resize",
         left: 0,
         right: 0,
-        height: "3px",
+        height: "1px",
     },
     vertical:{
+        backgroundColor: "#363a52",
         cursor: "ew-resize",
         top: 0,
         left: 0,
         bottom: 0,
-        width: "5px",
+        width: "0px",
     }
   }));
   

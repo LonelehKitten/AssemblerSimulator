@@ -6,18 +6,24 @@ const Console = (props) => {
 
     const useStyles = makeStyles((theme) => ({
         textField: {
-            margin: "5px",
-            width: `{ 100vw - ${props.width} }`,
+            fontFamily: "VT323",
+            marginBottom: "5px",
             backgroundColor:"transparent",
-            borderTop: `3px solid ${theme.palette.primary.main}`,
-            borderLeft: "0",
-            borderRight: "0",
-            borderBottom: "0",
+            border: `3px inset ${theme.palette.primary.main}`,
             padding: "10px",
             color:"#fff",
-            fontSize:20,
+            backgroundColor: "#282a36",
+            fontSize:24,
             outline:0,
+            borderRadius: "3px",
         },
+        inputedTexts: {
+            padding: "0.2em", 
+            backgroundColor: "#646b91", 
+            margin: "0.2em",
+            borderRadius: "20px",
+            width: "max-content"
+        }
     }));
 
     const [history, setHistory] = useState([]);
@@ -34,8 +40,11 @@ const Console = (props) => {
     }
  
     return (
-        <div id="console" {...props}>
-            {history.map((item) => <div>{"> "+item}</div>)}
+        <div id="console" {...props} >
+            {history.map((item) => <div className={classes.inputedTexts}>
+                {"> "+item}
+                </div>)
+            }
             <br />
             <input onKeyDown={handleSubmit} placeholder="Digite um comando . . ." className={classes.textField} />
         </div>

@@ -15,6 +15,7 @@ const UpperMenu = (props) => {
             height: "5rem",
             backgroundColor: theme.palette.primary.main,
             padding: "1rem",
+            borderRadius: "3px",
         },
         firstSector: {
             marginRight: "10px",
@@ -23,6 +24,7 @@ const UpperMenu = (props) => {
             height: "5rem",
             backgroundColor: theme.palette.primary.main,
             padding: "1rem",
+            borderRadius: "3px",
         }
     }));
     

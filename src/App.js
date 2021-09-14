@@ -36,7 +36,7 @@ const useStyles = makeStyles((theme) => ({
   sidebar: {
     position: 'relative',
     float: 'left',
-    backgroundColor: theme.palette.secondary.main,
+    backgroundColor: "#535563",
     height: 'calc(100vh - 48px)'
   }
 }));
