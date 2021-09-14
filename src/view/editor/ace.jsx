@@ -1,4 +1,5 @@
 import AceEditor from "react-ace";
+import { makeStyles } from '@material-ui/core/styles';
 import "ace-builds/src-noconflict/mode-assembly_x86";
 import "ace-builds/src-noconflict/theme-dracula";
 import "ace-builds/src-noconflict/ext-language_tools";
@@ -12,6 +13,22 @@ const {ipcRenderer} = window.electron;
 const Ace = ({ onChange }) => {
     const { currentFile, setCode } = useContext();
     const [teste,setTeste] = useState(true);
+
+    const useStyles = makeStyles((theme) => ({
+        '@global': {
+            '*::-webkit-scrollbar': {
+                width: '0.4em',
+                height: '0.4em',
+            },
+            '*::-webkit-scrollbar-track': {
+                '-webkit-box-shadow': 'inset 0 0 6px rgba(0,0,0,0.02)'
+            },
+            '*::-webkit-scrollbar-thumb': {
+                backgroundColor: '#191b24',
+                outline: '1px solid '
+            }
+        },
+    }));
 
     const handleChange = (value) => {
         setCode(value);
@@ -33,6 +50,8 @@ const Ace = ({ onChange }) => {
     useEffect(() => {
         console.log("cccaaa");
     },[teste])
+
+    const classes = useStyles();
 
     return (
         <AceEditor
