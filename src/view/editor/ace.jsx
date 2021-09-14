@@ -5,7 +5,10 @@ import "ace-builds/src-noconflict/ext-language_tools";
 
 import { useContext } from "../../utils/context";
 import { useEffect, useState } from "react";
+
+
 const {ipcRenderer} = window.electron;
+
 const Ace = ({ onChange }) => {
     const { currentFile, setCode } = useContext();
     const [teste,setTeste] = useState(true);
@@ -45,6 +48,7 @@ const Ace = ({ onChange }) => {
             readOnly={currentFile === null}
             mode="assembly_x86"
             theme="dracula"
+            placeholder={currentFile === null ? "Crie um arquivo..." : "" }
             onChange={handleChange}
             name="UNIQUE_ID_OF_DIV"
             value={currentFile?.code}
