@@ -47,19 +47,24 @@ app.on('activate', function () {
 })
 //BrowserWindow.getFocusedWindow()
 ipcMain.on('invoke_save_file', async (event, data) => {
-    console.log(data);
-    const result = await dialog.showSaveDialog(BrowserWindow.getFocusedWindow(), {
-        filters: [
-            { name: 'Assembly File', extensions: ['asm'] },
-            { name: 'All Files', extensions: ['*'] }
-        ]
-    });
-    fs.writeFile(data.path, data.code, function(err) {
+    let file = JSON.parse(data);
+    if(file.path == ""){
+        const result = await dialog.showSaveDialog(BrowserWindow.getFocusedWindow(), {
+            filters: [
+                { name: 'Assembly File', extensions: ['asm'] },
+                { name: 'All Files', extensions: ['*'] }
+            ]
+        });
+        if(result.canceled) return event.sender.send('save_file', false);
+        file.path = result.filePath;
+        console.log(file.path);
+    }
+    fs.writeFile(file.path, file.code, function(err) {
         if (err) {
             console.log(err);
             event.sender.send('save_file', false);
         } else {
-            event.sender.send('save_file', true);
+            event.sender.send('save_file', true, file.path);
             console.log("JSON saved");
         }
     })

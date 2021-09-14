@@ -7,59 +7,75 @@ import { useContext } from "../../utils/context";
 import { useEffect, useState } from "react";
 
 
-const {ipcRenderer} = window.electron;
+const { ipcRenderer } = window.electron;
 
 const Ace = ({ onChange }) => {
-    const { currentFile, setCode } = useContext();
-    const [teste,setTeste] = useState(true);
+    const { listFiles, currentID, currentFile, setCode, alertShow, setListFiles } = useContext();
+    const [teste, setTeste] = useState(true);
 
     const handleChange = (value) => {
+        currentFile.isSave = true;
         setCode(value);
     }
 
-    const handleSave = (editor) => {
-        setTeste(!teste);
-        console.log(currentFile);
-        ipcRenderer.send("invoke_save_file",JSON.stringify(currentFile));
-        ipcRenderer.once("save_file", (e,success) => {
-            if(success){
-                alertShow("success","Arquivo Salvo");
-            }else{
-                alertShow("danger","Erro ao salvar o arquivo");
+    const handleSave = (e) => {
+        if (e.keyCode == 83 && e.ctrlKey) {
+            if (currentFile.isSave) {
+                ipcRenderer.send("invoke_save_file", JSON.stringify(currentFile));
+                ipcRenderer.once("save_file", (e, success, path) => {
+                    if (success) {
+                        setCode(currentFile.code, true);
+                        if (currentFile.path == "") {
+                            currentFile.path = path;
+                            currentFile.name = path.split("\\").slice(-1)[0];
+                            setListFiles({ ...listFiles, ...{ [currentID]: currentFile } });
+                        }
+                        alertShow("success", "Arquivo Salvo");
+                    } else {
+                        alertShow("danger", "Erro ao salvar o arquivo");
+                    }
+                });
             }
-        });
+        }
     }
 
-    useEffect(() => {
-        console.log("cccaaa");
-    },[teste])
+    const stopKey = (event) => {
+        /*if (event.keyCode == 83 && event.ctrlKey) {
+            event.preventDefault();
+            event.stopPropagation();
+            return false;
+        }*/
+    }
 
     return (
-        <AceEditor
-            commands={[{
-                name: 'save',
-                bindKey: {win: "Ctrl-S", "mac": "Cmd-S"},
-                exec: (e) => {
-                    console.log("aaa");
-                    handleSave(e);
-                }
+        <div onKeyUp={handleSave} style={{ width: "100%", height: "100%" }}>{/** Gambiarra */}
 
-            }]} 
-            readOnly={currentFile === null}
-            mode="assembly_x86"
-            theme="dracula"
-            placeholder={currentFile === null ? "Crie um arquivo . . ." : "" }
-            onChange={handleChange}
-            name="UNIQUE_ID_OF_DIV"
-            value={currentFile?.code}
-            style={{ width: "100%", height: "calc(100% - 2rem)", fontFamily: "Share Tech Mono", }}
-            editorProps={{ $blockScrolling: true }}
-            setOptions={{
-                showInvisibles: true,
-                fontSize: 20,
-                enableLiveAutocompletion: true
-            }}
-        />);
+            <AceEditor
+                commands={[{
+                    name: 'save',
+                    bindKey: { win: "Ctrl-S", "mac": "Cmd-S" },
+                    exec: (e) => {
+                        //  handleSave(e);
+                    }
+
+                }]}
+                readOnly={currentFile === null}
+                mode="assembly_x86"
+                theme="dracula"
+                placeholder={currentFile === null ? "Crie um arquivo . . ." : ""}
+                onChange={handleChange}
+                name="UNIQUE_ID_OF_DIV"
+                value={currentFile?.code || ""}
+                style={{ width: "100%", height: "calc(100% - 2rem)", fontFamily: "Share Tech Mono", }}
+                editorProps={{ $blockScrolling: true }}
+                setOptions={{
+                    showInvisibles: true,
+                    fontSize: 20,
+                    enableLiveAutocompletion: true
+                }}
+            />
+        </div>
+    );
 }
 
 export default Ace;

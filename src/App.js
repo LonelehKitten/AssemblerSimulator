@@ -84,6 +84,9 @@ function App2() {
     if (listFiles[id] !== undefined) {
       setCurrentFile(listFiles[id]);
       setCurrentID(id);
+    }else if(id == null){
+      setCurrentFile(null);
+      setCurrentID("");
     }
   }
 
@@ -104,19 +107,22 @@ function App2() {
     const id = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5);
     const newValue = {
       ...listFiles,
-      [id]: { name, path, code }
+      [id]: { name, path, code, originCode: code }
     }
     setCurrentID(id);
     setCurrentFile(newValue[id]);
     setListFiles(newValue);
   }
 
-  const setCode = (value) => {
+  const setCode = (value, isOrigin = false) => {
     if (currentFile !== null) {
       setCurrentFile((file) => {
         file.code = value;
+        if(isOrigin) file.originCode = value;
+        file.isSave = file.code != file.originCode;
         return file;
       });
+      setListFiles({...listFiles,...{[currentID]:currentFile}});
     }
   }
 
@@ -129,7 +135,7 @@ function App2() {
   }, [listFiles]);
 
   return (
-    <Context.Provider value={{ currentFile, listFiles, currentID, addFile, setCode, changeFile, alertShow }}>
+    <Context.Provider value={{ currentFile, listFiles, currentID, setListFiles, addFile, setCode, changeFile, alertShow }}>
       <Alert onClose={setAlertMessage} message={alertMessage} />
       <Header />
       <main className={classes.main} style={{ width: `calc(100% - ${EtoR}px)` }}>
