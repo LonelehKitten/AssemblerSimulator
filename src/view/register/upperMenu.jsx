@@ -14,7 +14,7 @@ const UpperMenu = (props) => {
             width: "calc(50vw - 10px)",
             height: "5rem",
             backgroundColor: theme.palette.primary.main,
-            padding: "1rem"
+            padding: "1rem",
         },
         firstSector: {
             marginRight: "10px",
@@ -22,7 +22,7 @@ const UpperMenu = (props) => {
             width: "50vw",
             height: "5rem",
             backgroundColor: theme.palette.primary.main,
-            padding: "1rem"
+            padding: "1rem",
         }
     }));
     

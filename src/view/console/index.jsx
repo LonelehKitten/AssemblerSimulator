@@ -16,7 +16,7 @@ const Console = (props) => {
             padding: "10px",
             color:"#fff",
             fontSize:20,
-            outline:0
+            outline:0,
         },
     }));
 
