@@ -32,7 +32,7 @@ const Console = (props) => {
             e.target.value = "";
         }
     }
-
+ 
     return (
         <div id="console" {...props}>
             {history.map((item) => <div>{"> "+item}</div>)}

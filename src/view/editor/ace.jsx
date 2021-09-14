@@ -44,7 +44,7 @@ const Ace = ({ onChange }) => {
                     handleSave(e);
                 }
 
-            }]}
+            }]} 
             readOnly={currentFile === null}
             mode="assembly_x86"
             theme="dracula"
