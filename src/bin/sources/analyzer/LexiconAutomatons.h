@@ -1,5 +1,5 @@
-#ifndef AUTOMATONS_H
-#define AUTOMATONS_H
+#ifndef LEXICONAUTOMATONS_H
+#define LEXICONAUTOMATONS_H
 
 #include <string>
 #include <functional>
@@ -9,7 +9,7 @@
 
 class LexiconScanner;
 
-namespace Automatons {
+namespace LexiconAutomatons {
 
         /*
             Classe que representa a transição de um estado para outro mediante a satisfação
@@ -80,11 +80,10 @@ namespace Automatons {
                 bool caseSensitive;
                 TransitionEnd::DefaultAction * defaultAction, * nonDefaultAction;
             public:
-                TransitionEnd(TokenTypes * conditions, int conditionLength, bool caseSensitive,
+                TransitionEnd(TokenTypes * conditions, int conditionLength, bool caseSensitive, bool deterministic,
                               TransitionEnd::DefaultAction * defaultAction);
-                TransitionEnd(TokenTypes * conditions, int conditionLength, bool caseSensitive,
-                              TokenTypes tokenType=TokenTypes::tNULL_TYPE,
-                              bool deterministic=false, TransitionEnd::DefaultAction * defaultAction=nullptr);
+                TransitionEnd(TokenTypes * conditions, int conditionLength, bool caseSensitive, bool deterministic=false,
+                              TokenTypes tokenType=TokenTypes::tNULL_TYPE, TransitionEnd::DefaultAction * defaultAction=nullptr);
                 TokenTypes * getConditions();
                 int getConditionLength();
                 TransitionEnd::DefaultAction * getDefaultAction();
@@ -96,6 +95,9 @@ namespace Automatons {
         bool qBegin_labelPattern(LexiconScanner * scanner);
         bool q1_labelPattern(LexiconScanner * scanner);
         bool qEnd_labelPattern(LexiconScanner * scanner);
+
+        bool qBegin_symbolPattern(LexiconScanner * scanner);
+        bool qEnd_symbolPattern(LexiconScanner * scanner);
         //bool q1_Operator(LexiconScanner * scanner);
         //bool q2_Operator(LexiconScanner * scanner);
         //bool qEnd_Operator(LexiconScanner * scanner);
@@ -103,4 +105,4 @@ namespace Automatons {
 };
 
 
-#endif /* AUTOMATONS_H */
+#endif /* LEXICONAUTOMATONS_H */

@@ -1,6 +1,11 @@
 #ifndef DICTIONARIES_H
 #define DICTIONARIES_H
 
+enum class AutomatonPattern {
+    pLABEL = 0,
+    pSYMBOL
+};
+
 enum class TokenTypes {
     tNULL_TYPE = -1,
     tBLOCKDEF,
@@ -27,7 +32,8 @@ enum class TokenTypes {
     tSEPARATOR,
     tUNDEFINED,
     tSTACK,
-    tORG
+    tORG,
+    tIDENTIFIER
 };
 
 enum class TokenNames {
