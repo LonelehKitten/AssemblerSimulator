@@ -1,61 +1,76 @@
-#include "Automatons.h"
+#include "LexiconAutomatons.h"
 #include "LexiconScanner.h"
 
-#define qEndLPCONDITIONS 3
+#define qEndLPCONDITIONS 15
+#define qEndSPCONDITIONS 11
 
 
 
-
-
-bool Automatons::qBegin_labelPattern(LexiconScanner * scanner) {
-    Automatons::Transition * transitions = new Automatons::Transition(scanner->isAlpha() || scanner->is('_'),
-                                                                      Automatons::q1_labelPattern);
+// <labelPattern>
+bool LexiconAutomatons::qBegin_labelPattern(LexiconScanner * scanner) {
+    LexiconAutomatons::Transition * transitions = new LexiconAutomatons::Transition(scanner->isAlpha() || scanner->is('_'),
+                                                                      LexiconAutomatons::q1_labelPattern);
     return scanner->q(&transitions, 1);
 }
 
 
-bool Automatons::q1_labelPattern(LexiconScanner * scanner) {
-    Automatons::Transition * transitions = new Automatons::Transition(scanner->isAlphaNumeric() || scanner->is('_'),
-                                                                      Automatons::q1_labelPattern);
-    return scanner->q(&transitions, 1, new Automatons::Transition(Automatons::qEnd_labelPattern));
+bool LexiconAutomatons::q1_labelPattern(LexiconScanner * scanner) {
+    LexiconAutomatons::Transition * transitions = new LexiconAutomatons::Transition(scanner->isAlphaNumeric() || scanner->is('_'),
+                                                                      LexiconAutomatons::q1_labelPattern);
+    return scanner->q(&transitions, 1, new LexiconAutomatons::Transition(LexiconAutomatons::qEnd_labelPattern));
 }
 
 
-bool Automatons::qEnd_labelPattern(LexiconScanner * scanner) {
+bool LexiconAutomatons::qEnd_labelPattern(LexiconScanner * scanner) {
     TokenTypes * conditions = (TokenTypes *) malloc(sizeof(TokenTypes)*qEndLPCONDITIONS);
     conditions[0] = TokenTypes::tBLOCKDEF;
     conditions[1] = TokenTypes::tBLOCKEND;
     conditions[2] = TokenTypes::tEND;
-    return scanner->qEnd(new Automatons::TransitionEnd(conditions, qEndLPCONDITIONS, false, TokenTypes::tNULL_TYPE));
+    conditions[3] = TokenTypes::tOPERATION;
+    conditions[4] = TokenTypes::tREGISTER;
+    conditions[5] = TokenTypes::tASSUME;
+    conditions[6] = TokenTypes::tVARDEF;
+    conditions[7] = TokenTypes::tCONSTDEF;
+    conditions[8] = TokenTypes::tExpARITHMETICb;
+    conditions[9] = TokenTypes::tExpLOGICALb;
+    conditions[10] = TokenTypes::tExpLOGICALu;
+    conditions[11] = TokenTypes::tExpRELATIONALb;
+    conditions[12] = TokenTypes::tORG;
+    conditions[13] = TokenTypes::tOFFSET;
+    conditions[14] = TokenTypes::tSTACK;
+    return scanner->qEnd(new LexiconAutomatons::TransitionEnd(conditions, qEndLPCONDITIONS, false, true,
+        new LexiconAutomatons::TransitionEnd::DefaultAction(TokenTypes::tIDENTIFIER, false)
+    ));
 }
+// </labelPattern>
 
 
-
-/*
-bool Automatons::qBegin_Operator(LexiconScanner * scanner) {
-    Automatons::Transition * transitions = new Automatons::Transition(scanner->isAlpha(), Automatons::q1_Operator);
+// <symbolPattern>
+bool LexiconAutomatons::qBegin_symbolPattern(LexiconScanner * scanner) {
+    LexiconAutomatons::Transition * transitions = new LexiconAutomatons::Transition(scanner->isSpecial(), LexiconAutomatons::qEnd_symbolPattern);
     return scanner->q(&transitions, 1);
 }
 
-bool Automatons::q1_Operator(LexiconScanner * scanner) {
-    Automatons::Transition * transitions = new Automatons::Transition(scanner->isAlpha(), Automatons::q2_Operator);
-    return scanner->q(&transitions, 1);
+
+bool LexiconAutomatons::qEnd_symbolPattern(LexiconScanner * scanner) {
+    TokenTypes * conditions = (TokenTypes *) malloc(sizeof(TokenTypes)*qEndSPCONDITIONS);
+    conditions[0] = TokenTypes::tExpARITHMETICb;
+    conditions[1] = TokenTypes::tExpARITHMETICu;
+    conditions[3] = TokenTypes::tExpPRECEDENCE_OP;
+    conditions[4] = TokenTypes::tExpPRECEDENCE_ED;
+    conditions[5] = TokenTypes::tINDEX_OP;
+    conditions[6] = TokenTypes::tINDEX_ED;
+    conditions[7] = TokenTypes::tPC;
+    conditions[8] = TokenTypes::tSEPARATOR;
+    conditions[9] = TokenTypes::tCOLON;
+    conditions[10] = TokenTypes::tUNDEFINED;
+    return scanner->qEnd(new LexiconAutomatons::TransitionEnd(conditions, qEndSPCONDITIONS, false));
 }
-
-bool Automatons::q2_Operator(LexiconScanner * scanner) {
-    Automatons::Transition * transitions = new Automatons::Transition(scanner->isAlpha(), Automatons::qEnd_Operator);
-    return scanner->q(&transitions, 1);
-}
-
-bool Automatons::qEnd_Operator(LexiconScanner * scanner) {
-    TokenTypes conditions = TokenTypes::tOPERATOR;
-    return scanner->qEnd(new Automatons::TransitionEnd(&conditions, 1, TokenTypes::tNULL_TYPE));
-}
-*/
+// </symbolPattern>
 
 
 
-Automatons::Transition::Transition(std::function<bool(LexiconScanner *)> state) {
+LexiconAutomatons::Transition::Transition(std::function<bool(LexiconScanner *)> state) {
     this->condition = true;
     this->state = state;
     this->push = nullptr;
@@ -63,7 +78,7 @@ Automatons::Transition::Transition(std::function<bool(LexiconScanner *)> state) 
     this->stackBeEmpty = false;
 }
 
-Automatons::Transition::Transition(bool condition, std::function<bool(LexiconScanner *)> state, bool stackBeEmpty) {
+LexiconAutomatons::Transition::Transition(bool condition, std::function<bool(LexiconScanner *)> state, bool stackBeEmpty) {
     this->condition = condition;
     this->state = state;
     this->push = nullptr;
@@ -71,7 +86,7 @@ Automatons::Transition::Transition(bool condition, std::function<bool(LexiconSca
     this->stackBeEmpty = stackBeEmpty;
 }
 
-Automatons::Transition::Transition(bool condition, std::function<bool(LexiconScanner *)> state,
+LexiconAutomatons::Transition::Transition(bool condition, std::function<bool(LexiconScanner *)> state,
     std::string * push, std::string * pop) {
     this->condition = condition;
     this->state = state;
@@ -82,57 +97,57 @@ Automatons::Transition::Transition(bool condition, std::function<bool(LexiconSca
 
 
 
-Automatons::TransitionEnd::TransitionEnd(TokenTypes * conditions, int conditionLength,  bool caseSensitive,
-                                         Automatons::TransitionEnd::DefaultAction * defaultAction) :
+LexiconAutomatons::TransitionEnd::TransitionEnd(TokenTypes * conditions, int conditionLength,  bool caseSensitive,
+    bool deterministic, LexiconAutomatons::TransitionEnd::DefaultAction * defaultAction) :
     conditions(conditions), conditionLength(conditionLength),
     caseSensitive(caseSensitive),
     defaultAction(defaultAction),
-    nonDefaultAction(new Automatons::TransitionEnd::DefaultAction(TokenTypes::tNULL_TYPE, true))
+    nonDefaultAction(new LexiconAutomatons::TransitionEnd::DefaultAction(TokenTypes::tNULL_TYPE, deterministic))
 {}
 
-Automatons::TransitionEnd::TransitionEnd(TokenTypes * conditions, int conditionLength, bool caseSensitive,
-TokenTypes tokenType, bool deterministic, TransitionEnd::DefaultAction * defaultAction) :
+LexiconAutomatons::TransitionEnd::TransitionEnd(TokenTypes * conditions, int conditionLength, bool caseSensitive,
+bool deterministic, TokenTypes tokenType, TransitionEnd::DefaultAction * defaultAction) :
     conditions(conditions),
     conditionLength(conditionLength),
     caseSensitive(caseSensitive),
     defaultAction(defaultAction),
-    nonDefaultAction(new Automatons::TransitionEnd::DefaultAction(tokenType, deterministic))
+    nonDefaultAction(new LexiconAutomatons::TransitionEnd::DefaultAction(tokenType, deterministic))
 {}
 
-TokenTypes * Automatons::TransitionEnd::getConditions() {
+TokenTypes * LexiconAutomatons::TransitionEnd::getConditions() {
     return this->conditions;
 }
 
-int Automatons::TransitionEnd::getConditionLength() {
+int LexiconAutomatons::TransitionEnd::getConditionLength() {
     return this->conditionLength;
 }
 
-Automatons::TransitionEnd::DefaultAction * Automatons::TransitionEnd::getDefaultAction() {
+LexiconAutomatons::TransitionEnd::DefaultAction * LexiconAutomatons::TransitionEnd::getDefaultAction() {
     return this->defaultAction;
 }
 
-bool Automatons::TransitionEnd::isDeterministic() {
+bool LexiconAutomatons::TransitionEnd::isDeterministic() {
     return this->nonDefaultAction->isDeterministic();
 }
 
-bool Automatons::TransitionEnd::isCaseSensitive() {
+bool LexiconAutomatons::TransitionEnd::isCaseSensitive() {
     return this->caseSensitive;
 }
 
-TokenTypes Automatons::TransitionEnd::getTokenType() {
+TokenTypes LexiconAutomatons::TransitionEnd::getTokenType() {
     return this->nonDefaultAction->getTokenType();
 }
 
-Automatons::TransitionEnd::DefaultAction::DefaultAction(TokenTypes tokenType, bool deterministic) {
+LexiconAutomatons::TransitionEnd::DefaultAction::DefaultAction(TokenTypes tokenType, bool deterministic) {
     this->tokenType = tokenType;
     this->deterministic = deterministic;
 }
 
-TokenTypes Automatons::TransitionEnd::DefaultAction::getTokenType() {
+TokenTypes LexiconAutomatons::TransitionEnd::DefaultAction::getTokenType() {
     return this->tokenType;
 }
 
-bool Automatons::TransitionEnd::DefaultAction::isDeterministic() {
+bool LexiconAutomatons::TransitionEnd::DefaultAction::isDeterministic() {
     return this->deterministic;
 }
 
@@ -140,31 +155,31 @@ bool Automatons::TransitionEnd::DefaultAction::isDeterministic() {
 /*
     Condição da transição, só muda de estado quando satisfeita
 */
-bool Automatons::Transition::getCondition() {
+bool LexiconAutomatons::Transition::getCondition() {
     return this->condition;
 }
 /*
     Estado para qual leva a transição caso a condição seja satifeita
 */
-std::function<bool(LexiconScanner *)> Automatons::Transition::getState() {
+std::function<bool(LexiconScanner *)> LexiconAutomatons::Transition::getState() {
     return this->state;
 }
 /*
     Informa que deve além da condição ser satisfeita, a pilha deve desempilhar um conteúdo específico
 */
-std::string * Automatons::Transition::whatPop() {
+std::string * LexiconAutomatons::Transition::whatPop() {
     return this->pop;
 }
 /*
     Informa que caso a condição seja satisfeita, a pilha deve empilhar um conteúdo específico
 */
-std::string * Automatons::Transition::whatPush() {
+std::string * LexiconAutomatons::Transition::whatPush() {
     return this->push;
 }
 /*
     Informa que além da condição ser satisfeita, a pilha deve estar vazia
 */
-bool Automatons::Transition::shouldStackBeEmpty() {
+bool LexiconAutomatons::Transition::shouldStackBeEmpty() {
     return this->stackBeEmpty;
 }
 

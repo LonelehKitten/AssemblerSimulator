@@ -15,12 +15,24 @@ LexiconScanner::LexiconScanner() {
     initTokenSet();
 
     // Aqui vai o dicionário de estados iniciais pelo tokenType, e.g (type: state)
-    this->initialStates[TokenTypes::tBLOCKDEF] = Automatons::qBegin_labelPattern;
-    this->initialStates[TokenTypes::tBLOCKEND] = Automatons::qBegin_labelPattern;
-    this->initialStates[TokenTypes::tEND] = Automatons::qBegin_labelPattern;
+    this->initialStates[AutomatonPattern::pLABEL] = LexiconAutomatons::qBegin_labelPattern;
+    this->initialStates[AutomatonPattern::pSYMBOL] = LexiconAutomatons::qBegin_symbolPattern;
+
     // ...
 
     LexiconScanner::createDictionary(this->tokenSet, this->tokens);
+}
+
+const std::unordered_map<std::string, TokenTypes>& LexiconScanner::getTokens() {
+    return tokens;
+}
+
+const std::unordered_map<AutomatonPattern, std::function<bool(LexiconScanner *)> >& LexiconScanner::getInitialStates() {
+    return initialStates;
+}
+
+const std::unordered_map<TokenNames, LexiconScanner::TokenSetUnit *>& LexiconScanner::getTokenSet() {
+    return tokenSet;
 }
 
 void LexiconScanner::initTokenSet() {
@@ -147,9 +159,9 @@ void LexiconScanner::undo() {
     this->lastTokenEndPosition = this->lastTokenBeginPosition;
 }
 
-LexiconScannerStatus * LexiconScanner::nextToken(TokenTypes tokenType) {
+LexiconScannerStatus * LexiconScanner::nextToken(AutomatonPattern automatonPattern) {
 
-    start(tokenType);
+    start(automatonPattern);
 
     while(true) {
 
@@ -179,11 +191,11 @@ void LexiconScanner::log() {
     std::cout << column << std::endl;
 }
 
-void LexiconScanner::start(TokenTypes tokenType) {
+void LexiconScanner::start(AutomatonPattern automatonPattern) {
     this->token = "";
     snap();
     this->lastTokenBeginPosition = this->lineIndex;
-    this->state = this->initialStates[tokenType];
+    this->state = this->initialStates.find(automatonPattern)->second;
 }
 
 void LexiconScanner::snap() {
@@ -219,8 +231,16 @@ void LexiconScanner::setSuccessMessage(TokenTypes tokenType) {
         std::unordered_map<std::string, TokenTypes>::const_iterator pair = this->tokens.find(this->token);
         tokenType = pair->second;
     }
-    this->tokenData = new SuccessStatus(this->token, tokenType, this->endOfLine);
+    TokenNames tokenName = TokenNames::nNULL_TYPE;
+    for(std::pair<TokenNames, LexiconScanner::TokenSetUnit *> p : tokenSet) {
+        if(p.second->getToken() == this->token) {
+            tokenName = p.first;
+            break;
+        }
+    }
+    this->tokenData = new SuccessStatus(this->token, tokenType, tokenName, this->endOfLine);
 }
+
 
 
 /*
@@ -252,7 +272,7 @@ q = (predicates, defaultPredicate=null) => {
 */
 
 
-bool LexiconScanner::q(Automatons::Transition ** transitions, int transitionsLength, Automatons::Transition * defaultAction) {
+bool LexiconScanner::q(LexiconAutomatons::Transition ** transitions, int transitionsLength, LexiconAutomatons::Transition * defaultAction) {
 
     if(transitions != nullptr) {
                 
@@ -320,7 +340,7 @@ bool LexiconScanner::q(Automatons::Transition ** transitions, int transitionsLen
 
 */
 
-bool LexiconScanner::qEnd(Automatons::TransitionEnd * transitionEnd) {
+bool LexiconScanner::qEnd(LexiconAutomatons::TransitionEnd * transitionEnd) {
     checkEndOfLine(transitionEnd->isDeterministic());
 
     if(!transitionEnd->isCaseSensitive()) {
@@ -364,9 +384,9 @@ bool LexiconScanner::isStackValue(std::string value) {
     return this->stack->top() == value;
 }
 
-//bool isUnknownToken = () => {
-//    this.tokens[this.token] === undefined
-//}
+bool LexiconScanner::isUnknownToken() {
+    return this->tokens.find(this->token) == this->tokens.end();
+}
 
 bool LexiconScanner::is(char character) {
     return this->currentChar == character;
