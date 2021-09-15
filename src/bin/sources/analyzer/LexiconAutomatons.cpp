@@ -2,7 +2,7 @@
 #include "LexiconScanner.h"
 
 #define qEndLPCONDITIONS 15
-#define qEndSPCONDITIONS 11
+#define qEndSPCONDITIONS 10
 
 
 
@@ -38,7 +38,7 @@ bool LexiconAutomatons::qEnd_labelPattern(LexiconScanner * scanner) {
     conditions[12] = TokenTypes::tORG;
     conditions[13] = TokenTypes::tOFFSET;
     conditions[14] = TokenTypes::tSTACK;
-    return scanner->qEnd(new LexiconAutomatons::TransitionEnd(conditions, qEndLPCONDITIONS, false, true,
+    return scanner->qEnd(new LexiconAutomatons::TransitionEnd(conditions, qEndLPCONDITIONS, false, false,
         new LexiconAutomatons::TransitionEnd::DefaultAction(TokenTypes::tIDENTIFIER, false)
     ));
 }
@@ -56,14 +56,14 @@ bool LexiconAutomatons::qEnd_symbolPattern(LexiconScanner * scanner) {
     TokenTypes * conditions = (TokenTypes *) malloc(sizeof(TokenTypes)*qEndSPCONDITIONS);
     conditions[0] = TokenTypes::tExpARITHMETICb;
     conditions[1] = TokenTypes::tExpARITHMETICu;
-    conditions[3] = TokenTypes::tExpPRECEDENCE_OP;
-    conditions[4] = TokenTypes::tExpPRECEDENCE_ED;
-    conditions[5] = TokenTypes::tINDEX_OP;
-    conditions[6] = TokenTypes::tINDEX_ED;
-    conditions[7] = TokenTypes::tPC;
-    conditions[8] = TokenTypes::tSEPARATOR;
-    conditions[9] = TokenTypes::tCOLON;
-    conditions[10] = TokenTypes::tUNDEFINED;
+    conditions[2] = TokenTypes::tExpPRECEDENCE_OP;
+    conditions[3] = TokenTypes::tExpPRECEDENCE_ED;
+    conditions[4] = TokenTypes::tINDEX_OP;
+    conditions[5] = TokenTypes::tINDEX_ED;
+    conditions[6] = TokenTypes::tPC;
+    conditions[7] = TokenTypes::tSEPARATOR;
+    conditions[8] = TokenTypes::tCOLON;
+    conditions[9] = TokenTypes::tUNDEFINED;
     return scanner->qEnd(new LexiconAutomatons::TransitionEnd(conditions, qEndSPCONDITIONS, false));
 }
 // </symbolPattern>

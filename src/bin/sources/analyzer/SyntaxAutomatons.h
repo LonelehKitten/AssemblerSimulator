@@ -4,6 +4,7 @@
 #include <functional>
 #include <string>
 #include <iostream>
+#include <vector>
 
 #include "Dictionaries.h"
 
@@ -50,8 +51,10 @@ namespace SyntaxAutomatons {
 
     bool qBegin(SyntaxAnalyzer * analyzer);
     bool q1(SyntaxAnalyzer * analyzer);
-    bool qEnd(SyntaxAnalyzer * analyzer);
+    bool q1_1(SyntaxAnalyzer * analyzer);
+    bool q1_1_1(SyntaxAnalyzer * analyzer);
 
+    bool qEnd(SyntaxAnalyzer * analyzer);
 };
 
 #endif // SYNTAXAUTOMATONS_H

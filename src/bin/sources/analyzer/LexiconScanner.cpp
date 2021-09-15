@@ -215,7 +215,7 @@ void LexiconScanner::nextChar() {
 }
 
 void LexiconScanner::checkEndOfLine(bool deterministic) {
-    if(deterministic) this->endOfLine = (this->line[this->lineIndex-1] == '\n');
+    if(!deterministic) this->endOfLine = (this->line[this->lineIndex-1] == '\n');
     else this->endOfLine = (this->line[this->lineIndex] == '\n');
 }
 

@@ -82,7 +82,7 @@ namespace LexiconAutomatons {
             public:
                 TransitionEnd(TokenTypes * conditions, int conditionLength, bool caseSensitive, bool deterministic,
                               TransitionEnd::DefaultAction * defaultAction);
-                TransitionEnd(TokenTypes * conditions, int conditionLength, bool caseSensitive, bool deterministic=false,
+                TransitionEnd(TokenTypes * conditions, int conditionLength, bool caseSensitive, bool deterministic=true,
                               TokenTypes tokenType=TokenTypes::tNULL_TYPE, TransitionEnd::DefaultAction * defaultAction=nullptr);
                 TokenTypes * getConditions();
                 int getConditionLength();

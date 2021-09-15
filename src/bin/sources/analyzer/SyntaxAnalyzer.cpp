@@ -35,17 +35,74 @@ void SyntaxAnalyzer::trim() {
     line += '\n';
 }
 
+void SyntaxAnalyzer::setAux1(const std::string aux1)
+{
+    this->aux1 = aux1;
+}
+
+void SyntaxAnalyzer::setAux2(const std::string aux2)
+{
+    this->aux2 = aux2;
+}
+
+void SyntaxAnalyzer::setAux3(const std::string aux3)
+{
+    this->aux3 = aux3;
+}
+
+void SyntaxAnalyzer::setVAux(std::vector<std::string> * vaux)
+{
+    this->vaux = vaux;
+}
+
+void SyntaxAnalyzer::setMacroScope(bool macroScope)
+{
+    this->macroScope = macroScope;
+}
+
+const std::string SyntaxAnalyzer::getAux1() const
+{
+    return aux1;
+}
+
+const std::string SyntaxAnalyzer::getAux2() const
+{
+    return aux2;
+}
+
+const std::string SyntaxAnalyzer::getAux3() const
+{
+    return aux3;
+}
+
+std::vector<std::string> * SyntaxAnalyzer::getVAux() const
+{
+    return vaux;
+}
+
+bool SyntaxAnalyzer::isMacroScope() const
+{
+    return macroScope;
+}
+
 bool SyntaxAnalyzer::check() {
 
     trim();
     bool valid = false;
     for(int i = 0; i < (int) line.length(); i++) {
         if(line[i] == ';') {
-            line = line.substr(0, i-1);
-            break;
+            line = line.substr(0, i);
+            line += '\n';
         }
         if(line[i] != ' ' && line[i] != '\n') {
             valid = true;
+        }
+        if(valid && line[i] == '\n') {
+            int j;
+            for(j = i-1; line[j] == ' '; j--);
+            line = line.substr(0, j+1);
+            line += '\n';
+            break;
         }
     }
 
@@ -66,6 +123,11 @@ void SyntaxAnalyzer::setError(bool error) {
 
 LexiconScannerStatus * SyntaxAnalyzer::getStatus() const {
     return status;
+}
+
+void SyntaxAnalyzer::setState(const std::function<bool(SyntaxAnalyzer *)> state)
+{
+    this->state = state;
 }
 
 void SyntaxAnalyzer::log(std::string msg){
@@ -97,6 +159,8 @@ bool SyntaxAnalyzer::q(SyntaxAutomatons::Transition * transition) {
             if(transition->getCallback() != nullptr) transition->getCallback()(this);
             if(transition->getState() != nullptr) this->state = transition->getState();
             row.emplace_back(((SuccessStatus *) this->status)->getTokenObject());
+
+            //transition->reset();
 
             return false;
 

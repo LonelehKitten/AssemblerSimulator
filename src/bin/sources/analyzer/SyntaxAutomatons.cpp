@@ -102,18 +102,35 @@ namespace SyntaxAutomatons {
         Transition * transition = new Transition(AutomatonPattern::pLABEL);
         transition->setState(q1);
         transition->setId(true);
-        return analyzer->q(transition);
+        bool r = analyzer->q(transition);
+        if(!r) {
+            analyzer->setAux1(((SuccessStatus *)analyzer->getStatus())->getToken());
+        }
+        return r;
     }
 
     bool q1(SyntaxAnalyzer * analyzer) {
         Transition * transition = new Transition(AutomatonPattern::pLABEL, TokenTypes::tBLOCKDEF);
         transition->setState(qEnd);
         bool r = analyzer->q(transition);
-        if(r) return true;
 
-        if( ((SuccessStatus *)analyzer->getStatus())->getTokenName() == TokenNames::nDirSEGMENT ) {
+        if(!r && ((SuccessStatus *)analyzer->getStatus())->getTokenName() == TokenNames::nDirSEGMENT ) {
             return false;
         }
+        if( !r && ((SuccessStatus *)analyzer->getStatus())->getTokenName() == TokenNames::nDirMACRO ) {
+            analyzer->setState(q1_1);
+            analyzer->setMacroScope(true);
+            analyzer->setVAux(new std::vector<std::string>());
+            return false;
+        }
+        transition->setTokenType(TokenTypes::tBLOCKEND);
+        transition->setLoad(false);
+        r = analyzer->q(transition);
+        if( !r && ((SuccessStatus *)analyzer->getStatus())->getTokenName() == TokenNames::nDirENDS ) {
+            return false;
+        }
+
+        std::cout << "Erro q1 2" << std::endl;
 
         analyzer->setError(true);
         return false;
@@ -128,6 +145,27 @@ namespace SyntaxAutomatons {
         else std::cout << "SUCESSO" << std::endl;
         return true;
     }
+
+    bool q1_1(SyntaxAnalyzer * analyzer) {
+        Transition * transition = new Transition(AutomatonPattern::pLABEL);
+        transition->setState(q1_1_1);
+        transition->setId(true);
+        bool r = analyzer->q(transition);
+        if(!r) {
+            analyzer->getVAux()->emplace_back(((SuccessStatus *)analyzer->getStatus())->getToken());
+            if(((SuccessStatus *)analyzer->getStatus())->isEndOfLine()) {
+                analyzer->setState(qEnd);
+            }
+        }
+        return r;
+    }
+
+    bool q1_1_1(SyntaxAnalyzer * analyzer) {
+        Transition * transition = new Transition(AutomatonPattern::pSYMBOL, TokenTypes::tSEPARATOR);
+        transition->setState(q1_1);
+        return analyzer->q(transition);
+    }
+
 }
 
 

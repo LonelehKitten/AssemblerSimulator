@@ -31,6 +31,11 @@ class SyntaxAnalyzer {
 
         void trim();
 
+
+        std::string aux1, aux2, aux3;
+        std::vector<std::string> * vaux;
+        bool macroScope;
+
     public:
         SyntaxAnalyzer();
 
@@ -50,8 +55,25 @@ class SyntaxAnalyzer {
 
         void setError(bool newError);
 
-
         LexiconScannerStatus * getStatus() const;
+
+        void setState(const std::function<bool(SyntaxAnalyzer *)> state);
+
+
+
+        const std::string getAux1() const;
+        const std::string getAux2() const;
+        const std::string getAux3() const;
+        std::vector<std::string> * getVAux() const;
+        bool isMacroScope() const;
+
+
+        void setAux1(const std::string aux1);
+        void setAux2(const std::string aux2);
+        void setAux3(const std::string aux3);
+        void setVAux(std::vector<std::string> * vaux);
+        void setMacroScope(bool macroScope);
+
 };
 
 #endif // SYNTAXANALYZER_H
