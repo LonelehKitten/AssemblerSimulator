@@ -19,7 +19,7 @@ namespace SyntaxAutomatons {
             TokenTypes tokenType;
             std::function<bool(SyntaxAnalyzer *)> state;
             std::string token, pop, push;
-            bool customFlag, load, id;
+            bool customFlag, load, id, undo;
             std::function<void(SyntaxAnalyzer *)> callback;
 
         public:
@@ -35,6 +35,7 @@ namespace SyntaxAutomatons {
             bool getCustomFlag();
             bool getLoad();
             bool isId();
+            bool mustUndo();
             const std::function<void(SyntaxAnalyzer *)> getCallback();
 
             void setAutomatonPattern(AutomatonPattern automatonPattern);
@@ -46,6 +47,7 @@ namespace SyntaxAutomatons {
             void setCustomFlag(bool customFlag);
             void setLoad(bool load);
             void setId(bool id);
+            void setUndo(bool undo);
             void setCallback(const std::function<void(SyntaxAnalyzer *)> callback);
     };
 

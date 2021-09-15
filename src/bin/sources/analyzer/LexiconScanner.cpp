@@ -156,6 +156,7 @@ void LexiconScanner::setLine(std::string line) {
 
 void LexiconScanner::undo() {
     this->endOfLine = false;
+    this->error = false;
     this->lastTokenEndPosition = this->lastTokenBeginPosition;
 }
 

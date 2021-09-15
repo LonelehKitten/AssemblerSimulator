@@ -20,7 +20,10 @@ bool SyntaxAnalyzer::init() {
         if(this->state(this) && !this->error) {
             return true;
         }
-        if(this->error) break;
+        if(this->error) {
+            std::cout << "syntax error" << std::endl;
+            break;
+        }
     }
     return false;
 }
@@ -139,9 +142,14 @@ void SyntaxAnalyzer::log(std::string msg){
 bool SyntaxAnalyzer::q(SyntaxAutomatons::Transition * transition) {
 
     this->error = false;
+    if(transition->mustUndo()) this->scanner->undo();
     if(transition->getLoad()) this->status = scanner->nextToken(transition->getAutomatonPattern());
 
-    if(this->status->isAccepted()) {
+    if(
+        this->status->isAccepted() &&
+        (transition->isId() || ((SuccessStatus *) this->status)->getTokenType() != TokenTypes::tIDENTIFIER)
+    )
+    {
         std::string token = ((SuccessStatus *) this->status)->getToken();
         std::unordered_map<std::string, TokenTypes>::const_iterator t = scanner->getTokens().find(token);
         if(
@@ -159,8 +167,6 @@ bool SyntaxAnalyzer::q(SyntaxAutomatons::Transition * transition) {
             if(transition->getCallback() != nullptr) transition->getCallback()(this);
             if(transition->getState() != nullptr) this->state = transition->getState();
             row.emplace_back(((SuccessStatus *) this->status)->getTokenObject());
-
-            //transition->reset();
 
             return false;
 

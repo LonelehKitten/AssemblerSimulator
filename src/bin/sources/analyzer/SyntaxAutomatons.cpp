@@ -13,6 +13,7 @@ namespace SyntaxAutomatons {
         customFlag(true),
         load(true),
         id(false),
+        undo(false),
         callback(nullptr)
     {}
 
@@ -88,6 +89,14 @@ namespace SyntaxAutomatons {
         this->id = id;
     }
 
+    bool Transition::mustUndo() {
+        return undo;
+    }
+
+    void Transition::setUndo(bool undo) {
+        this->undo = undo;
+    }
+
     const std::function<void(SyntaxAnalyzer *)> Transition::getCallback() {
         return callback;
     }
@@ -114,7 +123,11 @@ namespace SyntaxAutomatons {
         transition->setState(qEnd);
         bool r = analyzer->q(transition);
 
-        if(!r && ((SuccessStatus *)analyzer->getStatus())->getTokenName() == TokenNames::nDirSEGMENT ) {
+        // definicao
+        if(!r && (
+                ((SuccessStatus *)analyzer->getStatus())->getTokenName() == TokenNames::nDirSEGMENT ||
+                ((SuccessStatus *)analyzer->getStatus())->getTokenName() == TokenNames::nDirPROC
+        )) {
             return false;
         }
         if( !r && ((SuccessStatus *)analyzer->getStatus())->getTokenName() == TokenNames::nDirMACRO ) {
@@ -123,17 +136,34 @@ namespace SyntaxAutomatons {
             analyzer->setVAux(new std::vector<std::string>());
             return false;
         }
+        // fim de definicao
         transition->setTokenType(TokenTypes::tBLOCKEND);
         transition->setLoad(false);
         r = analyzer->q(transition);
-        if( !r && ((SuccessStatus *)analyzer->getStatus())->getTokenName() == TokenNames::nDirENDS ) {
+
+        if( !r && ((SuccessStatus *)analyzer->getStatus())->getTokenName() == TokenNames::nDirENDM ) {
+            analyzer->setMacroScope(false);
             return false;
         }
-
-        std::cout << "Erro q1 2" << std::endl;
-
-        analyzer->setError(true);
-        return false;
+        if(!r && (
+                ((SuccessStatus *)analyzer->getStatus())->getTokenName() == TokenNames::nDirENDS ||
+                ((SuccessStatus *)analyzer->getStatus())->getTokenName() == TokenNames::nDirENDP
+        )) {
+            return false;
+        }
+        transition->setId(true);
+        transition->setState(q1_1_1);
+        r = analyzer->q(transition);
+        if(!r) {
+            analyzer->setVAux(new std::vector<std::string>());
+            analyzer->getVAux()->emplace_back(((SuccessStatus *)analyzer->getStatus())->getToken());
+            return false;
+        }
+        transition->~Transition();
+        transition = new Transition(AutomatonPattern::pSYMBOL, TokenTypes::tCOLON);
+        transition->setState(qEnd);
+        transition->setUndo(true);
+        return analyzer->q(transition);
     }
 
     bool qEnd(SyntaxAnalyzer * analyzer) {
