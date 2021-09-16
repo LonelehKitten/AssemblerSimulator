@@ -4,71 +4,162 @@
 #define qEndLPCONDITIONS 15
 #define qEndSPCONDITIONS 10
 
+namespace LexiconAutomatons {
+
+    // <labelPattern>
+    bool qBegin_labelPattern(LexiconScanner * scanner) {
+        Transition * transitions = new Transition(scanner->isAlpha() || scanner->is('_'), q1_labelPattern);
+        return scanner->q(&transitions, 1);
+    }
 
 
-// <labelPattern>
-bool LexiconAutomatons::qBegin_labelPattern(LexiconScanner * scanner) {
-    LexiconAutomatons::Transition * transitions = new LexiconAutomatons::Transition(scanner->isAlpha() || scanner->is('_'),
-                                                                      LexiconAutomatons::q1_labelPattern);
-    return scanner->q(&transitions, 1);
+    bool q1_labelPattern(LexiconScanner * scanner) {
+        Transition * transitions = new Transition(scanner->isAlphaNumeric() || scanner->is('_'), q1_labelPattern);
+        return scanner->q(&transitions, 1, new Transition(qEnd_labelPattern));
+    }
+
+
+    bool qEnd_labelPattern(LexiconScanner * scanner) {
+        TokenTypes * conditions = (TokenTypes *) malloc(sizeof(TokenTypes)*qEndLPCONDITIONS);
+        conditions[0] = TokenTypes::tBLOCKDEF;
+        conditions[1] = TokenTypes::tBLOCKEND;
+        conditions[2] = TokenTypes::tEND;
+        conditions[3] = TokenTypes::tOPERATION;
+        conditions[4] = TokenTypes::tREGISTER;
+        conditions[5] = TokenTypes::tASSUME;
+        conditions[6] = TokenTypes::tVARDEF;
+        conditions[7] = TokenTypes::tCONSTDEF;
+        conditions[8] = TokenTypes::tExpARITHMETICb;
+        conditions[9] = TokenTypes::tExpLOGICALb;
+        conditions[10] = TokenTypes::tExpLOGICALu;
+        conditions[11] = TokenTypes::tExpRELATIONALb;
+        conditions[12] = TokenTypes::tORG;
+        conditions[13] = TokenTypes::tOFFSET;
+        conditions[14] = TokenTypes::tSTACK;
+        return scanner->qEnd(new TransitionEnd(conditions, qEndLPCONDITIONS, false, false,
+            new TransitionEnd::DefaultAction(TokenTypes::tIDENTIFIER, false)
+        ));
+    }
+    // </labelPattern>
+
+
+    // <symbolPattern>
+    bool qBegin_symbolPattern(LexiconScanner * scanner) {
+        Transition * transitions = new Transition(scanner->isSpecial(), qEnd_symbolPattern);
+        return scanner->q(&transitions, 1);
+    }
+
+
+    bool qEnd_symbolPattern(LexiconScanner * scanner) {
+        TokenTypes * conditions = (TokenTypes *) malloc(sizeof(TokenTypes)*qEndSPCONDITIONS);
+        conditions[0] = TokenTypes::tExpARITHMETICb;
+        conditions[1] = TokenTypes::tExpARITHMETICu;
+        conditions[2] = TokenTypes::tExpPRECEDENCE_OP;
+        conditions[3] = TokenTypes::tExpPRECEDENCE_ED;
+        conditions[4] = TokenTypes::tINDEX_OP;
+        conditions[5] = TokenTypes::tINDEX_ED;
+        conditions[6] = TokenTypes::tPC;
+        conditions[7] = TokenTypes::tSEPARATOR;
+        conditions[8] = TokenTypes::tCOLON;
+        conditions[9] = TokenTypes::tUNDEFINED;
+        return scanner->qEnd(new TransitionEnd(conditions, qEndSPCONDITIONS, false));
+    }
+    // </symbolPattern>
+
+
+    // <decimalPattern>
+    bool qBegin_decimalLiteral(LexiconScanner * scanner) {
+        Transition * transitions = new Transition(scanner->isNumeric(), q1_decimalLiteral);
+        return scanner->q(&transitions, 1);
+    }
+
+    bool q1_decimalLiteral(LexiconScanner * scanner) {
+        Transition ** transitions = (Transition **) malloc(sizeof(Transition *)*2);
+        transitions[0] = new Transition(scanner->isNumeric(), q1_decimalLiteral);
+        transitions[1] = new Transition(scanner->is('d') || scanner->is('D'), qEnd_decimalLiteral1);
+        return scanner->q(transitions, 2, new Transition(qEnd_decimalLiteral2));
+    }
+
+    bool qEnd_decimalLiteral1(LexiconScanner * scanner) {
+        TokenTypes conditions = TokenTypes::tNULL_TYPE;
+        return scanner->qEnd(new TransitionEnd(&conditions, 1, false, true, new TransitionEnd::DefaultAction(TokenTypes::tDECIMAL)));
+    }
+
+    bool qEnd_decimalLiteral2(LexiconScanner * scanner) {
+        TokenTypes conditions = TokenTypes::tNULL_TYPE;
+        return scanner->qEnd(new TransitionEnd(&conditions, 1, false, false, new TransitionEnd::DefaultAction(TokenTypes::tDECIMAL, false)));
+    }
+    // </decimalPattern>
+
+    // <hexadecimalPattern>
+    bool qBegin_hexadecimalLiteral(LexiconScanner * scanner) {
+        Transition * transitions = new Transition(
+                    scanner->isNumeric() || scanner->isBetween('a', 'f') || scanner->isBetween('A', 'F'), q1_hexadecimalLiteral);
+        return scanner->q(&transitions, 1);
+    }
+
+    bool q1_hexadecimalLiteral(LexiconScanner * scanner) {
+        Transition ** transitions = (Transition **) malloc(sizeof(Transition *)*2);
+        transitions[0] = new Transition(scanner->isNumeric() || scanner->isBetween('a', 'f') || scanner->isBetween('A', 'F'), q1_hexadecimalLiteral);
+        transitions[1] = new Transition(scanner->is('h') || scanner->is('H'), qEnd_hexadecimalLiteral);
+        return scanner->q(transitions, 2);
+    }
+
+    bool qEnd_hexadecimalLiteral(LexiconScanner * scanner) {
+        TokenTypes conditions = TokenTypes::tNULL_TYPE;
+        return scanner->qEnd(new TransitionEnd(&conditions, 1, false, true, new TransitionEnd::DefaultAction(TokenTypes::tHEXADECIMAL)));
+    }
+    // </hexadecimalPattern>
+
+    // <binaryPattern>
+    bool qBegin_binaryLiteral(LexiconScanner * scanner) {
+        Transition * transitions = new Transition(scanner->is('0') || scanner->is('1'), q1_binaryLiteral);
+        return scanner->q(&transitions, 1);
+    }
+
+    bool q1_binaryLiteral(LexiconScanner * scanner) {
+        Transition ** transitions = (Transition **) malloc(sizeof(Transition *)*2);
+        transitions[0] = new Transition(scanner->is('0') || scanner->is('1'), q1_binaryLiteral);
+        transitions[1] = new Transition(scanner->is('b') || scanner->is('B'), qEnd_binaryLiteral);
+        return scanner->q(transitions, 2);
+    }
+
+    bool qEnd_binaryLiteral(LexiconScanner * scanner) {
+        TokenTypes conditions = TokenTypes::tNULL_TYPE;
+        return scanner->qEnd(new TransitionEnd(&conditions, 1, false, true, new TransitionEnd::DefaultAction(TokenTypes::tBINARY)));
+    }
+    // </binaryPattern>
+
+    // <charPattern>
+    bool qBegin_charLiteral(LexiconScanner * scanner) {
+        Transition * transitions = new Transition(scanner->is('\''), q1_charLiteral);
+        return scanner->q(&transitions, 1);
+    }
+
+    bool q1_charLiteral(LexiconScanner * scanner) {
+        Transition ** transitions = (Transition **) malloc(sizeof(Transition *)*2);
+        transitions[0] = new Transition(scanner->is('\\'), q2_charLiteral);
+        transitions[1] = new Transition(scanner->isAlphaNumeric() || scanner->isSpecial(), q3_charLiteral);
+        return scanner->q(transitions, 1);
+    }
+
+    bool q2_charLiteral(LexiconScanner * scanner) {
+        Transition * transitions = new Transition(scanner->isAlphaNumeric() || scanner->isSpecial(), qEnd_charLiteral);
+        return scanner->q(&transitions, 1);
+    }
+
+    bool q3_charLiteral(LexiconScanner * scanner) {
+        Transition * transitions = new Transition(scanner->is('\''), qEnd_charLiteral);
+        return scanner->q(&transitions, 1);
+    }
+
+    bool qEnd_charLiteral(LexiconScanner * scanner) {
+        TokenTypes conditions = TokenTypes::tNULL_TYPE;
+        return scanner->qEnd(new TransitionEnd(&conditions, 1, false, true, new TransitionEnd::DefaultAction(TokenTypes::tCHARACTERE)));
+    }
+    // </charPattern>
+
 }
-
-
-bool LexiconAutomatons::q1_labelPattern(LexiconScanner * scanner) {
-    LexiconAutomatons::Transition * transitions = new LexiconAutomatons::Transition(scanner->isAlphaNumeric() || scanner->is('_'),
-                                                                      LexiconAutomatons::q1_labelPattern);
-    return scanner->q(&transitions, 1, new LexiconAutomatons::Transition(LexiconAutomatons::qEnd_labelPattern));
-}
-
-
-bool LexiconAutomatons::qEnd_labelPattern(LexiconScanner * scanner) {
-    TokenTypes * conditions = (TokenTypes *) malloc(sizeof(TokenTypes)*qEndLPCONDITIONS);
-    conditions[0] = TokenTypes::tBLOCKDEF;
-    conditions[1] = TokenTypes::tBLOCKEND;
-    conditions[2] = TokenTypes::tEND;
-    conditions[3] = TokenTypes::tOPERATION;
-    conditions[4] = TokenTypes::tREGISTER;
-    conditions[5] = TokenTypes::tASSUME;
-    conditions[6] = TokenTypes::tVARDEF;
-    conditions[7] = TokenTypes::tCONSTDEF;
-    conditions[8] = TokenTypes::tExpARITHMETICb;
-    conditions[9] = TokenTypes::tExpLOGICALb;
-    conditions[10] = TokenTypes::tExpLOGICALu;
-    conditions[11] = TokenTypes::tExpRELATIONALb;
-    conditions[12] = TokenTypes::tORG;
-    conditions[13] = TokenTypes::tOFFSET;
-    conditions[14] = TokenTypes::tSTACK;
-    return scanner->qEnd(new LexiconAutomatons::TransitionEnd(conditions, qEndLPCONDITIONS, false, false,
-        new LexiconAutomatons::TransitionEnd::DefaultAction(TokenTypes::tIDENTIFIER, false)
-    ));
-}
-// </labelPattern>
-
-
-// <symbolPattern>
-bool LexiconAutomatons::qBegin_symbolPattern(LexiconScanner * scanner) {
-    LexiconAutomatons::Transition * transitions = new LexiconAutomatons::Transition(scanner->isSpecial(), LexiconAutomatons::qEnd_symbolPattern);
-    return scanner->q(&transitions, 1);
-}
-
-
-bool LexiconAutomatons::qEnd_symbolPattern(LexiconScanner * scanner) {
-    TokenTypes * conditions = (TokenTypes *) malloc(sizeof(TokenTypes)*qEndSPCONDITIONS);
-    conditions[0] = TokenTypes::tExpARITHMETICb;
-    conditions[1] = TokenTypes::tExpARITHMETICu;
-    conditions[2] = TokenTypes::tExpPRECEDENCE_OP;
-    conditions[3] = TokenTypes::tExpPRECEDENCE_ED;
-    conditions[4] = TokenTypes::tINDEX_OP;
-    conditions[5] = TokenTypes::tINDEX_ED;
-    conditions[6] = TokenTypes::tPC;
-    conditions[7] = TokenTypes::tSEPARATOR;
-    conditions[8] = TokenTypes::tCOLON;
-    conditions[9] = TokenTypes::tUNDEFINED;
-    return scanner->qEnd(new LexiconAutomatons::TransitionEnd(conditions, qEndSPCONDITIONS, false));
-}
-// </symbolPattern>
-
-
 
 LexiconAutomatons::Transition::Transition(std::function<bool(LexiconScanner *)> state) {
     this->condition = true;

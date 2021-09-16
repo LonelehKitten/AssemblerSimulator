@@ -1,6 +1,6 @@
 #include <nan.h>
 
-void Add(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+void Add(const Nan::FunctionCallbackInfo<v8::Value> & info) {
   v8::Local<v8::Context> context = info.GetIsolate()->GetCurrentContext();
 
   if (info.Length() < 2) {
@@ -10,6 +10,7 @@ void Add(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 
   if (!info[0]->IsNumber() || !info[1]->IsNumber()) {
     Nan::ThrowTypeError("Wrong arguments");
+
     return;
   }
 

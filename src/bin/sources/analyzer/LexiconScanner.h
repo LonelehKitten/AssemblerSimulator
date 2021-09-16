@@ -147,6 +147,8 @@ class LexiconScanner {
         // verifica se caractere corrente é igual a um caractere específico
         bool is(char character);
 
+        bool isBetween(char l, char g);
+
         // conjunto α U Α (alfa minúsculo união alfa maiúsculo)
         bool isAlpha();
 

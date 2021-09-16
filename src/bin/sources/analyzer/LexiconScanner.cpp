@@ -17,7 +17,10 @@ LexiconScanner::LexiconScanner() {
     // Aqui vai o dicionário de estados iniciais pelo tokenType, e.g (type: state)
     this->initialStates[AutomatonPattern::pLABEL] = LexiconAutomatons::qBegin_labelPattern;
     this->initialStates[AutomatonPattern::pSYMBOL] = LexiconAutomatons::qBegin_symbolPattern;
-
+    this->initialStates[AutomatonPattern::pDECIMAL] = LexiconAutomatons::qBegin_decimalLiteral;
+    this->initialStates[AutomatonPattern::pHEXADECIMAL] = LexiconAutomatons::qBegin_hexadecimalLiteral;
+    this->initialStates[AutomatonPattern::pBINARY] = LexiconAutomatons::qBegin_binaryLiteral;
+    this->initialStates[AutomatonPattern::pCHARATERE] = LexiconAutomatons::qBegin_charLiteral;
     // ...
 
     LexiconScanner::createDictionary(this->tokenSet, this->tokens);
@@ -391,6 +394,10 @@ bool LexiconScanner::isUnknownToken() {
 
 bool LexiconScanner::is(char character) {
     return this->currentChar == character;
+}
+
+bool LexiconScanner::isBetween(char l, char g) {
+    return this->currentChar >= l && this->currentChar <= g;
 }
 
 // conjunto α U Α (alfa minúsculo união alfa maiúsculo)

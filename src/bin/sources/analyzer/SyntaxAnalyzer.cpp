@@ -133,6 +133,19 @@ void SyntaxAnalyzer::setState(const std::function<bool(SyntaxAnalyzer *)> state)
     this->state = state;
 }
 
+std::function<bool(SyntaxAnalyzer *)> & SyntaxAnalyzer::getEndpoint() {
+    return endpoint;
+}
+
+void SyntaxAnalyzer::setEndpoint(std::function<bool(SyntaxAnalyzer *)> endpoint) {
+    this->endpoint = endpoint;
+}
+
+std::stack<std::string> *SyntaxAnalyzer::getStack() const
+{
+    return stack;
+}
+
 void SyntaxAnalyzer::log(std::string msg){
     std::cout << "------------------------------" << std::endl;
     std::cout << "%c DEBUG: " << msg << std::endl;
@@ -142,14 +155,10 @@ void SyntaxAnalyzer::log(std::string msg){
 bool SyntaxAnalyzer::q(SyntaxAutomatons::Transition * transition) {
 
     this->error = false;
-    if(transition->mustUndo()) this->scanner->undo();
+    if(transition->mustUndo()) this->undoScan();
     if(transition->getLoad()) this->status = scanner->nextToken(transition->getAutomatonPattern());
 
-    if(
-        this->status->isAccepted() &&
-        (transition->isId() || ((SuccessStatus *) this->status)->getTokenType() != TokenTypes::tIDENTIFIER)
-    )
-    {
+    if(this->status->isAccepted() && this->validate(transition)){
         std::string token = ((SuccessStatus *) this->status)->getToken();
         std::unordered_map<std::string, TokenTypes>::const_iterator t = scanner->getTokens().find(token);
         if(
@@ -176,4 +185,20 @@ bool SyntaxAnalyzer::q(SyntaxAutomatons::Transition * transition) {
     this->error = true;
     return true;
 
+}
+
+bool SyntaxAnalyzer::validate(SyntaxAutomatons::Transition * transition) {
+    TokenTypes type = ((SuccessStatus *) this->status)->getTokenType();
+    return transition->isId() || (
+                type != TokenTypes::tIDENTIFIER &&
+                type != TokenTypes::tDECIMAL &&
+                type != TokenTypes::tHEXADECIMAL &&
+                type != TokenTypes::tBINARY &&
+                type != TokenTypes::tCHARACTERE
+    );
+}
+
+void SyntaxAnalyzer::undoScan() {
+    this->error = false;
+    this->scanner->undo();
 }

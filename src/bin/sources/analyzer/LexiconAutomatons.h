@@ -98,6 +98,30 @@ namespace LexiconAutomatons {
 
         bool qBegin_symbolPattern(LexiconScanner * scanner);
         bool qEnd_symbolPattern(LexiconScanner * scanner);
+
+        // decimais
+        bool qBegin_decimalLiteral(LexiconScanner * scanner);
+        bool q1_decimalLiteral(LexiconScanner * scanner);
+        bool qEnd_decimalLiteral1(LexiconScanner * scanner);
+        bool qEnd_decimalLiteral2(LexiconScanner * scanner);
+
+        // hexadecimais
+        bool qBegin_hexadecimalLiteral(LexiconScanner * scanner);
+        bool q1_hexadecimalLiteral(LexiconScanner * scanner);
+        bool qEnd_hexadecimalLiteral(LexiconScanner * scanner);
+
+        // binarios
+        bool qBegin_binaryLiteral(LexiconScanner * scanner);
+        bool q1_binaryLiteral(LexiconScanner * scanner);
+        bool qEnd_binaryLiteral(LexiconScanner * scanner);
+
+        // caracteres
+        bool qBegin_charLiteral(LexiconScanner * scanner);
+        bool q1_charLiteral(LexiconScanner * scanner);
+        bool q2_charLiteral(LexiconScanner * scanner);
+        bool q3_charLiteral(LexiconScanner * scanner);
+        bool qEnd_charLiteral(LexiconScanner * scanner);
+
         //bool q1_Operator(LexiconScanner * scanner);
         //bool q2_Operator(LexiconScanner * scanner);
         //bool qEnd_Operator(LexiconScanner * scanner);

@@ -53,10 +53,22 @@ namespace SyntaxAutomatons {
 
     bool qBegin(SyntaxAnalyzer * analyzer);
     bool q1(SyntaxAnalyzer * analyzer);
-    bool q1_1(SyntaxAnalyzer * analyzer);
-    bool q1_1_1(SyntaxAnalyzer * analyzer);
+    bool q1_label(SyntaxAnalyzer * analyzer);
+    bool q1_label_separator(SyntaxAnalyzer * analyzer);
+    bool q1_expression(SyntaxAnalyzer * analyzer);
+    bool q1_expression_separator(SyntaxAnalyzer * analyzer);
 
     bool qEnd(SyntaxAnalyzer * analyzer);
+
+    namespace ExpressionAutomaton {
+
+        bool qBegin_Expression(SyntaxAnalyzer * analyzer);
+        bool q1_Expression(SyntaxAnalyzer * analyzer);
+
+        bool qOperand_Expression(SyntaxAnalyzer * analyzer);
+        bool qUOperator_Expression(SyntaxAnalyzer * analyzer);
+        bool qBOperator_Expression(SyntaxAnalyzer * analyzer);
+    }
 };
 
 #endif // SYNTAXAUTOMATONS_H
