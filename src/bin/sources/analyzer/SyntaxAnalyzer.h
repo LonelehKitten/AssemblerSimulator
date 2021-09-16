@@ -71,9 +71,9 @@ class SyntaxAnalyzer {
         const std::string getAux3() const;
         std::vector<std::string> * getVAux() const;
         bool isMacroScope() const;
-        std::function<bool (SyntaxAnalyzer *)> & getEndpoint();
+        std::function<bool (SyntaxAnalyzer *)> getEndpoint();
         std::stack<std::string> *getStack() const;
-
+        Token * getLastToken();
 
 
         void setAux1(const std::string aux1);

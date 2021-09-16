@@ -88,6 +88,10 @@ bool SyntaxAnalyzer::isMacroScope() const
     return macroScope;
 }
 
+Token * SyntaxAnalyzer::getLastToken() {
+    return this->row.back();
+}
+
 bool SyntaxAnalyzer::check() {
 
     trim();
@@ -133,7 +137,7 @@ void SyntaxAnalyzer::setState(const std::function<bool(SyntaxAnalyzer *)> state)
     this->state = state;
 }
 
-std::function<bool(SyntaxAnalyzer *)> & SyntaxAnalyzer::getEndpoint() {
+std::function<bool(SyntaxAnalyzer *)> SyntaxAnalyzer::getEndpoint() {
     return endpoint;
 }
 

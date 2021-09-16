@@ -112,17 +112,21 @@ namespace SyntaxAutomatons {
         transition->setState(qEnd);
         bool r = analyzer->q(transition);
 
-        if( !r && ((SuccessStatus *)analyzer->getStatus())->getTokenName() == TokenNames::nDirENDM ) {
+        if( !r && analyzer->getLastToken()->getName() == TokenNames::nDirENDM ) {
             analyzer->setMacroScope(false);
             return false;
         }
+        transition->setTokenType(TokenTypes::tASSUME);
+        transition->setLoad(false);
+        r = analyzer->q(transition);
+        if(!r) return false;
 
         transition->setState(q1);
         transition->setLoad(false);
         transition->setId(true);
         r = analyzer->q(transition);
         if(!r) {
-            analyzer->setAux1(((SuccessStatus *)analyzer->getStatus())->getToken());
+            analyzer->setAux1(analyzer->getLastToken()->getToken());
         }
 
         return r;
@@ -136,13 +140,13 @@ namespace SyntaxAutomatons {
 
         // definicao
         if(!r && (
-                ((SuccessStatus *)analyzer->getStatus())->getTokenName() == TokenNames::nDirSEGMENT ||
-                ((SuccessStatus *)analyzer->getStatus())->getTokenName() == TokenNames::nDirPROC
+                analyzer->getLastToken()->getName() == TokenNames::nDirSEGMENT ||
+                analyzer->getLastToken()->getName() == TokenNames::nDirPROC
         )) {
             transition->~Transition();
             return false;
         }
-        if( !r && ((SuccessStatus *)analyzer->getStatus())->getTokenName() == TokenNames::nDirMACRO ) {
+        if( !r && analyzer->getLastToken()->getName() == TokenNames::nDirMACRO ) {
             analyzer->setState(q1_label);
             analyzer->setMacroScope(true);
             analyzer->setVAux(new std::vector<std::string>());
@@ -154,8 +158,8 @@ namespace SyntaxAutomatons {
         transition->setLoad(false);
         r = analyzer->q(transition);
         if(!r && (
-                ((SuccessStatus *)analyzer->getStatus())->getTokenName() == TokenNames::nDirENDS ||
-                ((SuccessStatus *)analyzer->getStatus())->getTokenName() == TokenNames::nDirENDP
+                analyzer->getLastToken()->getName() == TokenNames::nDirENDS ||
+                analyzer->getLastToken()->getName() == TokenNames::nDirENDP
         )) {
             transition->~Transition();
             return false;
@@ -169,14 +173,14 @@ namespace SyntaxAutomatons {
         r = analyzer->q(transition);
         if(!r) return false;
 
-        analyzer->setEndpoint(q1_expression_separator);
-        r = ExpressionAutomaton::qBegin_Expression(analyzer);
+        //analyzer->setEndpoint(q1_expression_separator);
+        //r = ExpressionAutomaton::qBegin_Expression(analyzer);
 
-        if(!r && ((SuccessStatus *)analyzer->getStatus())->isEndOfLine()) {
-            analyzer->setState(qEnd);
-        }
-
-        return r;
+        //if(!r && ((SuccessStatus *)analyzer->getStatus())->isEndOfLine()) {
+        //    analyzer->setState(qEnd);
+        //}
+        analyzer->undoScan();
+        return q1_expression(analyzer);
     }
 
 
@@ -186,8 +190,8 @@ namespace SyntaxAutomatons {
         transition->setId(true);
         bool r = analyzer->q(transition);
         if(!r) {
-            analyzer->getVAux()->emplace_back(((SuccessStatus *)analyzer->getStatus())->getToken());
-            if(((SuccessStatus *)analyzer->getStatus())->isEndOfLine()) {
+            analyzer->getVAux()->emplace_back(analyzer->getLastToken()->getToken());
+            if(analyzer->getLastToken()->isEndOfLine()) {
                 analyzer->setState(qEnd);
             }
         }
@@ -201,12 +205,24 @@ namespace SyntaxAutomatons {
     }
 
     bool q1_expression(SyntaxAnalyzer * analyzer) {
-        analyzer->setEndpoint(q1_expression_separator);
+        analyzer->setEndpoint(q1_expressionAux);
         bool r = ExpressionAutomaton::qBegin_Expression(analyzer);
-        if(!r && ((SuccessStatus *)analyzer->getStatus())->isEndOfLine()) {
+        bool eol = analyzer->getLastToken()->isEndOfLine();
+        if(!r && eol) {
             analyzer->setState(qEnd);
         }
         return r;
+    }
+
+    bool q1_expressionAux(SyntaxAnalyzer * analyzer) {
+        bool eol = analyzer->getLastToken()->isEndOfLine();
+        if(eol) {
+            analyzer->setState(qEnd);
+            return false;
+        }
+
+        analyzer->setState(q1_expression_separator);
+        return false;
     }
 
     bool q1_expression_separator(SyntaxAnalyzer * analyzer) {
@@ -217,7 +233,7 @@ namespace SyntaxAutomatons {
 
     bool qEnd(SyntaxAnalyzer * analyzer) {
 
-        if(!((SuccessStatus *)analyzer->getStatus())->isEndOfLine()) {
+        if(!analyzer->getLastToken()->isEndOfLine()) {
             analyzer->setError(true);
             std::cout << "FALHA" << std::endl;
         }
@@ -244,11 +260,11 @@ namespace SyntaxAutomatons {
         // operando ->
         bool q1_Expression(SyntaxAnalyzer * analyzer) {
             Transition * transition = new Transition(AutomatonPattern::pSYMBOL, TokenTypes::tExpPRECEDENCE_ED);
-            transition->setState(qBegin_Expression);
+            transition->setState(q1_Expression);
             transition->setPop("p");
             bool r = analyzer->q(transition);
             transition->~Transition();
-            if(!r) return false; // '('
+            if(!r) return false; // ')'
             analyzer->undoScan();
             if(!qBOperator_Expression(analyzer)) return false;
             analyzer->undoScan();
@@ -262,10 +278,11 @@ namespace SyntaxAutomatons {
             Transition * transition = new Transition(AutomatonPattern::pHEXADECIMAL);
             transition->setState(q1_Expression);
             transition->setId(true);
-            transition->setUndo(true);
+
             bool r = analyzer->q(transition);
             if(!r) {transition->~Transition(); return false;} // 1a5h ou 1a5H
 
+            transition->setUndo(true);
             transition->setAutomatonPattern(AutomatonPattern::pBINARY);
             r = analyzer->q(transition);
             if(!r) {transition->~Transition(); return false;} // 0101b ou 0101B
@@ -290,6 +307,7 @@ namespace SyntaxAutomatons {
         }
 
         bool qUOperator_Expression(SyntaxAnalyzer * analyzer) {
+            std::cout << "operador unario" << std::endl;
             Transition * transition = new Transition(AutomatonPattern::pSYMBOL, TokenTypes::tExpARITHMETICu);
             transition->setState(qBegin_Expression);
             bool r = analyzer->q(transition);
@@ -303,14 +321,21 @@ namespace SyntaxAutomatons {
         }
 
         bool qBOperator_Expression(SyntaxAnalyzer * analyzer) {
-            if(!qUOperator_Expression(analyzer)) return false; // '+' , '-' ou 'not'
-            analyzer->undoScan();
-            Transition * transition = new Transition(AutomatonPattern::pSYMBOL, TokenTypes::tExpARITHMETICb);
+            std::cout << "operador binario" << std::endl;
+            Transition * transition = new Transition(AutomatonPattern::pSYMBOL, TokenTypes::tExpARITHMETICu);
             transition->setState(qBegin_Expression);
-            transition->setUndo(true);
             bool r = analyzer->q(transition);
+            if(!r) {transition->~Transition(); return false;} // '+' ou '-'
+            transition->~Transition();
+
+            analyzer->undoScan();
+            transition = new Transition(AutomatonPattern::pSYMBOL, TokenTypes::tExpARITHMETICb);
+            transition->setState(qBegin_Expression);
+
+            r = analyzer->q(transition);
             if(!r) {transition->~Transition(); return false;} // '*' ou '/'
 
+            transition->setUndo(true);
             transition->setAutomatonPattern(AutomatonPattern::pLABEL);
             r = analyzer->q(transition);
             if(!r) {transition->~Transition(); return false;} // 'mod'

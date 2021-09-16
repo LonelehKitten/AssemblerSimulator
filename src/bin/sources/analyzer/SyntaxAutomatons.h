@@ -56,6 +56,7 @@ namespace SyntaxAutomatons {
     bool q1_label(SyntaxAnalyzer * analyzer);
     bool q1_label_separator(SyntaxAnalyzer * analyzer);
     bool q1_expression(SyntaxAnalyzer * analyzer);
+    bool q1_expressionAux(SyntaxAnalyzer * analyzer);
     bool q1_expression_separator(SyntaxAnalyzer * analyzer);
 
     bool qEnd(SyntaxAnalyzer * analyzer);
