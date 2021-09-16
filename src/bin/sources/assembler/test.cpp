@@ -1,6 +1,9 @@
 #include "template.h"
 
 using namespace std;
+/*
+template <class T>
+Vector<T> */
 
 int main(int argc, char **argv)
 {
@@ -22,15 +25,35 @@ int main(int argc, char **argv)
     vector<string> params;//{"Mem1","Mem2"};
     params.push_back("Mem1");
     params.push_back("Mem2");
-    Semantic A1 = Semantic("SomaMem MACRO Mem1, Mem2","SomaMem",iMACRO,&params); //SomaMem MACRO Mem1, Mem2
-    Semantic A2 = Semantic("",iMOV); // mov AX,Mem1
-    Semantic A3 = Semantic("1",iPUSH); // push AX
-    Semantic A4 = Semantic("1",iMOV); // mov AX,Mem2
-    Semantic A5 = Semantic("1",iMOV); // mov DX,AX
-    Semantic A6 = Semantic("1",iPOP); // pop AX
-    Semantic A7 = Semantic("1",iADD); // add AX,DX
-    Semantic A8 = Semantic("1",iMOV); // mov Mem1,AX
-    Semantic A9 = Semantic("1",iENDM); // ENDM
+    Semantic A1 = Macro("SomaMem MACRO Mem1, Mem2","SomaMem",&params); //SomaMem MACRO Mem1, Mem2
+
+    vector<string> MemovParamsm1;
+    MemovParamsm1.push_back("AX");
+    MemovParamsm1.push_back("Mem1");
+    Semantic A2 = Mov("mov AX, Mem1", &MemovParamsm1); // mov AX,Mem1
+    
+    Semantic A3 = Push("push AX"); // push AX
+    
+    vector<string> MemovParamsm2;
+    MemovParamsm2.push_back("AX");
+    MemovParamsm2.push_back("Mem2");
+    Semantic A4 = Mov("mov AX, Mem2", &MemovParamsm2); // mov AX,Mem2
+
+    vector<string> MemovParamsDX;
+    MemovParamsDX.push_back("DX");
+    MemovParamsDX.push_back("AX");
+    Semantic A5 = Mov("mov DX, AX", &MemovParamsDX); // mov DX,AX
+
+    Semantic A6 = Pop("pop AX"); // pop AX
+    Semantic A7 = Add("add AX,DX", "DX"); // add AX,DX
+
+    vector<string> MemovParamsM1AX;
+    MemovParamsM1AX.push_back("AX");
+    MemovParamsM1AX.push_back("Mem1");
+    Semantic A8 = Mov("mov Mem1, AX", &MemovParamsM1AX); // mov Mem1,AX
+
+    Semantic A9 = EndM("ENDM"); // ENDM
+    
     vector<Semantic *> lines{
         &A1,
         &A2,
@@ -44,12 +67,12 @@ int main(int argc, char **argv)
     };
     //lines.push_back(&Teste);
 
-    Macro currentMacro;
+ //   Macro currentMacro;
     for (int i = 0; i < lines.size(); i++)
     {
         Semantic * Item = lines[i];
         if(Item->getType() == iMACRO){
-            currentMacro = Macro();
+   //         currentMacro = Macro();
          //   MDefinicao();
             cout << "iMACRO" << endl;
         }else if(Item->getType() == iENDM){
