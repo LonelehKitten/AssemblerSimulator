@@ -10,6 +10,8 @@ import AddIcon from '@material-ui/icons/Add';
 
 import { useContext } from "../../utils/context";
 
+import Item from './item';
+
 const useStyles = makeStyles((theme) => ({
     root: {
         
@@ -74,7 +76,6 @@ const Tabs = ({ value, onChange, listFiles }) => {
         });
     }
 
-
     return (
         <>
             <TabContainer
@@ -88,9 +89,9 @@ const Tabs = ({ value, onChange, listFiles }) => {
                 className={classes.root}
                 
             >
-
+                
                 <Tab value="" onClick={handleClick} icon={<AddIcon />} className={classes.plus} />
-                {Object.entries(listFiles).map(([id, file], key) => <Tab key={key} value={id} label={file.name} />)}
+                {Object.entries(listFiles).map(([id, file], key) => <Item key={key} isSave={file.isSave} value={id} label={file.name} />)}
             </TabContainer>
             <Menu
                 id="simple-menu"

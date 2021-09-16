@@ -15,12 +15,12 @@ const useStyles = makeStyles(theme => ({
         height: "1px",
     },
     vertical:{
-        backgroundColor: "#363a52",
+        backgroundColor: "#e094ff",
         cursor: "ew-resize",
         top: 0,
         left: 0,
         bottom: 0,
-        width: "0px",
+        width: "1px",
     }
   }));
   
