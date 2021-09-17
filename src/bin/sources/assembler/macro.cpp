@@ -23,3 +23,5 @@ std::string Macro::macroLine(){
 void Macro::updateMacro(std::vector<T> args){
 
 }
+
+// matcun esteve aqui
