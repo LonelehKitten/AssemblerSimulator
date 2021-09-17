@@ -17,7 +17,10 @@ LexiconScanner::LexiconScanner() {
     // Aqui vai o dicionário de estados iniciais pelo tokenType, e.g (type: state)
     this->initialStates[AutomatonPattern::pLABEL] = LexiconAutomatons::qBegin_labelPattern;
     this->initialStates[AutomatonPattern::pSYMBOL] = LexiconAutomatons::qBegin_symbolPattern;
-
+    this->initialStates[AutomatonPattern::pDECIMAL] = LexiconAutomatons::qBegin_decimalLiteral;
+    this->initialStates[AutomatonPattern::pHEXADECIMAL] = LexiconAutomatons::qBegin_hexadecimalLiteral;
+    this->initialStates[AutomatonPattern::pBINARY] = LexiconAutomatons::qBegin_binaryLiteral;
+    this->initialStates[AutomatonPattern::pCHARATERE] = LexiconAutomatons::qBegin_charLiteral;
     // ...
 
     LexiconScanner::createDictionary(this->tokenSet, this->tokens);
@@ -156,6 +159,7 @@ void LexiconScanner::setLine(std::string line) {
 
 void LexiconScanner::undo() {
     this->endOfLine = false;
+    this->error = false;
     this->lastTokenEndPosition = this->lastTokenBeginPosition;
 }
 
@@ -215,7 +219,7 @@ void LexiconScanner::nextChar() {
 }
 
 void LexiconScanner::checkEndOfLine(bool deterministic) {
-    if(deterministic) this->endOfLine = (this->line[this->lineIndex-1] == '\n');
+    if(!deterministic) this->endOfLine = (this->line[this->lineIndex-1] == '\n');
     else this->endOfLine = (this->line[this->lineIndex] == '\n');
 }
 
@@ -233,11 +237,12 @@ void LexiconScanner::setSuccessMessage(TokenTypes tokenType) {
     }
     TokenNames tokenName = TokenNames::nNULL_TYPE;
     for(std::pair<TokenNames, LexiconScanner::TokenSetUnit *> p : tokenSet) {
-        if(p.second->getToken() == this->token) {
+        if(p.second->getToken() == this->token && p.second->getTokenType() == tokenType) {
             tokenName = p.first;
             break;
         }
     }
+    std::cout << "t:  " << (int) tokenType << ", n:  " << (int) tokenName << std::endl;
     this->tokenData = new SuccessStatus(this->token, tokenType, tokenName, this->endOfLine);
 }
 
@@ -390,6 +395,10 @@ bool LexiconScanner::isUnknownToken() {
 
 bool LexiconScanner::is(char character) {
     return this->currentChar == character;
+}
+
+bool LexiconScanner::isBetween(char l, char g) {
+    return this->currentChar >= l && this->currentChar <= g;
 }
 
 // conjunto α U Α (alfa minúsculo união alfa maiúsculo)

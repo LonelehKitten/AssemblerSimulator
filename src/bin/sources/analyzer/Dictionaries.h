@@ -3,7 +3,11 @@
 
 enum class AutomatonPattern {
     pLABEL = 0,
-    pSYMBOL
+    pSYMBOL,
+    pDECIMAL,
+    pHEXADECIMAL,
+    pBINARY,
+    pCHARATERE
 };
 
 enum class TokenTypes {
@@ -33,7 +37,11 @@ enum class TokenTypes {
     tUNDEFINED,
     tSTACK,
     tORG,
-    tIDENTIFIER
+    tIDENTIFIER,
+    tDECIMAL,
+    tHEXADECIMAL,
+    tBINARY,
+    tCHARACTERE
 };
 
 enum class TokenNames {
@@ -93,13 +101,13 @@ enum class TokenNames {
     nExpGE,
     nExpPRECEDENCE_OP,
     nExpPRECEDENCE_ED,
-    // DECLARATION
+    // DECLARAÇÃO
     nASSUME,
     nDW,
     nDUP,
     nEQU,
     nUNDEFINED,
-    // OTHERS
+    // OUTROS
     nINDEX_OP,
     nINDEX_ED,
     nSEPARATOR,
