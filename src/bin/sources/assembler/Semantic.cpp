@@ -6,10 +6,8 @@ Semantic::Semantic(std::string line, Instruction type)
 /*
 Semantic::Semantic(std::string line)
     : line(line) {}
-
 Semantic::Semantic(std::string line, std::string name, Instruction type)
     : line(line), name(name), type(type) {}
-
 Semantic::Semantic(std::string line, std::string name, Instruction type, std::vector<std::string> * params)
     : line(line), name(name), type(type), params(params) {}
 */
