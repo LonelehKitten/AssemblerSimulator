@@ -151,6 +151,13 @@ namespace SyntaxAutomatons {
         transition->setLoad(false);
         transition->setState(q1_equ_valor);
         r = analyzer->q(transition);
+
+        if(!r && analyzer->getLastToken()->getName() == TokenNames::nOpINT) {
+            transition->~Transition();
+            analyzer->setEndpoint(qEnd);
+            return ExpressionAutomaton::qBegin_Expression(analyzer);
+        }
+
         if(!r) {
             switch (analyzer->getLastToken()->getName()) {
                 case TokenNames::nOpMOV:
@@ -158,13 +165,28 @@ namespace SyntaxAutomatons {
                     break;
                 case TokenNames::nOpADD:
                 case TokenNames::nOpSUB:
-                case TokenNames::nOpOR:
-                case TokenNames::nOpAND:
+                    analyzer->setState(qASOA);
                     break;
                 case TokenNames::nOpMUL:
                 case TokenNames::nOpDIV:
+                    analyzer->setState(qMD);
                     break;
-                case TokenNames::nOpNOT:
+                case TokenNames::nOpJMP:
+                case TokenNames::nOpJE:
+                case TokenNames::nOpJNZ:
+                case TokenNames::nOpJZ:
+                case TokenNames::nOpJP:
+                case TokenNames::nOpCALL:
+                    analyzer->setState(qJ);
+                    break;
+                case TokenNames::nOpRET:
+                case TokenNames::nOpPOPF:
+                case TokenNames::nOpPUSHF:
+                    analyzer->setState(qEnd);
+                    break;
+                case TokenNames::nOpPOP:
+                case TokenNames::nOpPUSH:
+                    analyzer->setState(qMov_1_ax);
                     break;
                 default:
                     break;
@@ -173,6 +195,17 @@ namespace SyntaxAutomatons {
             return false;
         }
 
+        transition->setTokenType(TokenTypes::tExpLOGICALb);
+        transition->setLoad(false);
+        transition->setState(qASOA);
+        r = analyzer->q(transition);
+        if(!r) return false;
+
+        transition->setTokenType(TokenTypes::tExpLOGICALu);
+        transition->setState(qMov_1_ax);
+        r = analyzer->q(transition);
+        if(!r) return false;
+
         transition->setState(q1);
         transition->setId(true);
         r = analyzer->q(transition);
@@ -180,7 +213,65 @@ namespace SyntaxAutomatons {
             analyzer->setAux1(analyzer->getLastToken()->getToken());
         }
 
+        transition->~Transition();
         return r;
+    }
+
+    bool qJ(SyntaxAnalyzer * analyzer) {
+        Transition * transition = new Transition(AutomatonPattern::pLABEL);
+        transition->setState(qEnd);
+        transition->setId(true);
+        bool r = analyzer->q(transition);
+        transition->~Transition();
+        return r;
+    }
+
+    bool qMD(SyntaxAnalyzer * analyzer) {
+        Transition * transition = new Transition(AutomatonPattern::pLABEL, TokenTypes::tREGISTER);
+        transition->setState(qEnd);
+        bool r = analyzer->q(transition);
+        transition->~Transition();
+        if(!r && (
+                analyzer->getLastToken()->getName() == TokenNames::nRegAX ||
+                analyzer->getLastToken()->getName() == TokenNames::nRegSI
+        )) {
+            return false;
+        }
+        analyzer->setError(true);
+        return r;
+    }
+
+    bool qASOA(SyntaxAnalyzer * analyzer) {
+        Transition * transition = new Transition(AutomatonPattern::pLABEL, TokenTypes::tREGISTER);
+        transition->setState(qASOA_sep);
+        bool r = analyzer->q(transition);
+        transition->~Transition();
+        if(!r && analyzer->getLastToken()->getName() == TokenNames::nRegAX) return false;
+        return r;
+    }
+
+    bool qASOA_sep(SyntaxAnalyzer * analyzer) {
+        Transition * transition = new Transition(AutomatonPattern::pSYMBOL, TokenTypes::tSEPARATOR);
+        transition->setState(qASOA_sep_reg);
+        bool r = analyzer->q(transition);
+        transition->~Transition();
+        return r;
+    }
+
+    bool qASOA_sep_reg(SyntaxAnalyzer * analyzer) {
+        Transition * transition = new Transition(AutomatonPattern::pLABEL, TokenTypes::tREGISTER);
+        transition->setState(qEnd);
+        bool r = analyzer->q(transition);
+        transition->~Transition();
+        if(!r && (
+                analyzer->getLastToken()->getName() == TokenNames::nRegAX ||
+                analyzer->getLastToken()->getName() == TokenNames::nRegDX
+        )) {
+            return false;
+        }
+        analyzer->undoScan();
+        analyzer->setEndpoint(qEnd);
+        return ExpressionAutomaton::qBegin_Expression(analyzer);
     }
 
     bool qMov(SyntaxAnalyzer * analyzer) {
@@ -266,6 +357,7 @@ namespace SyntaxAutomatons {
         bool r = analyzer->q(transition);
         transition->~Transition();
         if(!r && analyzer->getLastToken()->getName() == TokenNames::nRegAX) return false;
+        analyzer->setError(true);
         return r;
     }
 

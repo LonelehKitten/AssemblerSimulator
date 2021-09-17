@@ -63,6 +63,11 @@ namespace SyntaxAutomatons {
     bool qMov_3_exp_i(SyntaxAnalyzer * analyzer);
     bool qMov_3_i_si(SyntaxAnalyzer * analyzer);
     bool qMov_3_i_si_i(SyntaxAnalyzer * analyzer);
+    bool qASOA(SyntaxAnalyzer * analyzer);
+    bool qASOA_sep(SyntaxAnalyzer * analyzer);
+    bool qASOA_sep_reg(SyntaxAnalyzer * analyzer);
+    bool qMD(SyntaxAnalyzer * analyzer);
+    bool qJ(SyntaxAnalyzer * analyzer);
     bool q1(SyntaxAnalyzer * analyzer);
     bool q1_stack(SyntaxAnalyzer * analyzer);
     bool q1_label(SyntaxAnalyzer * analyzer);

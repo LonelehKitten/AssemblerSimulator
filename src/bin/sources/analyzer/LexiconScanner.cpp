@@ -237,11 +237,12 @@ void LexiconScanner::setSuccessMessage(TokenTypes tokenType) {
     }
     TokenNames tokenName = TokenNames::nNULL_TYPE;
     for(std::pair<TokenNames, LexiconScanner::TokenSetUnit *> p : tokenSet) {
-        if(p.second->getToken() == this->token) {
+        if(p.second->getToken() == this->token && p.second->getTokenType() == tokenType) {
             tokenName = p.first;
             break;
         }
     }
+    std::cout << "t:  " << (int) tokenType << ", n:  " << (int) tokenName << std::endl;
     this->tokenData = new SuccessStatus(this->token, tokenType, tokenName, this->endOfLine);
 }
 
