@@ -1,8 +1,16 @@
+#ifndef TEMPLATE_H
+#define TEMPLATE_H
+
+#include <iostream>
+#include <vector>
+#include <string>
+#include <cstring>
 #include "Semantic.h"
-#include "SyntaxAnalyzer.h"
+
+//#include "SyntaxAnalyzer.h"
 
 #define T std::string
-
+/*
 class Macro
 {
 private:
@@ -23,6 +31,7 @@ public:
     std::string macroLine();
     void updateMacro(std::vector<T> args);
 
-};
+};*/
 
-std::vector<Macro> table;
+//std::vector<Macro> table;
+#endif
