@@ -117,18 +117,279 @@ namespace SyntaxAutomatons {
             return false;
         }
         transition->setTokenType(TokenTypes::tASSUME);
+        transition->setState(q2);
         transition->setLoad(false);
         r = analyzer->q(transition);
         if(!r) return false;
 
-        transition->setState(q1);
+        transition->setTokenType(TokenTypes::tEND);
+        transition->setState(q3);
         transition->setLoad(false);
+        r = analyzer->q(transition);
+        if(!r) return false;
+
+        // variavel
+        transition->setTokenType(TokenTypes::tVARDEF);
+        transition->setLoad(false);
+        transition->setState(q1_dw_valor);
+        r = analyzer->q(transition);
+        if(!r && analyzer->getLastToken()->getName() == TokenNames::nDW) {
+            transition->~Transition();
+            return false;
+        }
+        // org
+        transition->setTokenType(TokenTypes::tORG);
+        transition->setLoad(false);
+        transition->setState(q1_equ_valor);
+        r = analyzer->q(transition);
+        if(!r && analyzer->getLastToken()->getName() == TokenNames::nORG) {
+            transition->~Transition();
+            return false;
+        }
+        // instrucoes
+        transition->setTokenType(TokenTypes::tOPERATION);
+        transition->setLoad(false);
+        transition->setState(q1_equ_valor);
+        r = analyzer->q(transition);
+        if(!r) {
+            switch (analyzer->getLastToken()->getName()) {
+                case TokenNames::nOpMOV:
+                    analyzer->setState(qMov);
+                    break;
+                case TokenNames::nOpADD:
+                case TokenNames::nOpSUB:
+                case TokenNames::nOpOR:
+                case TokenNames::nOpAND:
+                    break;
+                case TokenNames::nOpMUL:
+                case TokenNames::nOpDIV:
+                    break;
+                case TokenNames::nOpNOT:
+                    break;
+                default:
+                    break;
+            }
+            transition->~Transition();
+            return false;
+        }
+
+        transition->setState(q1);
         transition->setId(true);
         r = analyzer->q(transition);
         if(!r) {
             analyzer->setAux1(analyzer->getLastToken()->getToken());
         }
 
+        return r;
+    }
+
+    bool qMov(SyntaxAnalyzer * analyzer) {
+        Transition * transition = new Transition(AutomatonPattern::pLABEL, TokenTypes::tREGISTER);
+        transition->setState(qMov_1);
+        bool r = analyzer->q(transition);
+
+        if(!r && (
+            analyzer->getLastToken()->getName() == TokenNames::nRegSP ||
+            analyzer->getLastToken()->getName() == TokenNames::nRegSS ||
+            analyzer->getLastToken()->getName() == TokenNames::nRegDS ||
+            analyzer->getLastToken()->getName() == TokenNames::nRegDX ||
+            analyzer->getLastToken()->getName() == TokenNames::nRegSI
+        )) {
+            analyzer->setAux1(analyzer->getLastToken()->getToken());
+            transition->~Transition();
+            return false;
+        }
+
+        if(!r && analyzer->getLastToken()->getName() == TokenNames::nRegAX) {
+            analyzer->setAux1(analyzer->getLastToken()->getToken());
+            analyzer->setState(qMov_2);
+            transition->~Transition();
+            return false;
+        }
+
+        transition->setAutomatonPattern(AutomatonPattern::pSYMBOL);
+        transition->setTokenType(TokenTypes::tINDEX_OP);
+        transition->setState(qMov_3_i_si);
+        transition->setUndo(true);
+        r = analyzer->q(transition);
+        transition->~Transition();
+        if(!r) return false;
+
+        analyzer->undoScan();
+        analyzer->setEndpoint(qMov_3_exp_i);
+        return ExpressionAutomaton::qBegin_Expression(analyzer);
+    }
+
+    bool qMov_3_exp_i(SyntaxAnalyzer * analyzer) {
+        Transition * transition = new Transition(AutomatonPattern::pSYMBOL, TokenTypes::tINDEX_OP);
+        transition->setState(qMov_3_i_si);
+        bool r = analyzer->q(transition);
+        if(!r) return false;
+        transition->~Transition();
+
+        analyzer->undoScan();
+        return qMov_1(analyzer);
+    }
+
+    bool qMov_3_i_si(SyntaxAnalyzer * analyzer) {
+        Transition * transition = new Transition(AutomatonPattern::pLABEL, TokenTypes::tREGISTER);
+        transition->setState(qMov_3_i_si_i);
+        bool r = analyzer->q(transition);
+        transition->~Transition();
+        if(!r && analyzer->getLastToken()->getName() == TokenNames::nRegSI) {
+            analyzer->setAux2(analyzer->getLastToken()->getToken());
+            return false;
+        }
+        analyzer->setError(true);
+        return r;
+    }
+
+    bool qMov_3_i_si_i(SyntaxAnalyzer * analyzer) {
+        Transition * transition = new Transition(AutomatonPattern::pSYMBOL, TokenTypes::tINDEX_ED);
+        transition->setState(qMov_1);
+        bool r = analyzer->q(transition);
+        transition->~Transition();
+        return r;
+    }
+
+    bool qMov_1(SyntaxAnalyzer * analyzer) {
+        Transition * transition = new Transition(AutomatonPattern::pSYMBOL, TokenTypes::tSEPARATOR);
+        transition->setState(qMov_1_ax);
+        bool r = analyzer->q(transition);
+        transition->~Transition();
+        return r;
+    }
+
+    bool qMov_1_ax(SyntaxAnalyzer * analyzer) {
+        Transition * transition = new Transition(AutomatonPattern::pLABEL, TokenTypes::tREGISTER);
+        transition->setState(qEnd);
+        bool r = analyzer->q(transition);
+        transition->~Transition();
+        if(!r && analyzer->getLastToken()->getName() == TokenNames::nRegAX) return false;
+        return r;
+    }
+
+    bool qMov_2(SyntaxAnalyzer * analyzer) {
+        Transition * transition = new Transition(AutomatonPattern::pSYMBOL, TokenTypes::tSEPARATOR);
+        transition->setState(qMov_2_f);
+        bool r = analyzer->q(transition);
+        transition->~Transition();
+        return r;
+    }
+
+    bool qMov_2_f(SyntaxAnalyzer * analyzer) {
+        Transition * transition = new Transition(AutomatonPattern::pLABEL, TokenTypes::tREGISTER);
+        transition->setState(qEnd);
+        bool r = analyzer->q(transition);
+
+        if(!r && (
+            analyzer->getLastToken()->getName() == TokenNames::nRegSP ||
+            analyzer->getLastToken()->getName() == TokenNames::nRegSS ||
+            analyzer->getLastToken()->getName() == TokenNames::nRegDS ||
+            analyzer->getLastToken()->getName() == TokenNames::nRegDX ||
+            analyzer->getLastToken()->getName() == TokenNames::nRegSI
+        )) {
+            analyzer->setAux2(analyzer->getLastToken()->getToken());
+            transition->~Transition();
+            return false;
+        }
+
+        transition->setUndo(true);
+        transition->setAutomatonPattern(AutomatonPattern::pSYMBOL);
+        transition->setTokenType(TokenTypes::tINDEX_OP);
+        transition->setState(qMov_2_i_si);
+        r = analyzer->q(transition);
+        if(!r) {
+            transition->~Transition();
+            return false;
+        }
+
+        transition->~Transition();
+
+        analyzer->setEndpoint(qMov_2_exp_i);
+        return ExpressionAutomaton::qBegin_Expression(analyzer);
+    }
+
+    bool qMov_2_exp_i(SyntaxAnalyzer * analyzer) {
+
+        if(analyzer->getLastToken()->isEndOfLine()) {
+            analyzer->setState(qEnd);
+            return false;
+        }
+
+        Transition * transition = new Transition(AutomatonPattern::pSYMBOL, TokenTypes::tINDEX_OP);
+        transition->setState(qMov_2_i_si);
+        bool r = analyzer->q(transition);
+        transition->~Transition();
+        return r;
+    }
+
+    bool qMov_2_i_si(SyntaxAnalyzer * analyzer) {
+        Transition * transition = new Transition(AutomatonPattern::pLABEL, TokenTypes::tREGISTER);
+        transition->setState(qMov_2_i_si_i);
+        bool r = analyzer->q(transition);
+        transition->~Transition();
+        if(!r && analyzer->getLastToken()->getName() == TokenNames::nRegSI) {
+            analyzer->setAux2(analyzer->getLastToken()->getToken());
+            return false;
+        }
+        analyzer->setError(true);
+        return r;
+    }
+
+    bool qMov_2_i_si_i(SyntaxAnalyzer * analyzer) {
+        Transition * transition = new Transition(AutomatonPattern::pSYMBOL, TokenTypes::tINDEX_ED);
+        transition->setState(qEnd);
+        bool r = analyzer->q(transition);
+        transition->~Transition();
+        return r;
+    }
+
+    // -> <ASSUME> ->
+    bool q2(SyntaxAnalyzer * analyzer) {
+        Transition * transition = new Transition(AutomatonPattern::pLABEL, TokenTypes::tREGISTER);
+        transition->setState(q2_col);
+        bool r = analyzer->q(transition);
+        if(!r && (
+                    analyzer->getLastToken()->getName() == TokenNames::nRegCS ||
+                    analyzer->getLastToken()->getName() == TokenNames::nRegDS ||
+                    analyzer->getLastToken()->getName() == TokenNames::nRegSS
+        )) {
+            analyzer->setAux1(analyzer->getLastToken()->getToken());
+            return false;
+        }
+        return r;
+    }
+
+    // -> <ASSUME> -> <registrador> ->
+    bool q2_col(SyntaxAnalyzer * analyzer) {
+        Transition * transition = new Transition(AutomatonPattern::pSYMBOL, TokenTypes::tCOLON);
+        transition->setState(q2_col_id);
+        return analyzer->q(transition);
+    }
+
+    // -> <ASSUME> -> <registrador> -> <:> ->
+    bool q2_col_id(SyntaxAnalyzer * analyzer) {
+        Transition * transition = new Transition(AutomatonPattern::pLABEL);
+        transition->setState(qEnd);
+        transition->setId(true);
+        bool r = analyzer->q(transition);
+        transition->~Transition();
+        if(!r) {
+            analyzer->setAux2(analyzer->getLastToken()->getToken());
+        }
+        return r;
+    }
+
+    // -> <END ->
+    bool q3(SyntaxAnalyzer * analyzer) {
+        Transition * transition = new Transition(AutomatonPattern::pLABEL);
+        transition->setState(qEnd);
+        transition->setId(true);
+        bool r = analyzer->q(transition);
+        if(!r) {
+            analyzer->setAux1(analyzer->getLastToken()->getToken());
+        }
         return r;
     }
 
@@ -143,6 +404,9 @@ namespace SyntaxAutomatons {
                 analyzer->getLastToken()->getName() == TokenNames::nDirSEGMENT ||
                 analyzer->getLastToken()->getName() == TokenNames::nDirPROC
         )) {
+            if(analyzer->getLastToken()->getName() == TokenNames::nDirSEGMENT && !analyzer->getLastToken()->isEndOfLine()) {
+                analyzer->setState(q1_stack);
+            }
             transition->~Transition();
             return false;
         }
@@ -164,6 +428,24 @@ namespace SyntaxAutomatons {
             transition->~Transition();
             return false;
         }
+        // variavel
+        transition->setTokenType(TokenTypes::tVARDEF);
+        transition->setLoad(false);
+        transition->setState(q1_dw_valor);
+        r = analyzer->q(transition);
+        if(!r && analyzer->getLastToken()->getName() == TokenNames::nDW) {
+            transition->~Transition();
+            return false;
+        }
+        // constante
+        transition->setTokenType(TokenTypes::tCONSTDEF);
+        transition->setLoad(false);
+        transition->setState(q1_equ_valor);
+        r = analyzer->q(transition);
+        if(!r && analyzer->getLastToken()->getName() == TokenNames::nEQU) {
+            transition->~Transition();
+            return false;
+        }
         transition->~Transition();
 
         transition = new Transition(AutomatonPattern::pSYMBOL, TokenTypes::tCOLON);
@@ -181,6 +463,65 @@ namespace SyntaxAutomatons {
         //}
         analyzer->undoScan();
         return q1_expression(analyzer);
+    }
+
+    bool q1_stack(SyntaxAnalyzer * analyzer) {
+        Transition * transition = new Transition(AutomatonPattern::pLABEL, TokenTypes::tSTACK);
+        transition->setState(qEnd);
+        bool r = analyzer->q(transition);
+        transition->~Transition();
+        return r;
+    }
+
+    bool q1_equ_valor(SyntaxAnalyzer * analyzer) {
+        analyzer->setEndpoint(qEnd);
+        return ExpressionAutomaton::qBegin_Expression(analyzer);
+    }
+
+    bool q1_dw_valor(SyntaxAnalyzer * analyzer) {
+        Transition * transition = new Transition(AutomatonPattern::pSYMBOL, TokenTypes::tUNDEFINED);
+        transition->setState(qEnd);
+        bool r = analyzer->q(transition);
+        transition->~Transition();
+        if(!r) return false; // '?'
+        // com expressao?
+        analyzer->undoScan();
+        analyzer->setEndpoint(q1_dw_valor_dup);
+        r = ExpressionAutomaton::qBegin_Expression(analyzer);
+        bool eol = analyzer->getLastToken()->isEndOfLine();
+        if(!r && eol) {
+            analyzer->setState(qEnd);
+        }
+        return r;
+    }
+
+    bool q1_dw_valor_dup(SyntaxAnalyzer * analyzer) {
+        Transition * transition = new Transition(AutomatonPattern::pLABEL, TokenTypes::tVECFILL);
+        transition->setState(q1_dw_valor_dup_p);
+        bool r = analyzer->q(transition);
+        transition->~Transition();
+        return r;
+    }
+
+    bool q1_dw_valor_dup_p(SyntaxAnalyzer * analyzer) {
+        Transition * transition = new Transition(AutomatonPattern::pSYMBOL, TokenTypes::tExpPRECEDENCE_OP);
+        transition->setState(q1_dw_valor_dup_p_valor);
+        bool r = analyzer->q(transition);
+        transition->~Transition();
+        return r;
+    }
+
+    bool q1_dw_valor_dup_p_valor(SyntaxAnalyzer * analyzer) {
+        analyzer->setEndpoint(q1_dw_valor_dup_p_valor_p);
+        return ExpressionAutomaton::qBegin_Expression(analyzer);
+    }
+
+    bool q1_dw_valor_dup_p_valor_p(SyntaxAnalyzer * analyzer) {
+        Transition * transition = new Transition(AutomatonPattern::pSYMBOL, TokenTypes::tExpPRECEDENCE_ED);
+        transition->setState(qEnd);
+        bool r = analyzer->q(transition);
+        transition->~Transition();
+        return r;
     }
 
 

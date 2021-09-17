@@ -168,7 +168,7 @@ bool SyntaxAnalyzer::q(SyntaxAutomatons::Transition * transition) {
         if(
             (transition->isId() || t->second == transition->getTokenType()) &&
             (!transition->isId() || t == scanner->getTokens().end()) &&
-            (transition->getPop() == "" || this->stack->top() == transition->getPop()) &&
+            (transition->getPop() == "" || ( !this->stack->empty() && this->stack->top() == transition->getPop())) &&
             (transition->getToken() == "" || token == transition->getToken()) &&
             transition->getCustomFlag()
         ) {

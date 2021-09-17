@@ -1,7 +1,7 @@
 #include "LexiconAutomatons.h"
 #include "LexiconScanner.h"
 
-#define qEndLPCONDITIONS 15
+#define qEndLPCONDITIONS 16
 #define qEndSPCONDITIONS 10
 
 namespace LexiconAutomatons {
@@ -28,14 +28,15 @@ namespace LexiconAutomatons {
         conditions[4] = TokenTypes::tREGISTER;
         conditions[5] = TokenTypes::tASSUME;
         conditions[6] = TokenTypes::tVARDEF;
-        conditions[7] = TokenTypes::tCONSTDEF;
-        conditions[8] = TokenTypes::tExpARITHMETICb;
-        conditions[9] = TokenTypes::tExpLOGICALb;
-        conditions[10] = TokenTypes::tExpLOGICALu;
-        conditions[11] = TokenTypes::tExpRELATIONALb;
-        conditions[12] = TokenTypes::tORG;
-        conditions[13] = TokenTypes::tOFFSET;
-        conditions[14] = TokenTypes::tSTACK;
+        conditions[7] = TokenTypes::tVECFILL;
+        conditions[8] = TokenTypes::tCONSTDEF;
+        conditions[9] = TokenTypes::tExpARITHMETICb;
+        conditions[10] = TokenTypes::tExpLOGICALb;
+        conditions[11] = TokenTypes::tExpLOGICALu;
+        conditions[12] = TokenTypes::tExpRELATIONALb;
+        conditions[13] = TokenTypes::tORG;
+        conditions[14] = TokenTypes::tOFFSET;
+        conditions[15] = TokenTypes::tSTACK;
         return scanner->qEnd(new TransitionEnd(conditions, qEndLPCONDITIONS, false, false,
             new TransitionEnd::DefaultAction(TokenTypes::tIDENTIFIER, false)
         ));

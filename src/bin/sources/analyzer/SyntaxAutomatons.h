@@ -52,12 +52,34 @@ namespace SyntaxAutomatons {
     };
 
     bool qBegin(SyntaxAnalyzer * analyzer);
+    bool qMov(SyntaxAnalyzer * analyzer);
+    bool qMov_1(SyntaxAnalyzer * analyzer);
+    bool qMov_1_ax(SyntaxAnalyzer * analyzer);
+    bool qMov_2(SyntaxAnalyzer * analyzer);
+    bool qMov_2_f(SyntaxAnalyzer * analyzer);
+    bool qMov_2_exp_i(SyntaxAnalyzer * analyzer);
+    bool qMov_2_i_si(SyntaxAnalyzer * analyzer);
+    bool qMov_2_i_si_i(SyntaxAnalyzer * analyzer);
+    bool qMov_3_exp_i(SyntaxAnalyzer * analyzer);
+    bool qMov_3_i_si(SyntaxAnalyzer * analyzer);
+    bool qMov_3_i_si_i(SyntaxAnalyzer * analyzer);
     bool q1(SyntaxAnalyzer * analyzer);
+    bool q1_stack(SyntaxAnalyzer * analyzer);
     bool q1_label(SyntaxAnalyzer * analyzer);
+    bool q1_dw_valor(SyntaxAnalyzer * analyzer);
+    bool q1_dw_valor_dup(SyntaxAnalyzer * analyzer);
+    bool q1_dw_valor_dup_p(SyntaxAnalyzer * analyzer);
+    bool q1_dw_valor_dup_p_valor(SyntaxAnalyzer * analyzer);
+    bool q1_dw_valor_dup_p_valor_p(SyntaxAnalyzer * analyzer);
+    bool q1_equ_valor(SyntaxAnalyzer * analyzer);
     bool q1_label_separator(SyntaxAnalyzer * analyzer);
     bool q1_expression(SyntaxAnalyzer * analyzer);
     bool q1_expressionAux(SyntaxAnalyzer * analyzer);
     bool q1_expression_separator(SyntaxAnalyzer * analyzer);
+    bool q2(SyntaxAnalyzer * analyzer);
+    bool q2_col(SyntaxAnalyzer * analyzer);
+    bool q2_col_id(SyntaxAnalyzer * analyzer);
+    bool q3(SyntaxAnalyzer * analyzer);
 
     bool qEnd(SyntaxAnalyzer * analyzer);
 
