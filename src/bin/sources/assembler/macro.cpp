@@ -1,25 +1,36 @@
 #include "template.h"
 
-Macro::Macro(){
-    
+macroDef::macroDef(std::string name, std::vector<std::string> args)
+{
+    this->name = name;
+    this->args = args;
 }
 
-std::string Macro::getName(){
+std::string macroDef::getName()
+{
     return this->name;
 }
 
-std::vector<T> Macro::getArgs(){
+std::vector<std::string> macroDef::getArgs()
+{
     return this->args;
 }
 
-std::string Macro::getText(){
+std::string macroDef::getText()
+{
     return this->macroText;
 }
 
-std::string Macro::macroLine(){
-    
+void macroDef::setText(std::string line)
+{
+    this->macroText = this->macroText + line + '\n';
 }
 
-void Macro::updateMacro(std::vector<T> args){
 
+std::string macroDef::macroLine()
+{
+}
+
+void macroDef::updateMacro(std::vector<std::string> args)
+{
 }

@@ -7,31 +7,36 @@
 #include <cstring>
 #include "Semantic.h"
 
-//#include "SyntaxAnalyzer.h"
 
-#define T std::string
-/*
-class Macro
+struct label
+{
+    std::string name;
+    std::string valor;
+};
+
+class macroDef
 {
 private:
     std::string name;   // nome de chamada da macro
-    std::vector<T> args; // #00 #01 ...
+    std::vector<std::string> args; // #00 #01 ...
     std::string macroText; // texto da definição da macro
     
 public:
     // constructor
-    Macro();
+    macroDef(std::string name, std::vector<std::string> args);
 
     // getters
     std::string getName();
-    std::vector<T> getArgs();
+    std::vector<std::string> getArgs();
     std::string getText();
+
+    // setters
+    void setText(std::string line);
 
     // métodos
     std::string macroLine();
-    void updateMacro(std::vector<T> args);
+    void updateMacro(std::vector<std::string> args);
 
-};*/
+};
 
-//std::vector<Macro> table;
 #endif

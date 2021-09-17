@@ -37,7 +37,7 @@ std::vector<std::string> * Macro::getParams() {
     return params;
 }
 
-EndM::EndM(std::string line) : Semantic(line, Instruction::iEND) {}
+EndM::EndM(std::string line) : Semantic(line, Instruction::iENDM) {}
 
 //instructions
 
