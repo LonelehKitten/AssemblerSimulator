@@ -51,7 +51,8 @@ enum Instruction{
     iPROC,
     iENDP,
     iMACRO,
-    iENDM
+    iENDM,
+    iMACROCALL
 };
 
 class Semantic {
@@ -253,6 +254,14 @@ class EndP : public Semantic {
         EndP(std::string line, std::string name);
         std::string getName();
 };
+
+class Macrocall : public Semantic{
+    private:
+    
+    public:
+        Macrocall(std::string line);
+};
+
 
 /*
 class Org : Semantic {
