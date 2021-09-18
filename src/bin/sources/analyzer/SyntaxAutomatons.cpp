@@ -110,12 +110,32 @@ namespace SyntaxAutomatons {
     bool qBegin(SyntaxAnalyzer * analyzer) {
         Transition * transition = new Transition(AutomatonPattern::pLABEL, TokenTypes::tBLOCKEND);
         transition->setState(qEnd);
+
         bool r = analyzer->q(transition);
 
         if( !r && analyzer->getLastToken()->getName() == TokenNames::nDirENDM ) {
-            analyzer->setMacroScope(false);
+            if(!analyzer->getMacroStack()->empty()) analyzer->getMacroStack()->pop();
             return false;
         }
+
+        // <macrocontent>
+        if(!analyzer->getMacroStack()->empty()) {
+
+            transition->setState(q1);
+            transition->setId(true);
+            transition->setUndo(true);
+            r = analyzer->q(transition);
+            transition->~Transition();
+
+            if(!r) return false;
+
+            analyzer->acceptMacroContent();
+            analyzer->setError(false);
+
+            return true;
+        }
+        // </macrocontent>
+
         transition->setTokenType(TokenTypes::tASSUME);
         transition->setState(q2);
         transition->setLoad(false);
@@ -492,6 +512,25 @@ namespace SyntaxAutomatons {
         bool r = analyzer->q(transition);
 
         // definicao
+        if( !r && analyzer->getLastToken()->getName() == TokenNames::nDirMACRO ) {
+            analyzer->setState(q1_label);
+            analyzer->getMacroStack()->push("m");
+            analyzer->setVAux(new std::vector<std::string>());
+            transition->~Transition();
+            return false;
+        }
+
+        // <macrocontent>
+        if(!analyzer->getMacroStack()->empty()) {
+
+            analyzer->acceptMacroContent();
+
+            analyzer->setError(false);
+            transition->~Transition();
+            return true;
+        }
+        // </macrocontent>
+
         if(!r && (
                 analyzer->getLastToken()->getName() == TokenNames::nDirSEGMENT ||
                 analyzer->getLastToken()->getName() == TokenNames::nDirPROC
@@ -499,13 +538,6 @@ namespace SyntaxAutomatons {
             if(analyzer->getLastToken()->getName() == TokenNames::nDirSEGMENT && !analyzer->getLastToken()->isEndOfLine()) {
                 analyzer->setState(q1_stack);
             }
-            transition->~Transition();
-            return false;
-        }
-        if( !r && analyzer->getLastToken()->getName() == TokenNames::nDirMACRO ) {
-            analyzer->setState(q1_label);
-            analyzer->setMacroScope(true);
-            analyzer->setVAux(new std::vector<std::string>());
             transition->~Transition();
             return false;
         }
