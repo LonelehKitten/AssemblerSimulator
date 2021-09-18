@@ -9,6 +9,9 @@ void SyntaxAnalyzer::set(std::string line, bool last) {
     this->line = line;
     this->last = last;
     this->state = SyntaxAutomatons::qBegin;
+    this->aux1 = "";
+    this->aux2 = "";
+    this->aux3 = "";
 }
 
 bool SyntaxAnalyzer::init() {
@@ -116,7 +119,135 @@ bool SyntaxAnalyzer::check() {
     return valid;
 }
 
-void SyntaxAnalyzer::getRow() {
+Semantic * SyntaxAnalyzer::getRow() {
+
+    int t;
+    std::vector<Token *> * expression;
+    Token * t1 = row[0], * t2;
+    if(row.size() > 1) t2 = row[1];
+
+    switch (t1->getType()) {
+        case TokenTypes::tIDENTIFIER:
+            switch (t2->getType()) {
+                case TokenTypes::tBLOCKDEF:
+                        if(t2->getName() == TokenNames::nDirSEGMENT) {
+                            return new Segment(this->line, this->getAux1());
+                        }
+                        else if(t2->getName() == TokenNames::nDirPROC) {
+                            return new Proc(this->line, this->getAux1());
+                        }
+                        else if(t2->getName() == TokenNames::nDirMACRO) {
+                            return new Macro(this->line, this->getAux1(), this->vaux);
+                        }
+                    break;
+                case TokenTypes::tBLOCKEND:
+                        if(t2->getName() == TokenNames::nDirENDS) {
+                            return new Segment(this->line, this->getAux1());
+                        }
+                        else if(t2->getName() == TokenNames::nDirENDP) {
+                            return new Proc(this->line, this->getAux1());
+                        }
+                    break;
+                case TokenTypes::tIDENTIFIER:
+                        std::vector<std::vector<Token *> *> * params = new std::vector<std::vector<Token *> *>();
+                        t = -1;
+                        while(t < (int) row.size()) {
+                            t++;
+                            params->emplace_back(getExpression(t, t));
+                        }
+                        return new MacroCall(this->line, params);
+            }
+
+        case TokenTypes::tASSUME:
+            return new Assume(this->line, this->aux1, this->getAux2());
+
+        case TokenTypes::tVARDEF:
+            if(row[1]->getType() == TokenTypes::tUNDEFINED) {
+                return new Dw(this->line, nullptr);
+            }
+            expression = getExpression(1, t);
+            return new Dw(this->line, expression);
+
+        case TokenTypes::tEND:
+            return new End(this->line, this->aux1);
+
+        case TokenTypes::tOPERATION:
+            switch (t1->getName()) {
+                case TokenNames::nOpADD:
+                    if(row[3]->getType() == TokenTypes::tREGISTER) {
+                        return new Add(this->line, this->aux1);
+                    }
+                    expression = getExpression(3, t);
+                    return new Add(this->line, expression);
+
+                case TokenNames::nOpSUB:
+                    if(row[3]->getType() == TokenTypes::tREGISTER) {
+                        return new Sub(this->line, this->aux1);
+                    }
+                    expression = getExpression(3, t);
+                    return new Sub(this->line, expression);
+
+                case TokenNames::nOpDIV:
+                    return new Mul(this->line, this->aux1);
+
+                case TokenNames::nOpMUL:
+                    return new Div(this->line, this->aux1);
+
+                case TokenNames::nOpMOV:
+                    if(t2->getType() == TokenTypes::tREGISTER) {
+                        if(row[3]->getType() == TokenTypes::tREGISTER) {
+                            return new Mov(this->line, this->aux1, this->aux2);
+                        }
+                        expression = getExpression(3, t);
+                        return new Mov(this->line, this->aux1, expression, (t < (int) row.size()));
+                    }
+                    expression = getExpression(1, t);
+                    return new Mov(this->line, expression, this->aux2,
+                        row[t]->getType() == TokenTypes::tINDEX_OP
+                    );
+
+                    /*
+                case TokenNames::nOpOR:
+                    return new Or(this->line, this->getAux1());
+                    break;
+                case TokenNames::nOpAND:
+                    return new And(this->line, this->getAux1());
+                    break;
+                case TokenNames::nOpXOR:
+                    return new Xor(this->line, this->getAux1());
+                    break;
+                    */
+                case TokenNames::nOpPUSH:
+                    return new Push(this->line);
+                case TokenNames::nOpPOP:
+                    return new Pop(this->line);
+                case TokenNames::nOpPUSHF:
+                    return new Pushf(this->line);
+                case TokenNames::nOpPOPF:
+                    return new Popf(this->line);
+            }
+            break;
+    }
+
+    return new Add("ADD AX, DX", "DX");
+
+}
+
+std::vector<Token *> * SyntaxAnalyzer::getExpression(int it, int& pointer) {
+
+    std::vector<Token *> * expression = new std::vector<Token *>();
+
+    while(
+          it < (int) row.size() &&
+          (row[it]->getType() != TokenTypes::tSEPARATOR && row[it]->getType() != TokenTypes::tINDEX_OP)
+    ) {
+        expression->emplace_back(row[it]);
+        it++;
+    }
+
+    pointer = it;
+
+    return expression;
 
 }
 
