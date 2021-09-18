@@ -11,6 +11,7 @@
 #include "LexiconScannerStatus.h"
 #include "SyntaxAutomatons.h"
 #include "Token.h"
+#include "Semantic.h"
 
 class SyntaxAnalyzer {
 
@@ -37,6 +38,8 @@ class SyntaxAnalyzer {
         std::vector<std::string> * vaux;
         bool macroScope;
 
+        std::vector<Token *> * getExpression(int it, int& pointer);
+
         std::function<bool(SyntaxAnalyzer *)> endpoint;
 
     public:
@@ -50,7 +53,7 @@ class SyntaxAnalyzer {
 
         bool check();
 
-        void getRow();
+        Semantic * getRow();
 
         bool q(SyntaxAutomatons::Transition * transition);
 
