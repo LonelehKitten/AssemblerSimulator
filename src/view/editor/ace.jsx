@@ -1,11 +1,9 @@
 import AceEditor from 'react-ace';
-import { makeStyles } from '@material-ui/core/styles';
 import 'ace-builds/src-noconflict/mode-assembly_x86';
 import 'ace-builds/src-noconflict/theme-dracula';
 import 'ace-builds/src-noconflict/ext-language_tools';
 
 import { useContext } from '../../utils/context';
-import { useEffect, useState } from 'react';
 
 const { ipcRenderer } = window.electron;
 
@@ -18,23 +16,6 @@ const Ace = ({ onChange }) => {
     alertShow,
     setListFiles,
   } = useContext();
-  const [teste, setTeste] = useState(true);
-
-  const useStyles = makeStyles((theme) => ({
-    '@global': {
-      '*::-webkit-scrollbar': {
-        width: '0.4em',
-        height: '0.4em',
-      },
-      '*::-webkit-scrollbar-track': {
-        '-webkit-box-shadow': 'inset 0 0 6px rgba(0,0,0,0.02)',
-      },
-      '*::-webkit-scrollbar-thumb': {
-        backgroundColor: '#191b24',
-        outline: '1px solid ',
-      },
-    },
-  }));
 
   const handleChange = (value) => {
     currentFile.isSave = true;
@@ -62,36 +43,17 @@ const Ace = ({ onChange }) => {
     }
   };
 
-  const stopKey = (event) => {
-    /*if (event.keyCode == 83 && event.ctrlKey) {
-            event.preventDefault();
-            event.stopPropagation();
-            return false;
-        }*/
-  };
-
-  const classes = useStyles();
-
   return (
     <div onKeyUp={handleSave} style={{ width: '100%', height: '100%' }}>
       {/** Gambiarra */}
 
       <AceEditor
-        commands={[
-          {
-            name: 'save',
-            bindKey: { win: 'Ctrl-S', mac: 'Cmd-S' },
-            exec: (e) => {
-              //  handleSave(e);
-            },
-          },
-        ]}
         readOnly={currentFile === null}
         mode='assembly_x86'
         theme='dracula'
         placeholder={currentFile === null ? 'Crie um arquivo . . .' : ''}
         onChange={handleChange}
-        name='UNIQUE_ID_OF_DIV'
+        name='editor'
         value={currentFile?.code || ''}
         style={{
           width: '100%',
