@@ -5,7 +5,7 @@
 #include <iostream>
 #include <string>
 #include "../analyzer/Semantic.h"
-#include "macro.h"
+#include "macroDef.h"
 
 class Assembler
 {
