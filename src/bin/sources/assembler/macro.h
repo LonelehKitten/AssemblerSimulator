@@ -10,7 +10,7 @@
 //#include "SyntaxAnalyzer.h"
 
 #define T std::string
-/*
+
 class Macro
 {
 private:
@@ -31,7 +31,7 @@ public:
     std::string macroLine();
     void updateMacro(std::vector<T> args);
 
-};*/
+};
 
 //std::vector<Macro> table;
 #endif

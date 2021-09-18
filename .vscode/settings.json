@@ -43,6 +43,28 @@
         "sstream": "cpp",
         "stdexcept": "cpp",
         "streambuf": "cpp",
+<<<<<<< Updated upstream
         "typeinfo": "cpp"
+=======
+        "typeinfo": "cpp",
+        "cstring": "cpp",
+        "compare": "cpp",
+        "concepts": "cpp",
+        "ctime": "cpp",
+        "ios": "cpp",
+        "list": "cpp",
+        "stack": "cpp",
+        "xfacet": "cpp",
+        "xhash": "cpp",
+        "xiosbase": "cpp",
+        "xlocale": "cpp",
+        "xlocinfo": "cpp",
+        "xlocnum": "cpp",
+        "xmemory": "cpp",
+        "xstddef": "cpp",
+        "xstring": "cpp",
+        "xtr1common": "cpp",
+        "xutility": "cpp"
+>>>>>>> Stashed changes
     }
 }

@@ -1,9 +1,12 @@
 #include "template.h"
 
 using namespace std;
+<<<<<<< Updated upstream
 /*
 template <class T>
 Vector<T> */
+=======
+>>>>>>> Stashed changes
 
 int main(int argc, char **argv)
 {
@@ -67,7 +70,12 @@ int main(int argc, char **argv)
     };
     //lines.push_back(&Teste);
 
+<<<<<<< Updated upstream
  //   Macro currentMacro;
+=======
+    
+
+>>>>>>> Stashed changes
     for (int i = 0; i < lines.size(); i++)
     {
         Semantic * Item = lines[i];
