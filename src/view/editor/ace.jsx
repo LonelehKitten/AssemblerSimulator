@@ -100,6 +100,7 @@ const Ace = ({ onChange }) => {
         }}
         editorProps={{ $blockScrolling: true }}
         setOptions={{
+          printMargin: 50,
           showInvisibles: true,
           fontSize: 20,
           enableLiveAutocompletion: true,
