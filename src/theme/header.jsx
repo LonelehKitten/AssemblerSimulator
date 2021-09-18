@@ -16,61 +16,85 @@ import MenuIcon from '@material-ui/icons/Menu';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 
+import { useContext } from '../utils/context';
+
+const { ipcRenderer } = window.electron;
+
 const useStyles = makeStyles((theme) => ({
-    root: {
-        flexGrow: 1,
-    },
-    menuButton: {
-        marginRight: theme.spacing(2),
-    },
-    title: {
-        flexGrow: 1,
-    },
+  root: {
+    flexGrow: 1,
+  },
+  menuButton: {
+    marginRight: theme.spacing(2),
+  },
+  title: {
+    flexGrow: 1,
+  },
 }));
 
 const Header = () => {
-    const classes = useStyles();
+  const { currentFile } = useContext();
+  const classes = useStyles();
 
-    const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = React.useState(false);
 
-    const handleDrawerOpen = () => {
-        setOpen(true);
-    };
+  const handleDrawerOpen = () => {
+    setOpen(true);
+  };
 
-    const handleDrawerClose = () => {
-        setOpen(false);
-    };
+  const handleDrawerClose = () => {
+    setOpen(false);
+  };
 
-    return (
-        <div className={classes.root}>
-            <AppBar position="static">
-                <Toolbar variant="dense">
-                    <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu" onClick={handleDrawerOpen}>
-                        <MenuIcon />
-                    </IconButton>
-                    <Typography variant="h6" className={classes.title}>Assembler Simulator</Typography>
-                    <Button color="inherit"><PlayArrowIcon /></Button>
-                    <Button color="inherit"><SkipNextIcon /></Button>
-                    <Button color="inherit"><StopIcon /></Button>
-                </Toolbar>
-            </AppBar>
-            <Drawer anchor={"left"} open={open} onClose={handleDrawerClose}>
-                <TreeView
-                color="primary"
-                    className={classes.root}
-                    defaultCollapseIcon={<ExpandMoreIcon />}
-                    defaultExpandIcon={<ChevronRightIcon />}
-                    multiSelect
-                >
-                    <TreeItem nodeId="1" label="Applications">
-                        <TreeItem nodeId="2" label="Calendar" />
-                        <TreeItem nodeId="3" label="Chrome" />
-                        <TreeItem nodeId="4" label="Webstorm" />
-                    </TreeItem>
-                </TreeView>
-            </Drawer>
-        </div>
-    );
-}
+  const handlePlay = () => {
+    //play_expandMacros
+    ipcRenderer.send('play_expandMacros', currentFile.code);
+  };
+
+  return (
+    <div className={classes.root}>
+      <AppBar position='static'>
+        <Toolbar variant='dense'>
+          <IconButton
+            edge='start'
+            className={classes.menuButton}
+            color='inherit'
+            aria-label='menu'
+            onClick={handleDrawerOpen}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Typography variant='h6' className={classes.title}>
+            Assembler Simulator
+          </Typography>
+          <Button color='inherit' onClick={handlePlay}>
+            <PlayArrowIcon />
+          </Button>
+          <Button color='inherit'>
+            <SkipNextIcon />
+          </Button>
+          <Button color='inherit'>
+            <StopIcon />
+          </Button>
+        </Toolbar>
+      </AppBar>
+      <Drawer anchor={'left'} open={open} onClose={handleDrawerClose}>
+        <TreeView
+          color='primary'
+          className={classes.root}
+          defaultCollapseIcon={<ExpandMoreIcon />}
+          defaultExpandIcon={<ChevronRightIcon />}
+          multiSelect
+        >
+          <TreeItem nodeId='1' label='Applications'>
+            <TreeItem nodeId='2' label='Calendar' />
+            <TreeItem nodeId='3' label='Chrome' />
+            <TreeItem nodeId='4' label='Webstorm' />
+          </TreeItem>
+        </TreeView>
+      </Drawer>
+    </div>
+  );
+};
 
 export default Header;
