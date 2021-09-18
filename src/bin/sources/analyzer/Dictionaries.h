@@ -41,7 +41,8 @@ enum class TokenTypes {
     tDECIMAL,
     tHEXADECIMAL,
     tBINARY,
-    tCHARACTERE
+    tCHARACTERE,
+    tMACROCONTENT
 };
 
 enum class TokenNames {
@@ -115,7 +116,8 @@ enum class TokenNames {
     nPC,
     nORG,
     nOFFSET,
-    nSTACK
+    nSTACK,
+    nMACROCONTENT
 };
 
 

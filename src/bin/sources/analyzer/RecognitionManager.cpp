@@ -8,6 +8,11 @@ std::vector<Semantic *> * RecognitionManager::analyze(std::string text) {
 
     std::vector<std::string> * rawLines = split(text);
 
+    for(int i = 0; i < (int) rawLines->size(); i++)
+        std::cout << "l" << i << ":  " << rawLines->at(i) << std::endl;
+
+    std::cout << "size: " << text.size() << std::endl;
+
     std::vector<Semantic *> * lines = new std::vector<Semantic *>();
 
     for(int i = 0; i < (int) rawLines->size(); i++) {
@@ -42,7 +47,7 @@ std::vector<std::string> * RecognitionManager::split(std::string& text) {
             break;
         }
 
-        if(text[it] == '.') {
+        if(text[it] == '\n') {
             lines->emplace_back(text.substr(begin, end));
             it++;
             begin = it;

@@ -3,6 +3,7 @@
 SyntaxAnalyzer::SyntaxAnalyzer() {
     this->scanner = new LexiconScanner();
     this->stack = new std::stack<std::string>();
+    this->macroStack = new std::stack<std::string>();
 }
 
 void SyntaxAnalyzer::set(std::string line, bool last) {
@@ -12,6 +13,8 @@ void SyntaxAnalyzer::set(std::string line, bool last) {
     this->aux1 = "";
     this->aux2 = "";
     this->aux3 = "";
+    if(this->vaux != nullptr) this->vaux->clear();
+    this->isMacroContent = false;
 }
 
 bool SyntaxAnalyzer::init() {
@@ -61,11 +64,6 @@ void SyntaxAnalyzer::setVAux(std::vector<std::string> * vaux)
     this->vaux = vaux;
 }
 
-void SyntaxAnalyzer::setMacroScope(bool macroScope)
-{
-    this->macroScope = macroScope;
-}
-
 const std::string SyntaxAnalyzer::getAux1() const
 {
     return aux1;
@@ -86,13 +84,19 @@ std::vector<std::string> * SyntaxAnalyzer::getVAux() const
     return vaux;
 }
 
-bool SyntaxAnalyzer::isMacroScope() const
-{
-    return macroScope;
+std::vector<Token *> * SyntaxAnalyzer::getRawRow() {
+    return &row;
 }
 
 Token * SyntaxAnalyzer::getLastToken() {
     return this->row.back();
+}
+
+void SyntaxAnalyzer::acceptMacroContent() {
+    row[0]->~Token();
+    row.clear();
+    row.emplace_back(new Token(line, TokenTypes::tMACROCONTENT, TokenNames::nMACROCONTENT, true));
+    isMacroContent = true;
 }
 
 bool SyntaxAnalyzer::check() {
@@ -122,40 +126,46 @@ bool SyntaxAnalyzer::check() {
 Semantic * SyntaxAnalyzer::getRow() {
 
     int t;
+    std::vector<std::vector<Token *> *> * params = new std::vector<std::vector<Token *> *>();
     std::vector<Token *> * expression;
     Token * t1 = row[0], * t2;
     if(row.size() > 1) t2 = row[1];
+
+    if(!macroStack->empty() && t1->getType() == TokenTypes::tMACROCONTENT) {
+        return new MacroContent(line);
+    }
 
     switch (t1->getType()) {
         case TokenTypes::tIDENTIFIER:
             switch (t2->getType()) {
                 case TokenTypes::tBLOCKDEF:
-                        if(t2->getName() == TokenNames::nDirSEGMENT) {
-                            return new Segment(this->line, this->getAux1());
-                        }
-                        else if(t2->getName() == TokenNames::nDirPROC) {
-                            return new Proc(this->line, this->getAux1());
-                        }
-                        else if(t2->getName() == TokenNames::nDirMACRO) {
-                            return new Macro(this->line, this->getAux1(), this->vaux);
-                        }
+                    if(t2->getName() == TokenNames::nDirSEGMENT) {
+                        return new Segment(this->line, this->getAux1());
+                    }
+                    else if(t2->getName() == TokenNames::nDirPROC) {
+                        return new Proc(this->line, this->getAux1());
+                    }
+                    else if(t2->getName() == TokenNames::nDirMACRO) {
+                        return new Macro(this->line, this->getAux1(), this->vaux);
+                    }
                     break;
                 case TokenTypes::tBLOCKEND:
-                        if(t2->getName() == TokenNames::nDirENDS) {
-                            return new Segment(this->line, this->getAux1());
-                        }
-                        else if(t2->getName() == TokenNames::nDirENDP) {
-                            return new Proc(this->line, this->getAux1());
-                        }
+                    if(t2->getName() == TokenNames::nDirENDS) {
+                        return new EndS(this->line, this->getAux1());
+                    }
+                    else if(t2->getName() == TokenNames::nDirENDP) {
+                        return new EndP(this->line, this->getAux1());
+                    }
                     break;
                 case TokenTypes::tIDENTIFIER:
-                        std::vector<std::vector<Token *> *> * params = new std::vector<std::vector<Token *> *>();
-                        t = -1;
-                        while(t < (int) row.size()) {
-                            t++;
-                            params->emplace_back(getExpression(t, t));
-                        }
-                        return new MacroCall(this->line, params);
+                    t = -1;
+                    while(t < (int) row.size()) {
+                        t++;
+                        params->emplace_back(getExpression(t, t));
+                    }
+                    return new MacroCall(this->line, params);
+                default:
+                    break;
             }
 
         case TokenTypes::tASSUME:
@@ -170,6 +180,11 @@ Semantic * SyntaxAnalyzer::getRow() {
 
         case TokenTypes::tEND:
             return new End(this->line, this->aux1);
+
+        case TokenTypes::tBLOCKEND:
+            if(t1->getName() == TokenNames::nDirENDM)
+                return new End(this->line, this->aux1);
+            break;
 
         case TokenTypes::tOPERATION:
             switch (t1->getName()) {
@@ -225,7 +240,11 @@ Semantic * SyntaxAnalyzer::getRow() {
                     return new Pushf(this->line);
                 case TokenNames::nOpPOPF:
                     return new Popf(this->line);
+                default:
+                    break;
             }
+            break;
+        default:
             break;
     }
 
@@ -330,7 +349,12 @@ bool SyntaxAnalyzer::validate(SyntaxAutomatons::Transition * transition) {
                 type != TokenTypes::tHEXADECIMAL &&
                 type != TokenTypes::tBINARY &&
                 type != TokenTypes::tCHARACTERE
-    );
+            );
+}
+
+std::stack<std::string> *SyntaxAnalyzer::getMacroStack() const
+{
+    return macroStack;
 }
 
 void SyntaxAnalyzer::undoScan() {
