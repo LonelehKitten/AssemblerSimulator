@@ -7,9 +7,10 @@
 #include <unordered_map>
 #include <stack>
 #include <utility>
+#include <algorithm>
 
 #include "LexiconScannerStatus.h"
-#include "Automatons.h"
+#include "LexiconAutomatons.h"
 #include "Dictionaries.h"
 
 /*
@@ -18,9 +19,16 @@
 class LexiconScanner {
 
     public:
-        /*
-            Type that tokens are classified in
-        */
+
+        typedef struct TokenSetUnit {
+            private:
+                std::string token;
+                TokenTypes tokenType;
+            public:
+                TokenSetUnit(std::string token, TokenTypes tokenType);
+                std::string getToken();
+                TokenTypes getTokenType();
+        } TokenSetUnit;
 
     private:
 
@@ -31,13 +39,22 @@ class LexiconScanner {
         std::function<bool(LexiconScanner *)> state;
 
         std::unordered_map<std::string, TokenTypes> tokens;
-        std::unordered_map<TokenTypes, std::function<bool(LexiconScanner *)>> initialStates;
+        std::unordered_map<AutomatonPattern, std::function<bool(LexiconScanner *)>> initialStates;
+        std::unordered_map<TokenNames, LexiconScanner::TokenSetUnit *> tokenSet;
 
         std::stack<std::string> * stack;
 
         LexiconScannerStatus * tokenData;
 
-        /**
+        /**typedef struct TokenSetUnit {
+            private:
+                std::string token;
+                TokenTypes tokenType;
+            public:
+                TokenSetUnit(std::string token, TokenTypes tokenType);
+                std::string getToken();
+                TokenTypes getTokenType();
+        } TokenSetUnit;
          * Caractere atualmente lido de line
          */
         char currentChar;
@@ -71,8 +88,9 @@ class LexiconScanner {
          */
         int lastTokenEndPosition;
 
+        void initTokenSet();
 
-        void start(TokenTypes tokenType);
+        void start(AutomatonPattern automatonPattern);
 
         void snap();
         
@@ -90,20 +108,8 @@ class LexiconScanner {
 
         LexiconScanner();
 
-        typedef struct TokenSetUnit {
-            private:
-                std::string token;
-                TokenTypes tokenType;
-            public:
-                TokenSetUnit(std::string token, TokenTypes tokenType);
-                std::string getToken();
-                TokenTypes getTokenType();
-        } TokenSetUnit;
-
         static void createDictionary(std::unordered_map<TokenNames, LexiconScanner::TokenSetUnit *>& tokenSet,
             std::unordered_map<std::string, TokenTypes>& tokens);
-
-        std::unordered_map<TokenNames, LexiconScanner::TokenSetUnit *> tokenSet;
 
         /**
          * Seta a próxima linha a ser lida e reseta as configurações do analisador léxico
@@ -123,13 +129,13 @@ class LexiconScanner {
          * @param tokenType O tipo do próximo token que deve ser reconhecido
          * @returns Retorna o token reconhecido, seu tipo, o indicador de final de linha e qual analisador lexico foi utilisado
          */
-        LexiconScannerStatus * nextToken(TokenTypes tokenType);
+        LexiconScannerStatus * nextToken(AutomatonPattern automatonPattern);
 
         // ======================
 
-        bool q(Automatons::Transition ** transition, int length, Automatons::Transition * defaultAction=nullptr);
+        bool q(LexiconAutomatons::Transition ** transition, int length, LexiconAutomatons::Transition * defaultAction=nullptr);
 
-        bool qEnd(Automatons::TransitionEnd * transitionEnd);
+        bool qEnd(LexiconAutomatons::TransitionEnd * transitionEnd);
 
         // =============== comparadores ================
 
@@ -140,6 +146,8 @@ class LexiconScanner {
 
         // verifica se caractere corrente é igual a um caractere específico
         bool is(char character);
+
+        bool isBetween(char l, char g);
 
         // conjunto α U Α (alfa minúsculo união alfa maiúsculo)
         bool isAlpha();
@@ -165,6 +173,11 @@ class LexiconScanner {
 
         // =============================================
 
+
+
+        const std::unordered_map<std::string, TokenTypes>& getTokens();
+        const std::unordered_map<AutomatonPattern, std::function<bool(LexiconScanner *)> >& getInitialStates();
+        const std::unordered_map<TokenNames, LexiconScanner::TokenSetUnit *>& getTokenSet();
 };
 
 #endif /* LEXICON_SCANNER_H */

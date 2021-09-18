@@ -56,6 +56,7 @@ const Header = () => {
             </AppBar>
             <Drawer anchor={"left"} open={open} onClose={handleDrawerClose}>
                 <TreeView
+                color="primary"
                     className={classes.root}
                     defaultCollapseIcon={<ExpandMoreIcon />}
                     defaultExpandIcon={<ChevronRightIcon />}

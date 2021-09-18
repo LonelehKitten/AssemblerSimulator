@@ -15,19 +15,29 @@ bool LexiconScannerStatus::isAccepted() {
 
 // ================
 
-SuccessStatus::SuccessStatus(std::string token, TokenTypes tokenType, bool endOfLine)
-: LexiconScannerStatus(true),
-token(token), tokenType(tokenType), endOfLine(endOfLine) {}
+SuccessStatus::SuccessStatus(std::string token, TokenTypes tokenType, TokenNames tokenName, bool endOfLine)
+: LexiconScannerStatus(true) {
+    this->token = new Token(token, tokenType, tokenName, endOfLine);
+}
 
 std::string SuccessStatus::getToken() {
-    return this->token;
+    return this->token->getToken();
 }
 
 TokenTypes SuccessStatus::getTokenType() {
-    return this->tokenType;
+    return this->token->getType();
 }
+
+TokenNames SuccessStatus::getTokenName() {
+    return this->token->getName();
+}
+
 bool SuccessStatus::isEndOfLine() {
-    return this->endOfLine;
+    return this->token->isEndOfLine();
+}
+
+Token * SuccessStatus::getTokenObject() {
+    return token;
 }
 
 // ================

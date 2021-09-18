@@ -5,6 +5,7 @@ Assembler::Assembler(std::vector<Semantic *> * lines) :
 {}
 
 std::string Assembler::preproccess() {
+<<<<<<< HEAD
     
     /**Ja definido em Assembler.h: 
     *       std::vector<macroDef *> macroTable;
@@ -15,6 +16,12 @@ std::string Assembler::preproccess() {
 
 
     for (int i = 0; i < (int) lines->size(); i++)   //Leitura principal de arquivos
+=======
+
+    std::vector<bool> macroFound;
+
+    for (int i = 0; i < (int) lines->size(); i++)
+>>>>>>> 19d9fba70ef35e0a348157f8da31e081225bb791
         {
             Semantic *Item = (*lines)[i];
             std::cout << Item->getLine() << std::endl;
@@ -49,17 +56,27 @@ std::string Assembler::preproccess() {
             {
                 // IterarMacroCall();
             }
+<<<<<<< HEAD
             /*else if (macroFound.size() == 0){
             //    std::cout << "Error ";
                 // Error
             }*/
             else
+=======
+            else if (macroFound.size() == 0){
+                std::cout << "Error ";
+                // Error
+            }else
+>>>>>>> 19d9fba70ef35e0a348157f8da31e081225bb791
             {
                 macroTable.back()->setText(Item->getLine());
             }
         }
 
+<<<<<<< HEAD
         //Teste da tabelacao de macro
+=======
+>>>>>>> 19d9fba70ef35e0a348157f8da31e081225bb791
         std::cout << "Total: " << macroTable.size() << std::endl << std::endl;
         for (int i = 0; i < (int) macroTable.size(); i++)
         {

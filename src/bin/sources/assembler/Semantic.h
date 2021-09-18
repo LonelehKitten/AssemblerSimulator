@@ -3,9 +3,6 @@
 
 #include <string>
 #include <vector>
-
-#include "Token.h"
-
 /*
  * tipo e linha
  * operador / parametros / operando
@@ -55,8 +52,7 @@ enum Instruction{
     iENDP,
     iMACRO,
     iENDM,
-    iMACROCALL,
-    iMACROCONTENT
+    iMACROCALL
 };
 
 class Semantic {
@@ -99,51 +95,24 @@ class EndM : public Semantic {
         EndM(std::string line);
 };
 
-class MacroContent : public Semantic {
-    public:
-        MacroContent(const std::string line);
-};
-
-class MacroCall : public Semantic{
-    private:
-        std::string name;
-        std::vector<std::vector<Token *> *> * params;
-    public:
-        MacroCall(std::string line, std::vector<std::vector<Token *> *> * params);
-
-        const std::string &getName() const;
-        std::vector<std::vector<Token *> *> *getParams() const;
-};
-
 //aritmeticas
 
 class Add : public Semantic {
     private:
         //primeiro operando : registrador AX
         std::string segundoOperando; //registrador AX, DX ou cte
-        std::vector<Token *> * expression;
-
     public:
         Add(std::string line, std::string segundoOperando);
-        Add(std::string line, std::vector<Token *> * expression);
-
         std::string getSegundoOperando();
-
-        std::vector<Token *> *getExpression() const;
 };
 
 class Sub : public Semantic {
     private:
         //primeiro operando : registrador AX
         std::string segundoOperando; //AX, DX ou cte
-        std::vector<Token *> * expression;
     public:
         Sub(std::string line, std::string segundoOperando);
-        Sub(std::string line, std::vector<Token *> * expression);
-
         std::string getSegundoOperando();
-
-        std::vector<Token *> *getExpression() const;
 };
 
 class Div : public Semantic {
@@ -176,22 +145,10 @@ class Cmp : public Semantic {
 
 class Mov : public Semantic {
     private:
-        std::string operand1, operand2;
-        std::vector<Token *> * expression1, * expression2;
-        bool indexed;
-
+        std::vector<std::string> * operandos;   //AX, DX ou cte
     public:
-        Mov(std::string line, std::string operand1, std::string operand2);
-        Mov(std::string line, std::vector<Token *> * expression1, std::string operand2, bool indexed);
-        Mov(std::string line, std::string operand1, std::vector<Token *> * expression1, bool indexed);
-
-        std::string getOperand1() const;
-        std::string getOperand2() const;
-
-        std::vector<Token *> * getExpression1() const;
-        std::vector<Token *> * getExpression2() const;
-
-        bool isIndexed() const;
+        Mov(std::string line, std::vector<std::string> * operandos);
+        std::vector<std::string> * getOperandos();
 };
 
 //pilha
@@ -210,11 +167,11 @@ class Push : public Semantic {
         Push(std::string line);
 };
 
-class Popf : public Semantic {
+class Poft : public Semantic {
     private:
         //o poft não recebe nenhum operando
     public:
-        Popf(std::string line);
+        Poft(std::string line);
 };
 
 class Pushf : public Semantic {
@@ -254,14 +211,11 @@ class EndS : public Semantic {
 class Dw : public Semantic {
     private:
         std::string name;
-        std::vector<Token *> * expression; //por enquanto ta só int porque é o que tem no exemplo de entrada do trabalho
+        int value;          //por enquanto ta só int porque é o que tem no exemplo de entrada do trabalho
     public:
-        Dw(std::string line, std::vector<Token *> * expression);
-        Dw(std::string line, std::string name, std::vector<Token *> * expression);
+        Dw(std::string line, std::string name, int value);
         std::string getName();
-
-
-        std::vector<Token *> *getExpression() const;
+        int getValue();
 };
 
 //declaração de constante
@@ -299,6 +253,13 @@ class EndP : public Semantic {
     public:
         EndP(std::string line, std::string name);
         std::string getName();
+};
+
+class Macrocall : public Semantic{
+    private:
+    
+    public:
+        Macrocall(std::string line);
 };
 
 
@@ -412,6 +373,8 @@ class Ret : public Semantic {
         //opcode = C3
 };
 */
+
+
 
 
 
