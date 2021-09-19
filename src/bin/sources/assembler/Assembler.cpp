@@ -176,7 +176,7 @@ std::string Assembler::preproccess() {
                 
                 //textOnExpansion += lineResult + '\n';
                 //}
-
+                /*
                 std::vector<Semantic *> * s_array = rm->analyze(textOnExpansion, false);
                 std::vector<Semantic *> * prior = new std::vector(lines->begin(), lines->begin()+i-1);
                 std::vector<Semantic *> * after = new std::vector(lines->begin()+i+1, lines->end());
@@ -185,15 +185,17 @@ std::string Assembler::preproccess() {
                 std::copy(prior->begin(),prior->end(),lines->begin());
                 std::copy(s_array->begin(),s_array->end(),lines->end());
                 std::copy(after->begin(),after->end(),lines->end());
-                    
+                */  
                 //for(int x=0; x < (*s_array).size(); x++)
                 //{
                 //    (*lines)[i] = (*s_array)[x];
                 //}
+                
+                std::vector<Semantic *> * s_array = rm->analyze(textOnExpansion, false);
 
-                //vector_name.insert (position, val)
-                //(*lines)[i].insert(lines.begin(), s_array);
-                //(*lines).insert((*lines).begin()+i, s_array);
+                std::vector<Semantic *>::iterator linesIter = lines->begin()+i;
+                for (int iter = 0; iter < s_array->size(); iter++)
+                    linesIter = lines->insert(linesIter, (*s_array)[iter]);
                 
             }
             else
