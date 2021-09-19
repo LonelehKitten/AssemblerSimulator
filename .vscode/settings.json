@@ -43,10 +43,10 @@
         "sstream": "cpp",
         "stdexcept": "cpp",
         "streambuf": "cpp",
-<<<<<<< HEAD
-<<<<<<< Updated upstream
+//<<<<<<< HEAD
+//<<<<<<< Updated upstream
         "typeinfo": "cpp"
-=======
+//=======
         "typeinfo": "cpp",
         "cstring": "cpp",
         "compare": "cpp",
@@ -66,10 +66,10 @@
         "xstring": "cpp",
         "xtr1common": "cpp",
         "xutility": "cpp"
->>>>>>> Stashed changes
-=======
+//>>>>>>> Stashed changes
+//=======
         "typeinfo": "cpp",
         "cstring": "cpp"
->>>>>>> 19d9fba70ef35e0a348157f8da31e081225bb791
+//>>>>>>> 19d9fba70ef35e0a348157f8da31e081225bb791
     }
 }

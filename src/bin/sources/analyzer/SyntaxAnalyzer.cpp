@@ -4,6 +4,7 @@ SyntaxAnalyzer::SyntaxAnalyzer() {
     this->scanner = new LexiconScanner();
     this->stack = new std::stack<std::string>();
     this->macroStack = new std::stack<std::string>();
+    this->vaux = nullptr;
 }
 
 void SyntaxAnalyzer::set(std::string line, bool last) {

@@ -32,7 +32,7 @@ int main() {
         std::string("mov DS, AX\n") +
         std::string("mov AX,2\n") +
         std::string("mov AX, DX\n") +
-        std::string("mul AX\n") + // mudar ax para dx
+        std::string("mul DX\n") + 
         std::string("SomaMem Var1,V\n") +
         std::string("mov AX, Var1\n") +
         std::string("add AX, DX\n") +

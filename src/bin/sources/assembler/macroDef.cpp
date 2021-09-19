@@ -16,14 +16,14 @@ std::vector<std::string> macroDef::getArgs()
     return this->args;
 }
 
-std::string macroDef::getText()
+std::vector<Semantic *> macroDef::getText()
 {
     return this->macroText;
 }
 
-void macroDef::setText(std::string line)
+void macroDef::setText(Semantic * line)
 {
-    this->macroText = this->macroText + line + '\n';
+    this->macroText.push_back(line);
 }
 
 
