@@ -12,6 +12,8 @@
         "src/bin/sources/analyzer/SyntaxAnalyzer.cpp",
         "src/bin/sources/analyzer/SyntaxAutomatons.cpp",
         "src/bin/sources/analyzer/Token.cpp",
+        "src/bin/sources/assembler/Assembler.cpp",
+        "src/bin/sources/assembler/macroDef.cpp"
       ],
       "include_dirs": [
         "<!(node -e \"require('nan')\")"
