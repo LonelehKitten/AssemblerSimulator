@@ -19,11 +19,12 @@ const useStyles = makeStyles((theme) => ({
     marginRight: '10px',
   },
   root: {
-    //paddingBottom: '60px',
     overflow: 'auto',
     paddingRight: 10,
     '& .MuiTypography-root': {
+      fontFamily: 'VT323 !important',
       lineBreak: 'anywhere',
+      fontSize: 22,
     },
     '&::-webkit-scrollbar': {
       width: '0.3em',
@@ -41,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   inputedTexts: {
-    fontFamily: 'VT323',
+    height: '30px',
     backgroundColor: '#44475a',
     borderRadius: '20px 0px 0px 20px',
     minHeight: '30px',
@@ -82,7 +83,7 @@ const Console = (props) => {
       <List className={classes.root}>
         {history.map((item, key) => (
           <ListItem key={key} className={classes.inputedTexts}>
-            <ListItemText primary={`> ⠀ ${item}`} />
+            <ListItemText fontFamily='VT323' primary={`>⠀${item}`} />
           </ListItem>
         ))}
         <div ref={consoleEndRef}></div>
