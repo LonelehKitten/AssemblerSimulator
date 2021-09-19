@@ -59,7 +59,7 @@ const useStyles = makeStyles((theme) => ({
 const { ipcRenderer } = window.electron;
 
 const Console = (props) => {
-  const { playButton, setPlaybutton } = useContext();
+  const { playButton, playButtonPressed, setPlaying } = useContext();
   const classes = useStyles();
   const consoleEndRef = useRef(null);
   const [history, setHistory] = useState([]);
@@ -71,7 +71,6 @@ const Console = (props) => {
       if (value === '') return;
       setHistory((oldValue) => [...oldValue, value]);
       e.target.value = '';
-      const element = consoleEndRef.current;
     }
   };
 
@@ -79,25 +78,28 @@ const Console = (props) => {
     consoleEndRef.current?.scrollIntoView({ behavior: 'instant' });
     if (flag) {
       electronFs.writeFileSync(
-        `${app?.getPath('home')}/expandedMacro.txt`,
+        `${app?.getPath('home')}/output.asm`,
         history.toString(),
         'utf-8',
         (err) => {
           if (err) return console.log(err);
         }
       );
+      console.log('salvando arquivo');
+      setPlaying(false);
       setFlag(false);
     }
   }, [history]);
 
   useEffect(() => {
-    if (!flag)
+    if (!flag) {
       ipcRenderer.on('on_console', (e, message) => {
         setHistory((oldValue) => [...oldValue, message]);
-        console.log(message);
+        console.log('Success!');
+        setFlag(true);
       });
-    setFlag(true);
-  }, [playButton]);
+    }
+  }, [playButtonPressed]);
 
   return (
     <div id='console' {...props}>

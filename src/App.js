@@ -62,7 +62,8 @@ function App2() {
     return list || {};
   });
 
-  const [playButton, setPlayButton] = useState('');
+  const [playing, setPlaying] = useState(false);
+  const [playButtonPressed, setPlayButtonPressed] = useState('');
   const [currentID, setCurrentID] = useState('');
   const [currentFile, setCurrentFile] = useState(null);
   const [alertMessage, setAlertMessage] = useState(null);
@@ -148,6 +149,8 @@ function App2() {
   return (
     <Context.Provider
       value={{
+        playing,
+        setPlaying,
         currentFile,
         listFiles,
         currentID,
@@ -156,8 +159,8 @@ function App2() {
         setCode,
         changeFile,
         alertShow,
-        playButton,
-        setPlayButton,
+        playButtonPressed,
+        setPlayButtonPressed,
       }}
     >
       <Alert onClose={setAlertMessage} message={alertMessage} />
