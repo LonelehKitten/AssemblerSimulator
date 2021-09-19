@@ -23,6 +23,7 @@ const { ipcRenderer } = window.electron;
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
+    backgroundColor: '#191a21',
   },
   menuButton: {
     marginRight: theme.spacing(2),
@@ -33,7 +34,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Header = () => {
-  const { currentFile } = useContext();
+  const { currentFile, setPlayButton } = useContext();
   const classes = useStyles();
 
   const [open, setOpen] = React.useState(false);
@@ -47,13 +48,17 @@ const Header = () => {
   };
 
   const handlePlay = () => {
-    //play_expandMacros
-    ipcRenderer.send('play_expandMacros', currentFile.code);
+    // play_expandMacros
+
+    if (currentFile !== null && currentFile?.code !== null) {
+      ipcRenderer.send('play_expandMacros', currentFile.code);
+      setPlayButton('pressed');
+    }
   };
 
   return (
     <div className={classes.root}>
-      <AppBar position='static'>
+      <AppBar position='static' style={{ backgroundColor: '#191a21' }}>
         <Toolbar variant='dense'>
           <IconButton
             edge='start'
