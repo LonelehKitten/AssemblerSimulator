@@ -196,6 +196,7 @@ std::string Assembler::preproccess() {
                 std::vector<Semantic *>::iterator linesIter = lines->begin()+i;
                 for (int iter = 0; iter < s_array->size(); iter++)
                     linesIter = lines->insert(linesIter, (*s_array)[iter]);
+                lines->erase(lines->begin()+i);
                 
             }
             else
