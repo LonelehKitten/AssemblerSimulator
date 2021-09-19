@@ -62,6 +62,7 @@ function App2() {
     return list || {};
   });
 
+  const [playButton, setPlayButton] = useState('');
   const [currentID, setCurrentID] = useState('');
   const [currentFile, setCurrentFile] = useState(null);
   const [alertMessage, setAlertMessage] = useState(null);
@@ -155,6 +156,8 @@ function App2() {
         setCode,
         changeFile,
         alertShow,
+        playButton,
+        setPlayButton,
       }}
     >
       <Alert onClose={setAlertMessage} message={alertMessage} />
