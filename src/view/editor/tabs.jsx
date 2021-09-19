@@ -70,9 +70,15 @@ const Tabs = ({ value, onChange, listFiles }) => {
     const handleUpload = () => {
         setAnchorEl(null);
         ipcRenderer.send("invoke_open_file");
-        ipcRenderer.once("open_file", (e,path,code) => {
-            alertShow("success", "Arquivo aberto");
-            addFile(path,code);
+        ipcRenderer.once("open_file", (e,path,code = "") => {
+            if(path === false){
+                if(code != ""){
+                    alertShow("error",code);
+                }
+            }else{
+                alertShow("success", "Arquivo aberto");
+                addFile(path,code);
+            }
         });
     }
 
