@@ -56,7 +56,8 @@ enum Instruction{
     iMACRO,
     iENDM,
     iMACROCALL,
-    iMACROCONTENT
+    iMACROCONTENT,
+    iINVALID
 };
 
 class Semantic {
@@ -76,6 +77,11 @@ class Semantic {
 
         std::string getLine();
         Instruction getType();
+};
+
+class Invalid : public Semantic {
+    public:
+        Invalid(std::string line);
 };
 
 //MACRO

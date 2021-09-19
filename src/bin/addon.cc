@@ -29,7 +29,7 @@ void expandMacros(const Nan::FunctionCallbackInfo<v8::Value> & info) {
 
     RecognitionManager * rm = new RecognitionManager();
 
-    std::vector<Semantic *> * s_arr = rm->analyze(castV8String(info));
+    std::vector<Semantic *> * s_arr = rm->analyze(castV8String(info), false);
 
     if(s_arr != nullptr)
       trigger("success", emit, 2, s_arr->size());

@@ -127,11 +127,16 @@ bool SyntaxAnalyzer::check() {
 
 Semantic * SyntaxAnalyzer::getRow() {
 
+    if(this->error) {
+        return new Invalid(this->line);
+    }
+
     int t;
     std::vector<std::vector<Token *> *> * params = new std::vector<std::vector<Token *> *>();
     std::vector<Token *> * expression;
     Token * t1 = row[0], * t2;
     if(row.size() > 1) t2 = row[1];
+
 
     if(!macroStack->empty() && t1->getType() == TokenTypes::tMACROCONTENT) {
         return new MacroContent(line);
@@ -250,7 +255,7 @@ Semantic * SyntaxAnalyzer::getRow() {
             break;
     }
 
-    return new Add("ADD AX, DX", "DX");
+    return new Invalid(this->line);
 
 }
 
