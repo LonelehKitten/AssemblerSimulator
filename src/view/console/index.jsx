@@ -16,9 +16,9 @@ const useStyles = makeStyles((theme) => ({
     fontSize: 24,
     outline: 0,
     borderRadius: '3px',
+    marginRight: '15px',
   },
   root: {
-    position: 'relative',
     overflow: 'auto',
     paddingRight: 10,
     '& .MuiTypography-root': {
@@ -61,7 +61,7 @@ const Console = (props) => {
       setHistory((oldValue) => [...oldValue, value]);
       e.target.value = '';
       const element = consoleEndRef.current;
-      element?.scrollTo(0, element.scrollHeight + 50);
+      element?.scrollTo(0, element.scrollHeight);
       //consoleEndRef.current?.scrollIntoView({ behavior: 'instant' });
     }
   };
@@ -76,8 +76,8 @@ const Console = (props) => {
   return (
     <div id='console' {...props}>
       <List className={classes.root} ref={consoleEndRef}>
-        {history.map((item) => (
-          <ListItem className={classes.inputedTexts}>
+        {history.map((item, key) => (
+          <ListItem key={key} className={classes.inputedTexts}>
             <ListItemText primary={`> ⠀ ${item}`} />
           </ListItem>
         ))}
