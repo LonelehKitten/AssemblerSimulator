@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
     marginRight: '10px',
   },
   root: {
-    paddingBottom: '60px',
+    //paddingBottom: '60px',
     overflow: 'auto',
     paddingRight: 10,
     '& .MuiTypography-root': {
@@ -63,10 +63,12 @@ const Console = (props) => {
       setHistory((oldValue) => [...oldValue, value]);
       e.target.value = '';
       const element = consoleEndRef.current;
-      element?.scrollTo(0, element.scrollHeight);
-      //consoleEndRef.current?.scrollIntoView({ behavior: 'instant' });
     }
   };
+
+  useEffect(() => {
+    consoleEndRef.current?.scrollIntoView({ behavior: 'instant' });
+  }, [history]);
 
   useEffect(() => {
     ipcRenderer.on('on_console', (e, message) => {
@@ -77,16 +79,13 @@ const Console = (props) => {
 
   return (
     <div id='console' {...props}>
-      <List className={classes.root} ref={consoleEndRef}>
+      <List className={classes.root}>
         {history.map((item, key) => (
           <ListItem key={key} className={classes.inputedTexts}>
             <ListItemText primary={`> ⠀ ${item}`} />
           </ListItem>
         ))}
-        {/*<div
-          style={{ position: 'absolute', bottom: 0, height: 50 }}
-          ref={consoleEndRef}
-        ></div>*/}
+        <div ref={consoleEndRef}></div>
       </List>
       <input
         onKeyDown={handleSubmit}
