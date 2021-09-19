@@ -8,10 +8,11 @@ std::vector<Semantic *> * RecognitionManager::analyze(std::string text, bool str
 
     std::vector<std::string> * rawLines = split(text);
 
-    for(int i = 0; i < (int) rawLines->size(); i++)
-        std::cout << "l" << i << ":  " << rawLines->at(i) << std::endl;
-
-    std::cout << "size: " << text.size() << std::endl;
+    DEBUG(
+        for(int i = 0; i < (int) rawLines->size(); i++)
+            std::cout << "l" << i << ":  " << rawLines->at(i) << std::endl;
+        std::cout << "size: " << text.size() << std::endl;
+    )
 
     std::vector<Semantic *> * lines = new std::vector<Semantic *>();
 

@@ -1,4 +1,4 @@
-#include "macroDef.h"
+#include "template.h"
 
 macroDef::macroDef(std::string name, std::vector<std::string> args)
 {
@@ -16,14 +16,14 @@ std::vector<std::string> macroDef::getArgs()
     return this->args;
 }
 
-std::vector<Semantic *> macroDef::getText()
+std::string macroDef::getText()
 {
     return this->macroText;
 }
 
-void macroDef::setText(Semantic * line)
+void macroDef::setText(std::string line)
 {
-    this->macroText.push_back(line);
+    this->macroText = this->macroText + line + '\n';
 }
 
 
