@@ -7,8 +7,6 @@ import ListItemText from '@material-ui/core/ListItemText';
 import { useContext } from '../../utils/context';
 
 var remote = window.require('electron').remote;
-var electronFs = remote.require('fs');
-var electronDialog = remote.dialog;
 const { app } = window.require('electron').remote;
 
 const useStyles = makeStyles((theme) => ({
@@ -32,6 +30,10 @@ const useStyles = makeStyles((theme) => ({
       lineBreak: 'anywhere',
       fontSize: 22,
     },
+    '& .MuiListItem-root': {
+      paddingTop: 0,
+      paddingBottom: 0,
+    },
     '&::-webkit-scrollbar': {
       width: '0.3em',
       height: '0.4em',
@@ -48,7 +50,6 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   inputedTexts: {
-    height: '30px',
     backgroundColor: '#343746',
     borderRadius: '20px 0px 0px 20px',
     minHeight: '30px',
@@ -82,21 +83,6 @@ const Console = (props) => {
 
   useEffect(() => {
     consoleEndRef.current?.scrollIntoView({ behavior: 'instant' });
-    if (flag) {
-      electronFs.writeFileSync(
-        `${app?.getPath('home')}/output.asm`,
-        history[history.length - 1].toString().concat('\n'),
-        'utf-8',
-        (err) => {
-          if (err) return console.log(err);
-        }
-      );
-      console.log('salvando arquivo');
-      setPlaying(false);
-      setFlag(false);
-      const code = history[history.length - 1].toString();
-      addFile(`${app?.getPath('home')}/output.asm`, code);
-    }
   }, [history]);
 
   /*
@@ -107,15 +93,26 @@ end VALEUSEGMENT
 */
 
   useEffect(() => {
-    if (consoleFlag) {
+    setFlag(true);
+    if (consoleFlag || true) {
       ipcRenderer.on('on_console', (e, message) => {
         setHistory((oldValue) => [...oldValue, message]);
         console.log(message);
         setConsoleFlag(false);
       });
-      setFlag(true);
+      ipcRenderer.on('expand_macro', (e, message) => {
+        console.log('Teste', message);
+        ipcRenderer.send(
+          'invoke_save_file',
+          JSON.stringify({
+            code: message,
+            path: `${app?.getPath('home')}/output.asm`,
+          })
+        );
+        addFile(`${app?.getPath('home')}/output.asm`, message);
+      });
     }
-  }, [playButtonPressed]);
+  }, []);
 
   return (
     <div id='console' {...props}>

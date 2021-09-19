@@ -4,7 +4,6 @@ const EventEmitter = require('events');
 const fs = require('fs');
 const { BrowserWindow, ipcMain, dialog, webContents } = require('electron');
 
-
 // callback(function (event, data) {
 //   webContents.getFocusedWebContents().send('on_event', event, data);
 //   console.log(event, data);
@@ -14,6 +13,7 @@ ipcMain.on('play_expandMacros', (event, code) => {
   console.log(code);
   emitter.on('success', (evt) => {
     event.sender.send('on_console', evt);
+    event.sender.send('expand_macro', evt);
     console.log('### START ... ' + evt);
   });
 

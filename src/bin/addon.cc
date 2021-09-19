@@ -25,7 +25,7 @@ std::string castV8String(const Nan::FunctionCallbackInfo<v8::Value> &args)
 }
 
 void expandMacros(const Nan::FunctionCallbackInfo<v8::Value> & info) {
-
+    std::cout << " -- INICIANDO CPP --" << std::endl;
     v8::Local<v8::Context> context = info.GetIsolate()->GetCurrentContext();
   
     v8::Local<v8::String> text = info[0]->ToString(context).ToLocalChecked();
@@ -33,11 +33,16 @@ void expandMacros(const Nan::FunctionCallbackInfo<v8::Value> & info) {
 
     RecognitionManager * rm = new RecognitionManager();
 
+    std::cout << " -- ANALISANDO --" << std::endl;
     std::vector<Semantic *> * s_arr = rm->analyze(castV8String(info), false);
 
+    std::cout << " -- ASSEMBLER --" << std::endl;
     Assembler * as = new Assembler(s_arr);
 
-    std::string result = as->preproccess();
+    std::cout << " -- PRE PROCESSAMENTO --" << std::endl;
+    std::string result = as->init();
+
+    std::cout << " -- TRIGGER --" << std::endl << result << std::endl;
 
     trigger("success", emit, 2, result);
 
