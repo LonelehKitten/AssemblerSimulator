@@ -8,11 +8,11 @@ const useStyles = makeStyles((theme) => ({
     zIndex: 100,
   },
   horizontal: {
-    backgroundColor: '#e094ff',
+    borderTop: '1px solid #e094ff',
     cursor: 'n-resize',
     left: 0,
     right: 0,
-    height: '1px',
+    height: '5px',
   },
   vertical: {
     backgroundColor: 'transparent',

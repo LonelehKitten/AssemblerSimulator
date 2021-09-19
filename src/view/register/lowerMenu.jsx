@@ -49,7 +49,7 @@ const LowerMenu = (props) => {
 
   return (
     <section className={classes.root}>
-      <TableContainer component={Paper} style={{ backgroundColor: '#282a36' }}>
+      <TableContainer component={Paper} style={{ backgroundColor: '#313241' }}>
         <Table className={classes.table} aria-label='resgistry operation table'>
           <TableHead>
             <TableRow>

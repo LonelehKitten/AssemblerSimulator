@@ -48,8 +48,9 @@ const Header = () => {
   };
 
   const handlePlay = () => {
-    //play_expandMacros
-    ipcRenderer.send('play_expandMacros', currentFile.code);
+    // play_expandMacros
+    currentFile?.code &&
+      ipcRenderer.send('play_expandMacros', currentFile.code);
   };
 
   return (

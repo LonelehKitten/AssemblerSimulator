@@ -12,7 +12,7 @@ const useStyles = makeStyles((theme) => ({
     border: `3px inset ${theme.palette.primary.main}`,
     padding: '10px',
     color: '#fff',
-    backgroundColor: '#191a21',
+    backgroundColor: '#21222c',
     fontSize: 24,
     outline: 0,
     borderRadius: '3px',
@@ -60,7 +60,7 @@ const Console = (props) => {
   const handleSubmit = (e) => {
     if (e.keyCode == 13) {
       const value = e.target.value;
-      if (value == '') return;
+      if (value === '') return;
       setHistory((oldValue) => [...oldValue, value]);
       e.target.value = '';
       const element = consoleEndRef.current;
@@ -74,6 +74,10 @@ const Console = (props) => {
   useEffect(() => {
     ipcRenderer.on('on_console', (e, message) => {
       setHistory((oldValue) => [...oldValue, message]);
+      let fso = CreateObject('Scripting.FileSystemObject');
+      let s = fso.CreateTextFile('./test.txt', True);
+      s.write(message);
+      s.Close();
       console.log(message);
     });
   }, []);
