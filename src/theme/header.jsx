@@ -34,7 +34,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Header = () => {
-  const { currentFile } = useContext();
+  const { currentFile, setPlayButton } = useContext();
   const classes = useStyles();
 
   const [open, setOpen] = React.useState(false);
@@ -48,8 +48,12 @@ const Header = () => {
   };
 
   const handlePlay = () => {
-    //play_expandMacros
-    ipcRenderer.send('play_expandMacros', currentFile.code);
+    // play_expandMacros
+
+    if (currentFile !== null && currentFile?.code !== null) {
+      ipcRenderer.send('play_expandMacros', currentFile.code);
+      setPlayButton('pressed');
+    }
   };
 
   return (

@@ -1,13 +1,14 @@
-const { app, BrowserWindow} = require('electron');
+const { app, BrowserWindow } = require('electron');
 const isDev = require('electron-is-dev');
 const path = require('path');
 
 require('@electron/remote/main').initialize();
-require("./event");
+require('./event');
 
 function createWindow() {
   // Create the browser window.
   const window = new BrowserWindow({
+    webPreferences: {},
     width: 1200,
     height: 800,
     minHeight: 600,
@@ -15,10 +16,12 @@ function createWindow() {
     useContentSize: true,
     resizable: true,
     webPreferences: {
-      preload: __dirname + '/preload.js',
+      contextIsolation: false,
       enableRemoteModule: true,
       nodeIntegration: true,
+      nodeIntegrationInWorker: true,
       contextIsolation: false,
+      preload: __dirname + '/preload.js',
     },
     icon: path.join(__dirname, 'AS.ico'),
   }); //'http://localhost:3000'

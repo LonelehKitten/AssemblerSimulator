@@ -4,6 +4,13 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 
+import { useContext } from '../../utils/context';
+
+var remote = window.require('electron').remote;
+var electronFs = remote.require('fs');
+var electronDialog = remote.dialog;
+const { app } = window.require('electron').remote;
+
 const useStyles = makeStyles((theme) => ({
   textField: {
     fontFamily: 'VT323',
@@ -12,11 +19,10 @@ const useStyles = makeStyles((theme) => ({
     border: `3px inset ${theme.palette.primary.main}`,
     padding: '10px',
     color: '#fff',
-    backgroundColor: '#191a21',
+    backgroundColor: '#21222c',
     fontSize: 24,
     outline: 0,
     borderRadius: '3px',
-    marginRight: '10px',
   },
   root: {
     overflow: 'auto',
@@ -53,14 +59,16 @@ const useStyles = makeStyles((theme) => ({
 const { ipcRenderer } = window.electron;
 
 const Console = (props) => {
+  const { playButton, setPlaybutton } = useContext();
   const classes = useStyles();
   const consoleEndRef = useRef(null);
   const [history, setHistory] = useState([]);
+  const [flag, setFlag] = useState(false);
 
   const handleSubmit = (e) => {
     if (e.keyCode == 13) {
       const value = e.target.value;
-      if (value == '') return;
+      if (value === '') return;
       setHistory((oldValue) => [...oldValue, value]);
       e.target.value = '';
       const element = consoleEndRef.current;
@@ -69,14 +77,27 @@ const Console = (props) => {
 
   useEffect(() => {
     consoleEndRef.current?.scrollIntoView({ behavior: 'instant' });
+    if (flag) {
+      electronFs.writeFileSync(
+        `${app?.getPath('home')}/expandedMacro.txt`,
+        history.toString(),
+        'utf-8',
+        (err) => {
+          if (err) return console.log(err);
+        }
+      );
+      setFlag(false);
+    }
   }, [history]);
 
   useEffect(() => {
-    ipcRenderer.on('on_console', (e, message) => {
-      setHistory((oldValue) => [...oldValue, message]);
-      console.log(message);
-    });
-  }, []);
+    if (!flag)
+      ipcRenderer.on('on_console', (e, message) => {
+        setHistory((oldValue) => [...oldValue, message]);
+        console.log(message);
+      });
+    setFlag(true);
+  }, [playButton]);
 
   return (
     <div id='console' {...props}>

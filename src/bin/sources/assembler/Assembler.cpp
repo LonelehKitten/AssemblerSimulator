@@ -15,7 +15,7 @@ std::string Assembler::macroExpandParams(std::vector<label *> params, macroDef *
    std::vector<Semantic *> macroLines = macroThis->getText();
 
    std::string lineThis;
-   std::string ouputText = "";
+   std::string outputText = "";
 
    std::vector<bool> macroFound;
 
@@ -23,12 +23,12 @@ std::string Assembler::macroExpandParams(std::vector<label *> params, macroDef *
 
    for (int i = 0; i < macroLines.size(); i++)
    {
-        if(macroLines[i]->getLine() == Instruction::iMACRO)     //Precisa tabelar a macro
+        if(macroLines[i]->getType() == Instruction::iMACRO)     //Precisa tabelar a macro
         {                                                       //MACRO ANINHADA 
 
                 macroFound.push_back(true);
         }
-        else if (macroLines[i]->getLine() == Instruction::iENDM)
+        else if (macroLines[i]->getType() == Instruction::iENDM)
         {
             if (macroFound.size() == 0)
             {
@@ -54,7 +54,7 @@ std::string Assembler::macroExpandParams(std::vector<label *> params, macroDef *
                     if(antes >= -1 && depois <= lineThis.size()+1)       // para validar que é uma posição válida
                     {                                       
                         if ((lineThis[antes] == ' ' || lineThis[antes] == ',') && (lineThis[depois] == ' ' || lineThis[depois] == ',' || lineThis[depois] == '\n')){
-                            lineThis.replace(lineThis.find(params[iter]->name), params[iter].size(), params[iter]->valor);
+                            lineThis.replace(lineThis.find(params[iter]->name), params[iter]->name.size(), params[iter]->valor);
                         }
                     }
                 }
@@ -132,9 +132,9 @@ std::string Assembler::preproccess() {
 
                 for (std::vector<macroDef*>::iterator it = macroTable.begin(); it != macroTable.end(); it++)   //Procura macro na tabela
                 {
-                    if( itemMacroCall->getName() == it->getName() )
+                    if( itemMacroCall->getName() == (*it)->getName() )
                     {
-                        macroThis = it;
+                        macroThis = *it;
                         macroExists = true;
                         std::cout << "passou por aqui no teste, busca na tabela" << std::endl;
                     }
@@ -151,7 +151,12 @@ std::string Assembler::preproccess() {
                 {
                     params.push_back(new label);
                     params.back()->name = macroThis->getArgs()[iter];
-                    params.back()->valor = params->at(iter)->at(0)->getToken();        //******************* *********************************
+                    for (int iterToken = 0; iterToken < ((MacroCall*) Item)->getParams()->at(iter)->size(); iterToken++)
+                    {
+                        std::string tokenResult;
+
+                        params.back()->valor = tokenResult;
+                    }
                 }
                 std::cout << "passou por aqui no teste" << std::endl;
 
@@ -171,18 +176,27 @@ std::string Assembler::preproccess() {
                 
                 //textOnExpansion += lineResult + '\n';
                 //}
-
+                /*
+                std::vector<Semantic *> * s_array = rm->analyze(textOnExpansion, false);
+                std::vector<Semantic *> * prior = new std::vector(lines->begin(), lines->begin()+i-1);
+                std::vector<Semantic *> * after = new std::vector(lines->begin()+i+1, lines->end());
+                std::vector<Semantic *> * tempDelete = lines;
+                delete tempDelete;
+                std::copy(prior->begin(),prior->end(),lines->begin());
+                std::copy(s_array->begin(),s_array->end(),lines->end());
+                std::copy(after->begin(),after->end(),lines->end());
+                */  
+                //for(int x=0; x < (*s_array).size(); x++)
+                //{
+                //    (*lines)[i] = (*s_array)[x];
+                //}
+                
                 std::vector<Semantic *> * s_array = rm->analyze(textOnExpansion, false);
 
-                    
-                //for(int x=0; x < strlen(s_array); x++)
-                //{
-                //    (*lines)[i] = s_array[x];
-                //}
-
-                //vector_name.insert (position, val)
-                //(*lines)[i].insert(lines.begin(), s_array);
-                lines->insert(lines.begin()+i, s_array);
+                std::vector<Semantic *>::iterator linesIter = lines->begin()+i;
+                for (int iter = 0; iter < s_array->size(); iter++)
+                    linesIter = lines->insert(linesIter, (*s_array)[iter]);
+                lines->erase(lines->begin()+i);
                 
             }
             else
@@ -210,18 +224,18 @@ std::string Assembler::preproccess() {
     {
         Semantic *Item = (*lines)[i];
         
-        if (Item->getType == Instruction::iMACRO)
+        if (Item->getType() == Instruction::iMACRO)
         {
             macroFound.push_back(true);
         }
-        if (Item->getType == Instruction::iENDM)
+        if (Item->getType() == Instruction::iENDM)
         {
             macroFound.pop_back();
         }
 
         if (macroFound.size() == 0)
         {
-            if (Item->getType != Instruction::iMACROCALL)
+            if (Item->getType() != Instruction::iMACROCALL)
             {
                 outputResult += Item->getLine();
             }
