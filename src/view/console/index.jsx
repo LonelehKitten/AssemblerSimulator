@@ -7,8 +7,6 @@ import ListItemText from '@material-ui/core/ListItemText';
 import { useContext } from '../../utils/context';
 
 var remote = window.require('electron').remote;
-var electronFs = remote.require('fs');
-var electronDialog = remote.dialog;
 const { app } = window.require('electron').remote;
 
 const useStyles = makeStyles((theme) => ({
@@ -32,6 +30,10 @@ const useStyles = makeStyles((theme) => ({
       lineBreak: 'anywhere',
       fontSize: 22,
     },
+    '& .MuiListItem-root': {
+      paddingTop: 0,
+      paddingBottom: 0,
+    },
     '&::-webkit-scrollbar': {
       width: '0.3em',
       height: '0.4em',
@@ -48,7 +50,6 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   inputedTexts: {
-    height: '30px',
     backgroundColor: '#343746',
     borderRadius: '20px 0px 0px 20px',
     minHeight: '30px',
@@ -59,7 +60,13 @@ const useStyles = makeStyles((theme) => ({
 const { ipcRenderer } = window.electron;
 
 const Console = (props) => {
-  const { playButton, setPlaybutton } = useContext();
+  const {
+    playButtonPressed,
+    setPlaying,
+    addFile,
+    consoleFlag,
+    setConsoleFlag,
+  } = useContext();
   const classes = useStyles();
   const consoleEndRef = useRef(null);
   const [history, setHistory] = useState([]);
@@ -71,33 +78,41 @@ const Console = (props) => {
       if (value === '') return;
       setHistory((oldValue) => [...oldValue, value]);
       e.target.value = '';
-      const element = consoleEndRef.current;
     }
   };
 
   useEffect(() => {
     consoleEndRef.current?.scrollIntoView({ behavior: 'instant' });
-    if (flag) {
-      electronFs.writeFileSync(
-        `${app?.getPath('home')}/expandedMacro.txt`,
-        history.toString(),
-        'utf-8',
-        (err) => {
-          if (err) return console.log(err);
-        }
-      );
-      setFlag(false);
-    }
   }, [history]);
 
+  /*
+  // codigo pra teste : o resultado deve ser '3' //
+name VALEUSEGMENT
+add AX, DX
+end VALEUSEGMENT
+*/
+
   useEffect(() => {
-    if (!flag)
+    setFlag(true);
+    if (consoleFlag || true) {
       ipcRenderer.on('on_console', (e, message) => {
         setHistory((oldValue) => [...oldValue, message]);
         console.log(message);
+        setConsoleFlag(false);
       });
-    setFlag(true);
-  }, [playButton]);
+      ipcRenderer.on('expand_macro', (e, message) => {
+        console.log('Teste', message);
+        ipcRenderer.send(
+          'invoke_save_file',
+          JSON.stringify({
+            code: message,
+            path: `${app?.getPath('home')}/output.asm`,
+          })
+        );
+        addFile(`${app?.getPath('home')}/output.asm`, message);
+      });
+    }
+  }, []);
 
   return (
     <div id='console' {...props}>

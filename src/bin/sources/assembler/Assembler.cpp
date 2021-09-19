@@ -23,6 +23,7 @@ std::string Assembler::macroExpandParams(std::vector<label *> params, macroDef *
 
    for (int i = 0; i < macroLines.size(); i++)
    {
+       
         if(macroLines[i]->getType() == Instruction::iMACRO)     //Precisa tabelar a macro
         {                                                       //MACRO ANINHADA 
 
@@ -69,6 +70,102 @@ std::string Assembler::macroExpandParams(std::vector<label *> params, macroDef *
 
 }
 
+int Assembler::macroExpandParamsDoDaniel(MacroCall * macrocall, std::string& output, int k) {
+    
+    RecognitionManager * rm = new RecognitionManager();
+    
+    std::string input = "";
+
+    macroDef * macro = macroMap.find(macrocall->getName())->second;
+
+    for(int i = 0; i < macro->getText().size(); i++) {
+        input += macro->getText()[i]->getLine();
+    }
+
+    return preproccessDoDaniel(rm->analyze(input, false), output, k);
+
+}
+
+int Assembler::preproccessDoDaniel (std::vector<Semantic *> * lines, std::string& output, int k) {
+
+    std::vector<bool> macroFound;   //Pilha de controle das declaracoes de macro
+
+
+    // tabela
+    for(int i = 0; i < lines->size(); i++, k++) {
+
+        Semantic * item = lines->at(i);
+
+        if(item->getType() == Instruction::iENDM) {
+
+            if (macroFound.size() == 0){
+                // Erro
+                std::cout << "Erro: macro mal declarada.";
+            }
+
+            
+            macroTable.back()->setText(item);
+            macroFound.pop_back();
+
+            lines->erase(lines->begin()+i);
+            i--;
+
+            continue;
+
+        }
+
+        if(item->getType() == Instruction::iMACRO) {
+
+            
+            Macro * itemMacro = (Macro *) item;
+            macroMap[itemMacro->getName()] = new macroDef(itemMacro->getName(), *(itemMacro->getParams()));
+            macroTable.push_back(new macroDef(itemMacro->getName(), *(itemMacro->getParams())));
+            macroFound.push_back(true);
+
+            lines->erase(lines->begin()+i);
+            i--;
+
+            continue;
+        }
+
+        if(macroFound.size() > 0) {
+            macroTable.back()->setText(item);
+            lines->erase(lines->begin()+i);
+            i--;
+        }
+
+    }
+
+    // expande
+    for(int i = 0; i < lines->size(); i++) {
+
+        Semantic * item = lines->at(i);
+
+        if(item->getType() == Instruction::iMACROCALL) {
+
+            MacroCall * macroCall = (MacroCall *) item;
+
+            i = macroExpandParamsDoDaniel(macroCall, output, k);
+            i--;
+
+            continue;
+
+        }
+
+        output += item->getLine();
+
+    }
+
+    return k;
+
+}
+
+std::string Assembler::init() {
+    std::string output = "";
+    this->preproccessDoDaniel(lines, output, 0);
+    return output;
+}
+
 std::string Assembler::preproccess() {
     
     /**Ja definido em Assembler.h: 
@@ -86,10 +183,10 @@ std::string Assembler::preproccess() {
     for (int i = 0; i < (int) lines->size(); i++)   //Leitura principal do arquivo
     {
         Semantic *Item = (*lines)[i];
-        std::cout << Item << std::endl;
+        std::cout << "-> " << Item->getLine() << std::endl;
 
-        if (Item->getType() == iMACRO)          //Definição de macro
-        {
+        if (Item->getType() == iMACRO) {          //Definição de macro
+        
             if (macroFound.size() == 0)
             {
 
@@ -104,15 +201,13 @@ std::string Assembler::preproccess() {
             }
         }
 
-        else if (Item->getType() == iENDM)
-        {
+        else if (Item->getType() == iENDM) {  //eu acho que ele não ta reconhecendo o iENDM como fim de macro
             
-            if (macroFound.size() == 0)
-            {
+            if (macroFound.size() == 0){
                 // Erro
                 std::cout << "Erro: macro mal declarada.";
                 break;
-            }else{
+            } else {
 
                 macroTable.back()->setText(Item);
                 macroFound.pop_back();
@@ -120,8 +215,8 @@ std::string Assembler::preproccess() {
             }
 
         }
-        else if (Item->getType() == Instruction::iMACROCALL)
-        {
+        else if (Item->getType() == Instruction::iMACROCALL){
+            
             if (macroFound.size() == 0) //Nao esta no processo de tabelamento
             {                           //Inicia passo 1; salvar os parametros da chamada
                 bool macroExists = false;
@@ -205,7 +300,6 @@ std::string Assembler::preproccess() {
             }
             
         }
-        
         else
         {
             if (macroFound.size() != 0)
