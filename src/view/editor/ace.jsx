@@ -56,6 +56,8 @@ const Ace = ({ onChange }) => {
         name='editor'
         value={currentFile?.code || ''}
         style={{
+          boxShadow:
+            'inset  0 -3px 6px rgba(0,0,0,0.16), 0 -3px 6px rgba(0,0,0,0.23)',
           width: '100%',
           height: 'calc(100% - 2rem)',
           fontFamily: 'Share Tech Mono',
@@ -68,6 +70,10 @@ const Ace = ({ onChange }) => {
           enableLiveAutocompletion: true,
           tabSize: 2,
           useSoftTabs: true,
+          cursorStyle: 'ace',
+          showGutter: true,
+          highlightGutterLine: true,
+          //highlightActiveLine: false,
         }}
       />
     </div>
