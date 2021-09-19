@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -34,8 +34,11 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Header = () => {
-  const { currentFile, setPlayButton } = useContext();
+  const { currentFile, setPlayButtonPressed, playing, setPlaying } =
+    useContext();
   const classes = useStyles();
+
+  const [pressed, setPressed] = React.useState(true);
 
   const [open, setOpen] = React.useState(false);
 
@@ -49,12 +52,29 @@ const Header = () => {
 
   const handlePlay = () => {
     // play_expandMacros
-
     if (currentFile !== null && currentFile?.code !== null) {
       ipcRenderer.send('play_expandMacros', currentFile.code);
-      setPlayButton('pressed');
+      setPlayButtonPressed('pressed');
+      setPlaying(true);
     }
   };
+
+  let playButton = (
+    <Button color='inherit' onClick={handlePlay}>
+      <PlayArrowIcon />
+    </Button>
+  );
+
+  useEffect(() => {
+    if (playing) {
+      console.log('mudou o botão');
+      playButton = (
+        <Button color='inherit' onClick={handlePlay} disabled>
+          <PlayArrowIcon />
+        </Button>
+      );
+    }
+  }, [playing]);
 
   return (
     <div className={classes.root}>
@@ -72,9 +92,7 @@ const Header = () => {
           <Typography variant='h6' className={classes.title}>
             Assembler Simulator
           </Typography>
-          <Button color='inherit' onClick={handlePlay}>
-            <PlayArrowIcon />
-          </Button>
+          {playButton}
           <Button color='inherit'>
             <SkipNextIcon />
           </Button>
