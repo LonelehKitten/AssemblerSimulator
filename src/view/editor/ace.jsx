@@ -45,7 +45,7 @@ const Ace = ({ onChange }) => {
 
   return (
     <div onKeyUp={handleSave} style={{ width: '100%', height: '100%' }}>
-      {/** Gambiarra */}
+      {/** Gambiarra [ tem que ver isso aqui ] */}
 
       <AceEditor
         readOnly={currentFile === null}

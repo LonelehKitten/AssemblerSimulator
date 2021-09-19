@@ -34,11 +34,14 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Header = () => {
-  const { currentFile, setPlayButtonPressed, playing, setPlaying } =
-    useContext();
+  const {
+    setConsoleFlag,
+    currentFile,
+    setPlayButtonPressed,
+    playing,
+    setPlaying,
+  } = useContext();
   const classes = useStyles();
-
-  const [pressed, setPressed] = React.useState(true);
 
   const [open, setOpen] = React.useState(false);
 
@@ -55,7 +58,9 @@ const Header = () => {
     if (currentFile !== null && currentFile?.code !== null) {
       ipcRenderer.send('play_expandMacros', currentFile.code);
       setPlayButtonPressed('pressed');
+      setConsoleFlag(true);
       setPlaying(true);
+      console.log('mandando o callback');
     }
   };
 

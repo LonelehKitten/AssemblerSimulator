@@ -59,7 +59,13 @@ const useStyles = makeStyles((theme) => ({
 const { ipcRenderer } = window.electron;
 
 const Console = (props) => {
-  const { playButton, playButtonPressed, setPlaying } = useContext();
+  const {
+    playButtonPressed,
+    setPlaying,
+    addFile,
+    consoleFlag,
+    setConsoleFlag,
+  } = useContext();
   const classes = useStyles();
   const consoleEndRef = useRef(null);
   const [history, setHistory] = useState([]);
@@ -79,7 +85,7 @@ const Console = (props) => {
     if (flag) {
       electronFs.writeFileSync(
         `${app?.getPath('home')}/output.asm`,
-        history.toString(),
+        history[history.length - 1].toString().concat('\n'),
         'utf-8',
         (err) => {
           if (err) return console.log(err);
@@ -88,16 +94,26 @@ const Console = (props) => {
       console.log('salvando arquivo');
       setPlaying(false);
       setFlag(false);
+      const code = history[history.length - 1].toString();
+      addFile(`${app?.getPath('home')}/output.asm`, code);
     }
   }, [history]);
 
+  /*
+  // codigo pra teste : o resultado deve ser '3' //
+name VALEUSEGMENT
+add AX, DX
+end VALEUSEGMENT
+*/
+
   useEffect(() => {
-    if (!flag) {
+    if (consoleFlag) {
       ipcRenderer.on('on_console', (e, message) => {
         setHistory((oldValue) => [...oldValue, message]);
-        console.log('Success!');
-        setFlag(true);
+        console.log(message);
+        setConsoleFlag(false);
       });
+      setFlag(true);
     }
   }, [playButtonPressed]);
 

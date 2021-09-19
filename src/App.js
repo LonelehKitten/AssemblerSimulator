@@ -62,6 +62,8 @@ function App2() {
     return list || {};
   });
 
+  const [consoleFlag, setConsoleFlag] = useState(false);
+
   const [playing, setPlaying] = useState(false);
   const [playButtonPressed, setPlayButtonPressed] = useState('');
   const [currentID, setCurrentID] = useState('');
@@ -161,6 +163,8 @@ function App2() {
         alertShow,
         playButtonPressed,
         setPlayButtonPressed,
+        consoleFlag,
+        setConsoleFlag,
       }}
     >
       <Alert onClose={setAlertMessage} message={alertMessage} />
