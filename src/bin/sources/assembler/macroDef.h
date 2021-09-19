@@ -1,12 +1,11 @@
-#ifndef TEMPLATE_H
-#define TEMPLATE_H
+#ifndef MACRODEF_H
+#define MACRODEF_H
 
 #include <iostream>
 #include <vector>
 #include <string>
 #include <cstring>
-#include "Semantic.h"
-
+#include "../analyzer/Semantic.h"
 
 struct label
 {
@@ -19,7 +18,7 @@ class macroDef
 private:
     std::string name;   // nome de chamada da macro
     std::vector<std::string> args; // #00 #01 ...
-    std::string macroText; // texto da definição da macro
+    std::vector<Semantic *> macroText; // texto da definição da macro
     
 public:
     // constructor
@@ -28,10 +27,10 @@ public:
     // getters
     std::string getName();
     std::vector<std::string> getArgs();
-    std::string getText();
+    std::vector<Semantic *> getText();
 
     // setters
-    void setText(std::string line);
+    void setText(Semantic * line);
 
     // métodos
     std::string macroLine();

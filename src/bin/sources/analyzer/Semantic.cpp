@@ -245,6 +245,13 @@ std::string EndP::getName() {
 }
 
 
+Label::Label(std::string line, std::string name)
+    : Semantic(line, Instruction::iLABEL), name(name) {}
+std::string Label::getName() {
+    return name;
+}
+
+
 MacroCall::MacroCall(std::string line, std::vector<std::vector<Token *> *> * params) :
     Semantic(line, Instruction::iMACROCALL), params(params) {};
 

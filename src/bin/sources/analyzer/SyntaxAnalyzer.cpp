@@ -171,6 +171,8 @@ Semantic * SyntaxAnalyzer::getRow() {
                         params->emplace_back(getExpression(t, t));
                     }
                     return new MacroCall(this->line, params);
+                case TokenTypes::tCOLON:
+                    return new Label(this->line, this->getAux1());
                 default:
                     break;
             }
