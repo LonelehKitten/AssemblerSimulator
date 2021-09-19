@@ -173,6 +173,12 @@ Semantic * SyntaxAnalyzer::getRow() {
                     return new MacroCall(this->line, params);
                 case TokenTypes::tCOLON:
                     return new Label(this->line, this->getAux1());
+                case TokenTypes::tVARDEF:
+                    if(row[2]->getType() == TokenTypes::tUNDEFINED) {
+                        return new Dw(this->line, this->aux1, nullptr);
+                    }
+                    expression = getExpression(1, t);
+                    return new Dw(this->line, this->aux1, expression);
                 default:
                     break;
             }
