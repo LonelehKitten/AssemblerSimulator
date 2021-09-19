@@ -57,6 +57,7 @@ enum Instruction{
     iENDM,
     iMACROCALL,
     iMACROCONTENT,
+    iLABEL,
     iINVALID
 };
 
@@ -306,6 +307,15 @@ class EndP : public Semantic {
         EndP(std::string line, std::string name);
         std::string getName();
 };
+
+class Label : public Semantic {
+    private:
+        std::string name;
+    public:
+        Label(std::string line, std::string name);
+        std::string getName();
+};
+
 
 
 /*

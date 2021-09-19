@@ -6,9 +6,13 @@
 #include <string>
 
 #include "sources/analyzer/RecognitionManager.h"
+#include "sources/assembler/Assembler.h"
 
-void trigger(char * event, v8::Local<v8::Function>& callback, int numArgs, int nSemantics) {
-    v8::Local<v8::Value> arguments[numArgs] = {Nan::New(event).ToLocalChecked(),Nan::New(nSemantics)}; // .ToLocalChecked()
+void trigger(char * event, v8::Local<v8::Function>& callback, int numArgs, std::string result) {
+    v8::Local<v8::Value> arguments[numArgs] = {
+      Nan::New(event).ToLocalChecked(),
+      Nan::New(result).ToLocalChecked()
+    }; // .ToLocalChecked()
     Nan::AsyncResource resource("nan:makeCallback");
     resource.runInAsyncScope(Nan::GetCurrentContext()->Global(), callback, numArgs, arguments);
 }
@@ -31,10 +35,15 @@ void expandMacros(const Nan::FunctionCallbackInfo<v8::Value> & info) {
 
     std::vector<Semantic *> * s_arr = rm->analyze(castV8String(info), false);
 
-    if(s_arr != nullptr)
-      trigger("success", emit, 2, s_arr->size());
+    Assembler * as = new Assembler(s_arr);
+
+    std::string result = as->preproccess();
+
+    trigger("success", emit, 2, result);
 
     rm->~RecognitionManager();
+    as->~Assembler();
+
 }
 
 // Init
