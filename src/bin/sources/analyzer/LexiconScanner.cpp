@@ -174,17 +174,16 @@ LexiconScannerStatus * LexiconScanner::nextToken(AutomatonPattern automatonPatte
 
     while(true) {
 
-        DEBUG(
-            log();
-            std::cout << "curr char:   " << this->line[this->lineIndex] << std::endl;
-        )
+        log();
+
+        std::cout << "curr char:   " << this->line[this->lineIndex] << std::endl;
 
         if(this->state(this) && !this->error) {
             return this->tokenData;
         }
 
         if(this->error) {
-            DEBUG(std::cout << "ERROR" << std::endl;)
+            std::cout << "ERROR" << std::endl;
             return new FailStatus("Unknown Token: " + this->token);
         }
 
@@ -250,7 +249,7 @@ void LexiconScanner::setSuccessMessage(TokenTypes tokenType) {
             break;
         }
     }
-    DEBUG(std::cout << "t:  " << (int) tokenType << ", n:  " << (int) tokenName << std::endl;)
+    std::cout << "t:  " << (int) tokenType << ", n:  " << (int) tokenName << std::endl;
     this->tokenData = new SuccessStatus(this->token, tokenType, tokenName, this->endOfLine);
 }
 
@@ -375,7 +374,7 @@ bool LexiconScanner::qEnd(LexiconAutomatons::TransitionEnd * transitionEnd) {
     }
 
     if(condition) {
-        DEBUG(std::cout << "qEnd Success" << std::endl;)
+        std::cout << "qEnd Success" << std::endl;
         accept(transitionEnd->isDeterministic());
         setSuccessMessage(transitionEnd->getTokenType());
         return true;

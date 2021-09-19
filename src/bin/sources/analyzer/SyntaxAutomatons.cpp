@@ -700,11 +700,9 @@ namespace SyntaxAutomatons {
 
         if(!analyzer->getLastToken()->isEndOfLine()) {
             analyzer->setError(true);
-
-            DEBUG(std::cout << "FALHA" << std::endl)
+            std::cout << "FALHA" << std::endl;
         }
-        else DEBUG(std::cout << "SUCESSO" << std::endl);
-
+        else std::cout << "SUCESSO" << std::endl;
         return true;
     }
 
@@ -774,6 +772,7 @@ namespace SyntaxAutomatons {
         }
 
         bool qUOperator_Expression(SyntaxAnalyzer * analyzer) {
+            std::cout << "operador unario" << std::endl;
             Transition * transition = new Transition(AutomatonPattern::pSYMBOL, TokenTypes::tExpARITHMETICu);
             transition->setState(qBegin_Expression);
             bool r = analyzer->q(transition);
@@ -787,6 +786,7 @@ namespace SyntaxAutomatons {
         }
 
         bool qBOperator_Expression(SyntaxAnalyzer * analyzer) {
+            std::cout << "operador binario" << std::endl;
             Transition * transition = new Transition(AutomatonPattern::pSYMBOL, TokenTypes::tExpARITHMETICu);
             transition->setState(qBegin_Expression);
             bool r = analyzer->q(transition);
