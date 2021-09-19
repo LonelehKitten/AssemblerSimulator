@@ -27,7 +27,7 @@ public:
     // getters
     std::string getName();
     std::vector<std::string> getArgs();
-    std::vector<Semantic *> getText();
+    std::vector<Semantic *> & getText();
 
     // setters
     void setText(Semantic * line);

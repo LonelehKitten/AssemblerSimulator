@@ -16,7 +16,7 @@ std::vector<std::string> macroDef::getArgs()
     return this->args;
 }
 
-std::vector<Semantic *> macroDef::getText()
+std::vector<Semantic *> & macroDef::getText()
 {
     return this->macroText;
 }

@@ -1,6 +1,7 @@
 #ifndef ASSEMBLER_H
 #define ASSEMBLER_H
 
+#include <unordered_map>
 #include <vector>
 #include <iostream>
 #include <string>
@@ -19,10 +20,16 @@ private:
 
     std::string macroExpandParams(std::vector<label *> params, macroDef * macroThis);
 
+    std::unordered_map<std::string, macroDef *> macroMap;
+    int macroExpandParamsDoDaniel(MacroCall * macrocall, std::string& output, int k);
+
 public:
     Assembler(std::vector<Semantic *> * lines);
 
     std::string preproccess();
+
+    std::string init();
+    int preproccessDoDaniel (std::vector<Semantic *> * lines, std::string& output, int k);
 
 };
 

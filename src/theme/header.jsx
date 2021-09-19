@@ -55,12 +55,16 @@ const Header = () => {
 
   const handlePlay = () => {
     // play_expandMacros
-    if (currentFile !== null && currentFile?.code !== null) {
+    if (
+      currentFile !== null &&
+      currentFile?.code !== null &&
+      currentFile?.code !== ''
+    ) {
       ipcRenderer.send('play_expandMacros', currentFile.code);
       setPlayButtonPressed('pressed');
       setConsoleFlag(true);
       setPlaying(true);
-      console.log('mandando o callback');
+      console.log(currentFile.code);
     }
   };
 
@@ -126,3 +130,317 @@ const Header = () => {
 };
 
 export default Header;
+/*
+SomaMem MACRO Mem1, Mem2
+[1] mov AX,Mem1
+[1] push AX
+[1] ENDM
+[1] l0:  SomaMem MACRO Mem1, Mem2
+[1] 
+[1] l1:  mov AX,Mem1
+[1] 
+[1] l2:  push AX
+[1] 
+[1] l3:  ENDM
+[1] size: 49
+[1] entrou no set
+[1] ------------------------------
+[1] %c DEBUG: init
+[1] ------------------------------
+[1] SomaMem MACRO Mem1, Mem2
+[1] 
+[1] ^
+[1] curr char:   S
+[1] SomaMem MACRO Mem1, Mem2
+[1] 
+[1]  ^
+[1] curr char:   o
+[1] SomaMem MACRO Mem1, Mem2
+[1] 
+[1]   ^
+[1] curr char:   m
+[1] SomaMem MACRO Mem1, Mem2
+[1] 
+[1]    ^
+[1] curr char:   a
+[1] SomaMem MACRO Mem1, Mem2
+[1] 
+[1]     ^
+[1] curr char:   M
+[1] SomaMem MACRO Mem1, Mem2
+[1] 
+[1]      ^
+[1] curr char:   e
+[1] SomaMem MACRO Mem1, Mem2
+[1] 
+[1]       ^
+[1] curr char:   m
+[1] SomaMem MACRO Mem1, Mem2
+[1] 
+[1]        ^
+[1] curr char:    
+[1] SomaMem MACRO Mem1, Mem2
+[1] 
+[1]         ^
+[1] curr char:   M
+[1] t:  25, n:  -1
+[1] ------------------------------
+[1] %c DEBUG: somamem
+[1] ------------------------------
+[1] SomaMem MACRO Mem1, Mem2
+[1] 
+[1]         ^
+[1] curr char:   M
+[1] SomaMem MACRO Mem1, Mem2
+[1] 
+[1]          ^
+[1] curr char:   A
+[1] SomaMem MACRO Mem1, Mem2
+[1] 
+[1]           ^
+[1] curr char:   C
+[1] SomaMem MACRO Mem1, Mem2
+[1] 
+[1]            ^
+[1] curr char:   R
+[1] SomaMem MACRO Mem1, Mem2
+[1] 
+[1]             ^
+[1] curr char:   O
+[1] SomaMem MACRO Mem1, Mem2
+[1] 
+[1]              ^
+[1] curr char:    
+[1] SomaMem MACRO Mem1, Mem2
+[1] 
+[1]               ^
+[1] curr char:   M
+[1] qEnd Success
+[1] t:  0, n:  0
+[1] ------------------------------
+[1] %c DEBUG: macro
+[1] ------------------------------
+[1] SomaMem MACRO Mem1, Mem2
+[1] 
+[1]               ^
+[1] curr char:   M
+[1] SomaMem MACRO Mem1, Mem2
+[1] 
+[1]                ^
+[1] curr char:   e
+[1] SomaMem MACRO Mem1, Mem2
+[1] 
+[1]                 ^
+[1] curr char:   m
+[1] SomaMem MACRO Mem1, Mem2
+[1] 
+[1]                  ^
+[1] curr char:   1
+[1] SomaMem MACRO Mem1, Mem2
+[1] 
+[1]                   ^
+[1] curr char:   ,
+[1] SomaMem MACRO Mem1, Mem2
+[1] 
+[1]                    ^
+[1] curr char:    
+[1] t:  25, n:  -1
+[1] ------------------------------
+[1] %c DEBUG: mem1
+[1] ------------------------------
+[1] SomaMem MACRO Mem1, Mem2
+[1] 
+[1]                   ^
+[1] curr char:   ,
+[1] SomaMem MACRO Mem1, Mem2
+[1] 
+[1]                    ^
+[1] curr char:    
+[1] qEnd Success
+[1] t:  21, n:  59
+[1] ------------------------------
+[1] %c DEBUG: ,
+[1] ------------------------------
+[1] SomaMem MACRO Mem1, Mem2
+[1] 
+[1]                     ^
+[1] curr char:   M
+[1] SomaMem MACRO Mem1, Mem2
+[1] 
+[1]                      ^
+[1] curr char:   e
+[1] SomaMem MACRO Mem1, Mem2
+[1] 
+[1]                       ^
+[1] curr char:   m
+[1] SomaMem MACRO Mem1, Mem2
+[1] 
+[1]                        ^
+[1] curr char:   2
+[1] SomaMem MACRO Mem1, Mem2
+[1] 
+[1]                         ^
+[1] curr char:   
+[1] 
+[1] SomaMem MACRO Mem1, Mem2
+[1] 
+[1]                          ^
+[1] curr char:   
+[1] t:  25, n:  -1
+[1] ------------------------------
+[1] %c DEBUG: mem2
+[1] ------------------------------
+[1] SUCESSO
+[1] entrou no set
+[1] ------------------------------
+[1] %c DEBUG: init
+[1] ------------------------------
+[1] mov AX,Mem1
+[1] 
+[1] ^
+[1] curr char:   m
+[1] mov AX,Mem1
+[1] 
+[1]  ^
+[1] curr char:   o
+[1] mov AX,Mem1
+[1] 
+[1]   ^
+[1] curr char:   v
+[1] mov AX,Mem1
+[1] 
+[1]    ^
+[1] curr char:    
+[1] mov AX,Mem1
+[1] 
+[1]     ^
+[1] curr char:   A
+[1] qEnd Success
+[1] t:  3, n:  23
+[1] mov AX,Mem1
+[1] 
+[1] ^
+[1] curr char:   m
+[1] mov AX,Mem1
+[1] 
+[1]  ^
+[1] curr char:   o
+[1] mov AX,Mem1
+[1] 
+[1]   ^
+[1] curr char:   v
+[1] mov AX,Mem1
+[1] 
+[1]    ^
+[1] curr char:    
+[1] mov AX,Mem1
+[1] 
+[1]     ^
+[1] curr char:   A
+[1] qEnd Success
+[1] t:  3, n:  23
+[1] entrou no set
+[1] ------------------------------
+[1] %c DEBUG: init
+[1] ------------------------------
+[1] push AX
+[1] 
+[1] ^
+[1] curr char:   p
+[1] push AX
+[1] 
+[1]  ^
+[1] curr char:   u
+[1] push AX
+[1] 
+[1]   ^
+[1] curr char:   s
+[1] push AX
+[1] 
+[1]    ^
+[1] curr char:   h
+[1] push AX
+[1] 
+[1]     ^
+[1] curr char:    
+[1] push AX
+[1] 
+[1]      ^
+[1] curr char:   A
+[1] qEnd Success
+[1] t:  3, n:  25
+[1] push AX
+[1] 
+[1] ^
+[1] curr char:   p
+[1] push AX
+[1] 
+[1]  ^
+[1] curr char:   u
+[1] push AX
+[1] 
+[1]   ^
+[1] curr char:   s
+[1] push AX
+[1] 
+[1]    ^
+[1] curr char:   h
+[1] push AX
+[1] 
+[1]     ^
+[1] curr char:    
+[1] push AX
+[1] 
+[1]      ^
+[1] curr char:   A
+[1] qEnd Success
+[1] t:  3, n:  25
+[1] entrou no set
+[1] ------------------------------
+[1] %c DEBUG: init
+[1] ------------------------------
+[1] ENDM
+[1] 
+[1] ^
+[1] curr char:   E
+[1] ENDM
+[1] 
+[1]  ^
+[1] curr char:   N
+[1] ENDM
+[1] 
+[1]   ^
+[1] curr char:   D
+[1] ENDM
+[1] 
+[1]    ^
+[1] curr char:   M
+[1] ENDM
+[1] 
+[1]     ^
+[1] curr char:   
+[1] 
+[1] ENDM
+[1] 
+[1]      ^
+[1] curr char:   
+[1] qEnd Success
+[1] t:  1, n:  3
+[1] ------------------------------
+[1] %c DEBUG: endm
+[1] ------------------------------
+[1] SUCESSO
+[1] -> SomaMem MACRO Mem1, Mem2
+[1] 
+[1] -> mov AX,Mem1
+[1] 
+[1] -> push AX
+[1] 
+[1] -> ENDM
+[1] 
+[1] Erro: macro n foi definida direito (FIM DO ARQUIVO)
+[1] ### START ... 
+
+
+
+*/
