@@ -54,6 +54,7 @@
     "cross-env": "^7.0.3",
     "electron": "^13.2.3",
     "electron-builder": "^22.11.7",
+    "electron-rebuild": "^3.2.3",
     "prettier": "^2.3.2",
     "wait-on": "^6.0.0"
   }

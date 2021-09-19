@@ -69,7 +69,13 @@
 //>>>>>>> Stashed changes
 //=======
         "typeinfo": "cpp",
+<<<<<<< HEAD
         "cstring": "cpp"
 //>>>>>>> 19d9fba70ef35e0a348157f8da31e081225bb791
+=======
+        "cstring": "cpp",
+        "chrono": "cpp",
+        "thread": "cpp"
+>>>>>>> aaa9d9365fb34464be28ecbd1f47edb3dcd579cd
     }
 }

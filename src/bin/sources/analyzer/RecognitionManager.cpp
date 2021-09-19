@@ -4,7 +4,7 @@ RecognitionManager::RecognitionManager() {
     this->analyzer = new SyntaxAnalyzer();
 }
 
-std::vector<Semantic *> * RecognitionManager::analyze(std::string text) {
+std::vector<Semantic *> * RecognitionManager::analyze(std::string text, bool strict) {
 
     std::vector<std::string> * rawLines = split(text);
 
@@ -18,7 +18,7 @@ std::vector<Semantic *> * RecognitionManager::analyze(std::string text) {
     for(int i = 0; i < (int) rawLines->size(); i++) {
         analyzer->set(rawLines->at(i), i < (int) rawLines->size());
         if(analyzer->check()) {
-            if(!analyzer->init()) {
+            if(!analyzer->init() && strict) {
 
                 for(int j = 0; j < (int) lines->size(); j++)
                     lines->at(j)->~Semantic();

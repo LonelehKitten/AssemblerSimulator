@@ -38,6 +38,11 @@ const std::unordered_map<TokenNames, LexiconScanner::TokenSetUnit *>& LexiconSca
     return tokenSet;
 }
 
+const std::string &LexiconScanner::getToken() const
+{
+    return token;
+}
+
 void LexiconScanner::initTokenSet() {
 
     this->tokenSet[TokenNames::nDirMACRO]           = new LexiconScanner::TokenSetUnit("macro",     TokenTypes::tBLOCKDEF);
@@ -170,6 +175,8 @@ LexiconScannerStatus * LexiconScanner::nextToken(AutomatonPattern automatonPatte
     while(true) {
 
         log();
+
+        std::cout << "curr char:   " << this->line[this->lineIndex] << std::endl;
 
         if(this->state(this) && !this->error) {
             return this->tokenData;

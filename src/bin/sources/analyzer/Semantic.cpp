@@ -19,6 +19,9 @@ Instruction Semantic::getType() {
     return type;
 }
 
+Invalid::Invalid(std::string line)
+    : Semantic(line, Instruction::iINVALID) {}
+
 //MACRO
 
 Macro::Macro(std::string line, std::string name)

@@ -178,6 +178,7 @@ class LexiconScanner {
         const std::unordered_map<std::string, TokenTypes>& getTokens();
         const std::unordered_map<AutomatonPattern, std::function<bool(LexiconScanner *)> >& getInitialStates();
         const std::unordered_map<TokenNames, LexiconScanner::TokenSetUnit *>& getTokenSet();
+        const std::string &getToken() const;
 };
 
 #endif /* LEXICON_SCANNER_H */

@@ -1,9 +1,8 @@
-import { useState,useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
-
 
 const useStyles = makeStyles((theme) => ({
   textField: {
@@ -17,15 +16,32 @@ const useStyles = makeStyles((theme) => ({
     fontSize: 24,
     outline: 0,
     borderRadius: '3px',
+    marginRight: '10px',
   },
   root: {
-    overflow: "auto",
+    //paddingBottom: '60px',
+    overflow: 'auto',
     paddingRight: 10,
-    "& .MuiTypography-root" :{
-      lineBreak: "anywhere"
-    }
+    '& .MuiTypography-root': {
+      lineBreak: 'anywhere',
+    },
+    '&::-webkit-scrollbar': {
+      width: '0.3em',
+      height: '0.4em',
+    },
+    '&::-webkit-scrollbar-track': {
+      '-webkit-box-shadow': 'inset 0 0 6px rgba(0,0,0,0.5)',
+    },
+    '&::-webkit-scrollbar-thumb': {
+      backgroundColor: '#191b24',
+      outline: '0px solid ',
+    },
+    '&::-webkit-scrollbar-corner': {
+      background: '#282a36',
+    },
   },
   inputedTexts: {
+    fontFamily: 'VT323',
     backgroundColor: '#44475a',
     borderRadius: '20px 0px 0px 20px',
     minHeight: '30px',
@@ -35,10 +51,9 @@ const useStyles = makeStyles((theme) => ({
 
 const { ipcRenderer } = window.electron;
 
-
 const Console = (props) => {
   const classes = useStyles();
-  const consoleEndRef = useRef(null)
+  const consoleEndRef = useRef(null);
   const [history, setHistory] = useState([]);
 
   const handleSubmit = (e) => {
@@ -47,39 +62,43 @@ const Console = (props) => {
       if (value == '') return;
       setHistory((oldValue) => [...oldValue, value]);
       e.target.value = '';
-      consoleEndRef.current?.scrollIntoView({ behavior: "instant" })
+      const element = consoleEndRef.current;
     }
   };
 
   useEffect(() => {
+    consoleEndRef.current?.scrollIntoView({ behavior: 'instant' });
+  }, [history]);
+
+  useEffect(() => {
     ipcRenderer.on('on_console', (e, message) => {
+      setHistory((oldValue) => [...oldValue, message]);
       console.log(message);
     });
-  },[])
-  
+  }, []);
+
   return (
     <div id='console' {...props}>
       <List className={classes.root}>
-        {history.map((item) => (
-          <ListItem className={classes.inputedTexts}>
+        {history.map((item, key) => (
+          <ListItem key={key} className={classes.inputedTexts}>
             <ListItemText primary={`> ⠀ ${item}`} />
           </ListItem>
         ))}
-        <div style={{marginTop:50}} ref={consoleEndRef}></div>
+        <div ref={consoleEndRef}></div>
       </List>
       <input
         onKeyDown={handleSubmit}
         placeholder='Digite um comando . . .'
         className={classes.textField}
-        />
+      />
     </div>
   );
 };
 
 export default Console;
 
-
-  /*
+/*
          sx={{
           position: 'relative',
           overflow: 'auto',
