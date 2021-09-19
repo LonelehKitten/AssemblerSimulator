@@ -9,7 +9,6 @@
 #include <utility>
 #include <algorithm>
 
-#include "../GlobalSettings.h"
 #include "LexiconScannerStatus.h"
 #include "LexiconAutomatons.h"
 #include "Dictionaries.h"

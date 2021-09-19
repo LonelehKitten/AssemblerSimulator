@@ -8,7 +8,7 @@ SyntaxAnalyzer::SyntaxAnalyzer() {
 }
 
 void SyntaxAnalyzer::set(std::string line, bool last) {
-    DEBUG(std::cout << "entrou no set" << std::endl;)
+    std::cout << "entrou no set" << std::endl;
     this->line = line;
     this->last = last;
     this->state = SyntaxAutomatons::qBegin;
@@ -20,7 +20,7 @@ void SyntaxAnalyzer::set(std::string line, bool last) {
 }
 
 bool SyntaxAnalyzer::init() {
-    DEBUG(log("init");)
+    log("init");
     this->row.clear();
     this->error = false;
     this->scanner->setLine(this->line);
@@ -29,7 +29,7 @@ bool SyntaxAnalyzer::init() {
             return true;
         }
         if(this->error) {
-            DEBUG(std::cout << "syntax error" << std::endl;)
+            std::cout << "syntax error" << std::endl;
             break;
         }
     }
@@ -330,7 +330,7 @@ bool SyntaxAnalyzer::q(SyntaxAutomatons::Transition * transition) {
             transition->getCustomFlag()
         ) {
 
-            DEBUG(log(token);)
+            log(token);
 
             if(transition->getPop() != "") this->stack->pop();
             if(transition->getPush() != "") this->stack->push(transition->getPush());
