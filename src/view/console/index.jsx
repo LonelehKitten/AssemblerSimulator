@@ -19,6 +19,7 @@ const useStyles = makeStyles((theme) => ({
     marginRight: '15px',
   },
   root: {
+    paddingBottom: '60px',
     overflow: 'auto',
     paddingRight: 10,
     '& .MuiTypography-root': {
@@ -40,6 +41,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   inputedTexts: {
+    fontFamily: 'VT323',
     backgroundColor: '#44475a',
     borderRadius: '20px 0px 0px 20px',
     minHeight: '30px',
