@@ -23,6 +23,7 @@ const { ipcRenderer } = window.electron;
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
+    backgroundColor: '#191a21',
   },
   menuButton: {
     marginRight: theme.spacing(2),
@@ -53,7 +54,7 @@ const Header = () => {
 
   return (
     <div className={classes.root}>
-      <AppBar position='static'>
+      <AppBar position='static' style={{ backgroundColor: '#191a21' }}>
         <Toolbar variant='dense'>
           <IconButton
             edge='start'

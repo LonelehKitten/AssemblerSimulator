@@ -1,5 +1,9 @@
 import { useEffect, useState } from 'react';
-import { ThemeProvider, createTheme, makeStyles } from '@material-ui/core/styles';
+import {
+  ThemeProvider,
+  createTheme,
+  makeStyles,
+} from '@material-ui/core/styles';
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
@@ -14,13 +18,12 @@ import Alert from './utils/alert';
 
 const theme = createTheme({
   palette: {
-
     primary: {
       main: '#282a36',
       contrastText: '#fff',
     },
     secondary: {
-      main: '#44475a',
+      main: '#21222c',
       contrastText: '#fff',
     },
   },
@@ -31,16 +34,15 @@ const useStyles = makeStyles((theme) => ({
     position: 'relative',
     float: 'left',
     backgroundColor: theme.palette.secondary.main,
-    height: 'calc(100vh - 48px)'
+    height: 'calc(100vh - 48px)',
   },
   sidebar: {
     position: 'relative',
     float: 'left',
-    backgroundColor: "#535563",
-    height: 'calc(100vh - 48px)'
-  }
+    backgroundColor: '#21222c',
+    height: 'calc(100vh - 48px)',
+  },
 }));
-
 
 /*
 const {ipcRenderer} = window.electron;
@@ -55,26 +57,30 @@ function App2() {
   const classes = useStyles();
 
   const [listFiles, setListFiles] = useState(() => {
-    const list = JSON.parse(window.localStorage.getItem("_listFiles"));
+    const list = JSON.parse(window.localStorage.getItem('_listFiles'));
 
     return list || {};
   });
 
-  const [currentID, setCurrentID] = useState("");
+  const [currentID, setCurrentID] = useState('');
   const [currentFile, setCurrentFile] = useState(null);
   const [alertMessage, setAlertMessage] = useState(null);
   const [EtoC, setEtoC] = useState(250); // EtoC = Editor to Console
   const [EtoR, setEtoR] = useState(460); // EtoR = Editor to Register
 
   const handleVertical = (e) => {
-    const newWidth = Math.abs(e.clientX - document.body.offsetLeft - document.body.offsetWidth);
+    const newWidth = Math.abs(
+      e.clientX - document.body.offsetLeft - document.body.offsetWidth
+    );
     if (newWidth > 300 && newWidth < document.body.offsetWidth / 2) {
       setEtoR(newWidth);
     }
   };
 
   const handleHorizontal = (e) => {
-    const newHeight = Math.abs(e.clientY - document.body.offsetHeight - document.body.offsetTop);
+    const newHeight = Math.abs(
+      e.clientY - document.body.offsetHeight - document.body.offsetTop
+    );
     if (newHeight > 200 && newHeight < document.body.offsetHeight / 2) {
       setEtoC(newHeight);
     }
@@ -84,13 +90,14 @@ function App2() {
     if (listFiles[id] !== undefined) {
       setCurrentFile(listFiles[id]);
       setCurrentID(id);
-    }else if(id == null){
+    } else if (id == null) {
       setCurrentFile(null);
-      setCurrentID("");
+      setCurrentID('');
     }
-  }
+  };
 
-  const addFile = (path, code, name = null) => {/*
+  const addFile = (path, code, name = null) => {
+    /*
     const newValue = listFiles;
     newValue[id] = {name,path,code};*/
     let idExists = null;
@@ -100,59 +107,87 @@ function App2() {
     if (idExists !== null) {
       setCurrentID(idExists);
       setCurrentFile(listFiles[idExists]);
-      alertShow("info", "Esse arquivo já está aberto.");
+      alertShow('info', 'Esse arquivo já está aberto.');
       return;
-    };
-    if(name == null ) name = path.split("\\").slice(-1)[0];
-    const id = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5);
+    }
+    if (name == null) name = path.split('\\').slice(-1)[0];
+    const id = Math.random()
+      .toString(36)
+      .replace(/[^a-z]+/g, '')
+      .substr(0, 5);
     const newValue = {
       ...listFiles,
-      [id]: { name, path, code, originCode: code }
-    }
+      [id]: { name, path, code, originCode: code },
+    };
     setCurrentID(id);
     setCurrentFile(newValue[id]);
     setListFiles(newValue);
-  }
+  };
 
   const setCode = (value, isOrigin = false) => {
     if (currentFile !== null) {
       setCurrentFile((file) => {
         file.code = value;
-        if(isOrigin) file.originCode = value;
+        if (isOrigin) file.originCode = value;
         file.isSave = file.code != file.originCode;
         return file;
       });
-      setListFiles({...listFiles,...{[currentID]:currentFile}});
+      setListFiles({ ...listFiles, ...{ [currentID]: currentFile } });
     }
-  }
+  };
 
   const alertShow = (color, text, time = 6000) => {
     setAlertMessage({ color, text, time });
-  }
+  };
 
   useEffect(() => {
-    window.localStorage.setItem("_listFiles", JSON.stringify(listFiles));
+    window.localStorage.setItem('_listFiles', JSON.stringify(listFiles));
   }, [listFiles]);
 
   return (
-    <Context.Provider value={{ currentFile, listFiles, currentID, setListFiles, addFile, setCode, changeFile, alertShow }}>
+    <Context.Provider
+      value={{
+        currentFile,
+        listFiles,
+        currentID,
+        setListFiles,
+        addFile,
+        setCode,
+        changeFile,
+        alertShow,
+      }}
+    >
       <Alert onClose={setAlertMessage} message={alertMessage} />
       <Header />
-      <main className={classes.main} style={{ width: `calc(100% - ${EtoR}px)` }}>
+      <main
+        className={classes.main}
+        style={{ width: `calc(100% - ${EtoR}px)` }}
+      >
         <Editor style={{ height: `calc(100vh - 48px - ${EtoC}px)` }} />
-        <Dragger orientation="horizontal" onMouse={handleHorizontal} />
-        <Console style={{ height: `calc(${EtoC}px - 8px)`, marginLeft: "3px" }} width={EtoR} />
+        <Dragger orientation='horizontal' onMouse={handleHorizontal} />
+        <Console
+          style={{ height: `calc(${EtoC}px - 8px)`, marginLeft: '3px' }}
+          width={EtoR}
+        />
       </main>
-      <aside className={classes.sidebar} style={{ width: EtoR + "px" }}>
+      <aside className={classes.sidebar} style={{ width: EtoR + 'px' }}>
         <Dragger onMouse={handleVertical} />
-        <Register style={{ minWidth: "15vw" }} width={EtoR} height={`calc(100vh)`}/>
+        <Register
+          style={{ minWidth: '15vw' }}
+          width={EtoR}
+          height={`calc(100vh)`}
+        />
       </aside>
     </Context.Provider>
   );
 }
 
-const Loading = () => <Backdrop style={{ color: "#fff" }} open={true}> <CircularProgress color="inherit" /></Backdrop>;
-
+const Loading = () => (
+  <Backdrop style={{ color: '#fff' }} open={true}>
+    {' '}
+    <CircularProgress color='inherit' />
+  </Backdrop>
+);
 
 const App = () => {
   const [loading, setLoading] = useState(true);
@@ -163,7 +198,13 @@ const App = () => {
     }, 1000);
   }, []);
 
-  return loading ? <Loading /> : <ThemeProvider theme={theme}><App2 /></ThemeProvider>;
+  return loading ? (
+    <Loading />
+  ) : (
+    <ThemeProvider theme={theme}>
+      <App2 />
+    </ThemeProvider>
+  );
 };
 
 export default App;

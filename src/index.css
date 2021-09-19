@@ -28,7 +28,7 @@ code {
   font-family: 'VT323';
   padding-left: 0.1em;
   font-size: 22px;
-  background-color: #363a52 !important;
+  background-color: #282a36 !important;
 }
 #console > div {
   display: block;
@@ -38,7 +38,7 @@ code {
 
 #register {
   margin-left: 5px;
-  background-color: #535563;
+  background-color: #21222c;
 }
 
 *::-webkit-scrollbar {

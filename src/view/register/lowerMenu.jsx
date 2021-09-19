@@ -40,7 +40,7 @@ const LowerMenu = (props) => {
       alignItems: 'center',
       justifyContent: 'center',
       color: 'inherit',
-      backgroundColor: theme.palette.primary.main,
+      backgroundColor: '#313241',
       overflow: 'auto',
     },
   }));

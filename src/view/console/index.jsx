@@ -12,7 +12,7 @@ const useStyles = makeStyles((theme) => ({
     border: `3px inset ${theme.palette.primary.main}`,
     padding: '10px',
     color: '#fff',
-    backgroundColor: '#282a36',
+    backgroundColor: '#191a21',
     fontSize: 24,
     outline: 0,
     borderRadius: '3px',
@@ -43,7 +43,7 @@ const useStyles = makeStyles((theme) => ({
   },
   inputedTexts: {
     height: '30px',
-    backgroundColor: '#44475a',
+    backgroundColor: '#343746',
     borderRadius: '20px 0px 0px 20px',
     minHeight: '30px',
     marginTop: '5px',

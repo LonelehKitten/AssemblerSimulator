@@ -13,10 +13,11 @@ import Item from './item';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    backgroundColor: '#222534 ',
+    backgroundColor: '#282a36 ',
     color: '#fff',
     minHeight: '2rem',
     '& 	.MuiTab-root': {
+      boxShadow: '0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23)',
       padding: '0 12px',
       minHeight: '2rem',
     },
@@ -81,7 +82,11 @@ const Tabs = ({ value, onChange, listFiles }) => {
   };
 
   return (
-    <>
+    <div
+      style={{
+        boxShadow: 'inset 0 0 1em balck',
+      }}
+    >
       <TabContainer
         value={currentID || ''}
         indicatorColor='secondary'
@@ -120,7 +125,7 @@ const Tabs = ({ value, onChange, listFiles }) => {
         style={{ display: 'none' }}
         onChange={onChangeFile}
       />
-    </>
+    </div>
   );
 };
 export default Tabs;
