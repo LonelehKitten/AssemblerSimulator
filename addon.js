@@ -1,8 +1,8 @@
 'use strict';
 
 const EventEmitter = require('events').EventEmitter;
-//const addon = require('bindings')('addon.node');
-const addon = require('./build/Release/addon.node');
+const addon = require('bindings')('addon.node');
+//const addon = require('./build/Release/addon.node');
 const emitter = new EventEmitter();
 
 emitter.on('success', (evt) => {

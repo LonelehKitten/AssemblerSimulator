@@ -1,9 +1,9 @@
 const addon = require('bindings')('addon.node');
+//const addon = require('../build/Release/addon.node');
 const EventEmitter = require('events');
 const fs = require('fs');
 const { BrowserWindow, ipcMain, dialog, webContents } = require('electron');
 
-// const addon = require('../build/Release/addon.node');
 
 // callback(function (event, data) {
 //   webContents.getFocusedWebContents().send('on_event', event, data);
@@ -11,7 +11,7 @@ const { BrowserWindow, ipcMain, dialog, webContents } = require('electron');
 // });
 ipcMain.on('play_expandMacros', (event, code) => {
   const emitter = new EventEmitter();
-
+  console.log(code);
   emitter.on('success', (evt) => {
     event.sender.send('on_console', evt);
     console.log('### START ... ' + evt);

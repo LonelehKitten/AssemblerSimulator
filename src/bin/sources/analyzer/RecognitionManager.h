@@ -19,7 +19,7 @@ class RecognitionManager {
     public:
         RecognitionManager();
 
-    std::vector<Semantic *> * analyze(std::string text);
+    std::vector<Semantic *> * analyze(std::string text, bool strict);
 
 
 };
