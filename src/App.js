@@ -114,7 +114,7 @@ function App2() {
       alertShow('info', 'Esse arquivo já está aberto.');
       return;
     }
-    if (name == null) name = path.split('\\').slice(-1)[0];
+    if (name == null) name = path.replace("/", "\\").split('\\').slice(-1)[0];
     const id = Math.random()
       .toString(36)
       .replace(/[^a-z]+/g, '')
@@ -123,6 +123,7 @@ function App2() {
       ...listFiles,
       [id]: { name, path, code, originCode: code },
     };
+    console.log(newValue);
     setCurrentID(id);
     setCurrentFile(newValue[id]);
     setListFiles(newValue);
