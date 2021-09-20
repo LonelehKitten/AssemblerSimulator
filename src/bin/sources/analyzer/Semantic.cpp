@@ -252,8 +252,8 @@ std::string Label::getName() {
 }
 
 
-MacroCall::MacroCall(std::string line, std::vector<std::vector<Token *> *> * params) :
-    Semantic(line, Instruction::iMACROCALL), params(params) {};
+MacroCall::MacroCall(std::string line, std::string name, std::vector<std::vector<Token *> *> * params) :
+    Semantic(line, Instruction::iMACROCALL), name(name), params(params) {};
 
 const std::string &MacroCall::getName() const
 {
