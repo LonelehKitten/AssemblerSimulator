@@ -12,7 +12,7 @@ ipcMain.on('play_expandMacros', (event, code) => {
   const emitter = new EventEmitter();
   console.log(code);
   emitter.on('success', (evt) => {
-    event.sender.send('on_console', evt);
+    event.sender.send('on_console', "Success!!");
     event.sender.send('expand_macro', evt);
     console.log('### START ... ' + evt);
   });
