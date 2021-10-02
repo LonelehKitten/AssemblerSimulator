@@ -15,7 +15,7 @@ void SyntaxAnalyzer::set(std::string line, bool last) {
     this->aux1 = "";
     this->aux2 = "";
     this->aux3 = "";
-    if(this->vaux != nullptr) this->vaux->clear();
+    if(this->vaux != nullptr) this->vaux = new std::vector<std::string>();
     this->isMacroContent = false;
 }
 
@@ -165,14 +165,20 @@ Semantic * SyntaxAnalyzer::getRow() {
                     }
                     break;
                 case TokenTypes::tIDENTIFIER:
-                    t = -1;
+                    t = 0;
                     while(t < (int) row.size()) {
                         t++;
                         params->emplace_back(getExpression(t, t));
                     }
-                    return new MacroCall(this->line, params);
+                    return new MacroCall(this->line, this->aux1, params);
                 case TokenTypes::tCOLON:
                     return new Label(this->line, this->getAux1());
+                case TokenTypes::tVARDEF:
+                    if(row[2]->getType() == TokenTypes::tUNDEFINED) {
+                        return new Dw(this->line, this->aux1, nullptr);
+                    }
+                    expression = getExpression(1, t);
+                    return new Dw(this->line, this->aux1, expression);
                 default:
                     break;
             }
@@ -192,7 +198,7 @@ Semantic * SyntaxAnalyzer::getRow() {
 
         case TokenTypes::tBLOCKEND:
             if(t1->getName() == TokenNames::nDirENDM)
-                return new End(this->line, this->aux1);
+                return new EndM(this->line);
             break;
 
         case TokenTypes::tOPERATION:
@@ -225,7 +231,7 @@ Semantic * SyntaxAnalyzer::getRow() {
                         expression = getExpression(3, t);
                         return new Mov(this->line, this->aux1, expression, (t < (int) row.size()));
                     }
-                    expression = getExpression(1, t);
+                    expression = getExpression(2, t);
                     return new Mov(this->line, expression, this->aux2,
                         row[t]->getType() == TokenTypes::tINDEX_OP
                     );

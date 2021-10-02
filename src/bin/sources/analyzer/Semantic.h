@@ -116,7 +116,7 @@ class MacroCall : public Semantic{
         std::string name;
         std::vector<std::vector<Token *> *> * params;
     public:
-        MacroCall(std::string line, std::vector<std::vector<Token *> *> * params);
+        MacroCall(std::string line, std::string name, std::vector<std::vector<Token *> *> * params);
 
         const std::string &getName() const;
         std::vector<std::vector<Token *> *> *getParams() const;

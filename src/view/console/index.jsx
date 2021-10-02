@@ -66,6 +66,7 @@ const Console = (props) => {
     addFile,
     consoleFlag,
     setConsoleFlag,
+    alertShow
   } = useContext();
   const classes = useStyles();
   const consoleEndRef = useRef(null);
@@ -106,10 +107,17 @@ end VALEUSEGMENT
           'invoke_save_file',
           JSON.stringify({
             code: message,
-            path: `${app?.getPath('home')}/output.asm`,
+            path: ''
           })
         );
-        addFile(`${app?.getPath('home')}/output.asm`, message);
+        ipcRenderer.once('save_file', (e, success, path) => {
+          if (success) {
+            addFile(path, message);
+            alertShow('success', 'Arquivo Salvo');
+          } else {
+            alertShow('danger', 'Erro ao salvar o arquivo');
+          }
+        });
       });
     }
   }, []);
