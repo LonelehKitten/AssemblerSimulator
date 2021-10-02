@@ -61,8 +61,6 @@ const { ipcRenderer } = window.electron;
 
 const Console = (props) => {
   const {
-    playButtonPressed,
-    setPlaying,
     addFile,
     consoleFlag,
     setConsoleFlag,
@@ -71,7 +69,6 @@ const Console = (props) => {
   const classes = useStyles();
   const consoleEndRef = useRef(null);
   const [history, setHistory] = useState([]);
-  const [flag, setFlag] = useState(false);
 
   const handleSubmit = (e) => {
     if (e.keyCode == 13) {
@@ -94,32 +91,28 @@ end VALEUSEGMENT
 */
 
   useEffect(() => {
-    setFlag(true);
-    if (consoleFlag || true) {
-      ipcRenderer.on('on_console', (e, message) => {
-        setHistory((oldValue) => [...oldValue, message]);
-        console.log(message);
-        setConsoleFlag(false);
+    ipcRenderer.on('on_console', (e, message) => {
+      setHistory((oldValue) => [...oldValue, message]);
+      console.log(message);
+    });
+    ipcRenderer.on('expand_macro', (e, message) => {
+      console.log('Teste', message);
+      ipcRenderer.send(
+        'invoke_save_file',
+        JSON.stringify({
+          code: message,
+          path: ''
+        })
+      );
+      ipcRenderer.once('save_file', (e, success, path) => {
+        if (success) {
+          addFile(path, message);
+          alertShow('success', 'Arquivo Salvo');
+        } else {
+          alertShow('danger', 'Erro ao salvar o arquivo');
+        }
       });
-      ipcRenderer.on('expand_macro', (e, message) => {
-        console.log('Teste', message);
-        ipcRenderer.send(
-          'invoke_save_file',
-          JSON.stringify({
-            code: message,
-            path: ''
-          })
-        );
-        ipcRenderer.once('save_file', (e, success, path) => {
-          if (success) {
-            addFile(path, message);
-            alertShow('success', 'Arquivo Salvo');
-          } else {
-            alertShow('danger', 'Erro ao salvar o arquivo');
-          }
-        });
-      });
-    }
+    });
   }, []);
 
   return (
