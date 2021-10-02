@@ -65,7 +65,6 @@ function App2() {
   const [consoleFlag, setConsoleFlag] = useState(false);
 
   const [playing, setPlaying] = useState(false);
-  const [playButtonPressed, setPlayButtonPressed] = useState('');
   const [currentID, setCurrentID] = useState('');
   const [currentFile, setCurrentFile] = useState(null);
   const [alertMessage, setAlertMessage] = useState(null);
@@ -162,8 +161,6 @@ function App2() {
         setCode,
         changeFile,
         alertShow,
-        playButtonPressed,
-        setPlayButtonPressed,
         consoleFlag,
         setConsoleFlag,
       }}
