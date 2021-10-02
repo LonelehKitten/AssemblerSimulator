@@ -1,9 +1,16 @@
 #include <vector>
 #include <bitset>
 
-typedef std::bitset<16> Z808Word;
-typedef unsigned char Z808Byte;
-typedef long int Z808Operation;
+            /*
+            result = operator1 & operator2; //and
+            result = operator1 | operator2; //or
+            result = operator1 ^ operator2; //xor
+            result = ~operator1; //not
+            */
+
+typedef std::bitset<16> Z808Word; //Registradores
+typedef unsigned char Z808Byte; //Leitura da memória de instruções
+typedef long int Z808Operation; //Operaçoes dentro da VM
 
 class Z808Machine
 {
@@ -23,7 +30,7 @@ private:
     bool errorInstruction;
     //Setar flags no registrador SR
     //Se for operacao de subtracao, enviar o terceiro parametro como false
-    void setSR(Z808Operation op1, Z808Operation op2, bool add = true);
+    void setSR(Z808Operation op1, Z808Operation op2, bool add = false, bool sub = false, bool mult = false, bool div = false, bool cmp = false, bool and = false, bool or = false, bool xor = false, bool popf = false);
 
 public:
     Z808Machine();
