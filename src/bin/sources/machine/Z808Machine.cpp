@@ -16,7 +16,7 @@ bool Z808Machine::instructionError()
     return errorInstruction;
 }
 
-void Z808Machine::setSR(Z808Operation op1, Z808Operation op2, bool add, bool sub, bool mult, bool div, bool cmp, bool this_and, bool this_not, bool this_or, bool this_xor, bool popf)
+void Z808Machine::setSR(Z808Operation op1, Z808Operation op2, bool add, bool sub, bool mult, bool this_div, bool cmp, bool this_and, bool this_not, bool this_or, bool this_xor, bool popf)
 {
     Z808Operation value = 0;
 
@@ -26,7 +26,7 @@ void Z808Machine::setSR(Z808Operation op1, Z808Operation op2, bool add, bool sub
         value = op1 - op2;
     else if (mult)
         value = op1 * op2;
-    else if (div)
+    else if (this_div)
         value = op1 / op2;
     else if (cmp)
         value = op1 != op2;     //!= retorna 0 quando igual, seta o registrador ZF
@@ -68,7 +68,7 @@ void Z808Machine::setSR(Z808Operation op1, Z808Operation op2, bool add, bool sub
         Z808Registers[SR].set(6);
     else
         Z808Registers[SR].reset(6);
-    //if (div)
+    //if (this_div)
     //{
     //    long divMod = op1 % op2;
     //    Z808Word dMod = (Z808Word) divMod;
@@ -81,7 +81,7 @@ void Z808Machine::setSR(Z808Operation op1, Z808Operation op2, bool add, bool sub
         Z808Registers[SR].set(8);
     else
         Z808Registers[SR].reset(8);
-    if (div)                            //Testa se a divisao foi zero mas o resto nao foi zero, ai reseta a flag
+    if (this_div)                            //Testa se a divisao foi zero mas o resto nao foi zero, ai reseta a flag
     {
         long divMod = op1 % op2;
         if ((value == 0 && divMod != 0))
