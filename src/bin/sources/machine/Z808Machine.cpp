@@ -585,7 +585,7 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i)
 
     case 0xEE :         //hlt
     {
-        opbytes = 1;
+        opbytes = 0;
 
         if (i+opbytes > memory.size())  //Essa verificação é desnecessária pois, se leu da memória e for a última posição, sempre dara igual a memory.size() e nao maior
         {

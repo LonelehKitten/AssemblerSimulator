@@ -42,6 +42,7 @@ public:
      * Recebe a memória inteira
      * e um parâmetro para decidir se executa a leitura pelo IP ou por um índice específico
      * retorna a quantidade de bytes da operação (deslocamento)
+     * SE opbytes = 0 E errorInstruction = false, CHEGOU EM HALT
      */
     int execute(std::vector<Z808Byte> memory, long int i = -1);
 };
