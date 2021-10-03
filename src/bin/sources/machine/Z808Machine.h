@@ -25,6 +25,15 @@ private:
         IP,
         SR
     };
+    enum sr
+    {
+        CF = 0,
+        PF = 6,
+        IF = 7,
+        ZF = 8,
+        SF = 9,
+        OF = 12
+    };
 
     //Flag para caso alguma instrução esteja errada
     bool errorInstruction;
