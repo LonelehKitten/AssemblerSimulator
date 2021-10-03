@@ -16,7 +16,7 @@ bool Z808Machine::instructionError()
     return errorInstruction;
 }
 
-void Z808Machine::setSR(Z808Operation op1, Z808Operation op2, bool add = false, bool sub = false, bool mult = false, bool div = false, bool cmp = false, bool and = false, bool or = false, bool xor = false, bool popf = false)
+void Z808Machine::setSR(Z808Operation op1, Z808Operation op2, bool add, bool sub, bool mult, bool div, bool cmp, bool this_and, bool this_not, bool this_or, bool this_xor, bool popf)
 {
     Z808Operation value = 0;
 
@@ -29,12 +29,14 @@ void Z808Machine::setSR(Z808Operation op1, Z808Operation op2, bool add = false, 
     else if (div)
         value = op1 / op2;
     else if (cmp)
-        value = op1 == op2;
-    else if (and)
+        value = op1 != op2;     //!= retorna 0 quando igual, seta o registrador ZF
+    else if (this_and)
         value = op1 & op2;
-    else if (or)
+    else if (this_not)
+        value = ~op1;
+    else if (this_or)
         value = op1 | op2;
-    else if (xor)
+    else if (this_xor)
         value = op1 ^ op2;
     else if (popf)
         value = op1 + op2;  //template
@@ -107,7 +109,7 @@ void Z808Machine::setSR(Z808Operation op1, Z808Operation op2, bool add = false, 
         Z808Registers[SR].reset(12);
 }
 
-int Z808Machine::execute(std::vector<Z808Byte> memory, long int i = -1)
+int Z808Machine::execute(std::vector<Z808Byte> memory, long int i)
 {
     int opbytes = 0;                                        //Inicializacao
     errorInstruction = false;
@@ -303,12 +305,12 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i = -1)
             {
                 operator1 = (Z808Operation) Z808Registers[AX].to_ulong();
                 
-                operator1 = operator1 - operator1; // AX <- AX - AX
+                result = operator1 - operator1; // AX <- AX - AX
 
-                Z808Registers[AX] = (Z808Word) operator1;      //Salvando na saida (registrador)
+                Z808Registers[AX] = (Z808Word) result;      //Salvando na saida (registrador)
             
                 //Atualizando registrador de flags
-                setSR(operator1);
+                setSR(operator1, operator1, false, true);
             
                 break;
             } 
@@ -317,12 +319,12 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i = -1)
                 operator1 = (Z808Operation) Z808Registers[AX].to_ulong();
                 operator2 = (Z808Operation) Z808Registers[DX].to_ulong();
                 
-                operator1 = operator1 / operator2; // AX <- AX - DX
+                result = operator1 / operator2; // AX <- AX - DX
                 
-                Z808Registers[AX] = (Z808Word) operator1;      //Salvando na saida (registrador)
+                Z808Registers[AX] = (Z808Word) result;      //Salvando na saida (registrador)
             
                 //Atualizando registrador de flags
-                setSR(operator1);
+                setSR(operator1, operator2, false, true);
 
                 break;
         
@@ -334,7 +336,7 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i = -1)
     }
     break;
 
-    case 0x25 :             //sub AX, opd
+    case 0x2D :             //sub AX, opd
     {
 
     }
@@ -379,7 +381,7 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i = -1)
         //resultado: se op1 = op2 zf = 1, senão zf = 0
         //o setSR faz isso
         //Atualizando registrador de flags
-        setSR(operator1, operator2);
+        setSR(operator1, operator2, false, false, false, false, true);
     }
     break;
 
@@ -404,7 +406,7 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i = -1)
                 Z808Registers[AX] = (Z808Word) result;      //Salvando na saida (registrador)
             
                 //Atualizando registrador de flags
-                setSR(operator1, operator2);
+                setSR(operator1, operator2, false, false, false, false, false, true);
             break;
             
             case 0xC2:      //and AX, DX
@@ -415,7 +417,7 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i = -1)
                 Z808Registers[AX] = (Z808Word) result;      //Salvando na saida (registrador)
             
                 //Atualizando registrador de flags
-                setSR(operator1, operator2);
+                setSR(operator1, operator2, false, false, false, false, false, true);
             break;
         }
 
@@ -439,12 +441,12 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i = -1)
         }
 
         operator1 = (Z808Operation) Z808Registers[AX].to_ulong();
-        resul = ~operator1;
+        result = ~operator1;
         
         Z808Registers[AX] = (Z808Word) result;
 
         //Atualizando registrador de flags
-        setSR(operator1, operator2);
+        setSR(operator1, operator1, false, false, false, false, false, false, true);
     }
     break;
 
@@ -469,7 +471,7 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i = -1)
                 Z808Registers[AX] = (Z808Word) result;      //Salvando na saida (registrador)
             
                 //Atualizando registrador de flags
-                setSR(operator1, operator2);
+                setSR(operator1, operator2, false, false, false, false, false, false, false, true);
             break;
             
             case 0xC2:      //or AX, DX
@@ -480,7 +482,7 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i = -1)
                 Z808Registers[AX] = (Z808Word) result;      //Salvando na saida (registrador)
             
                 //Atualizando registrador de flags
-                setSR(operator1, operator2);
+                setSR(operator1, operator2, false, false, false, false, false, false, false, true);
             break;
         }
     }
@@ -494,7 +496,7 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i = -1)
     
     case 0x33 :         //xor AX, AX ou DX
     {
-        opbytes = 2;               
+        opbytes = 2;
 
         if (i+opbytes > memory.size())
         {
@@ -513,7 +515,7 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i = -1)
                 Z808Registers[AX] = (Z808Word) result;      //Salvando na saida (registrador)
             
                 //Atualizando registrador de flags
-                setSR(operator1, operator2);
+                setSR(operator1, operator2, false, false, false, false, false, false, false, false, true);
             break;
             
             case 0xC2:      //xor AX, DX
@@ -524,7 +526,7 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i = -1)
                 Z808Registers[AX] = (Z808Word) result;      //Salvando na saida (registrador)
             
                 //Atualizando registrador de flags
-                setSR(operator1, operator2);
+                setSR(operator1, operator2, false, false, false, false, false, false, false, false, true);
             break;
         }
     }
@@ -538,7 +540,7 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i = -1)
 
     case 0xEB :         //jmp opd
     {
-
+        
     }
     break;
 
@@ -570,22 +572,22 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i = -1)
     {
         opbytes = 1;               
 
-        if (i+opbytes > memory.size())
+        if (i+opbytes > memory.size())  //Essa verificação é desnecessária pois, se leu da memória e for a última posição, sempre dara igual a memory.size() e nao maior
         {
             errorInstruction = true;
             break;
         }
 
-        Z808Registers[IP] = (Z808Operation) Z808Registers[SP];
+        //Z808Registers[IP] = Z808Registers[SP];
 
     }
     break;
 
     case 0xEE :         //hlt
     {
-        opbytes = 1;               
+        opbytes = 1;
 
-        if (i+opbytes > memory.size())
+        if (i+opbytes > memory.size())  //Essa verificação é desnecessária pois, se leu da memória e for a última posição, sempre dara igual a memory.size() e nao maior
         {
             errorInstruction = true;
             break;
@@ -608,12 +610,12 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i = -1)
         switch(op)
         {
             case 0xC0 :     // pop AX
-                Z808Registers[AX] = (Z808Operation) Z808Registers[SP];
+                //Z808Registers[AX] = Z808Registers[SP];
 
-            break:
+            break;
 
             case 0xC2 :     //pop DX
-                Z808Registers[DX] = (Z808Operation) Z808Registers[SP];
+                //Z808Registers[DX] = Z808Registers[SP];
 
             break;
         }

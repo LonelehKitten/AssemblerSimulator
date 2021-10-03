@@ -30,7 +30,7 @@ private:
     bool errorInstruction;
     //Setar flags no registrador SR
     //Se for operacao de subtracao, enviar o terceiro parametro como false
-    void setSR(Z808Operation op1, Z808Operation op2, bool add = false, bool sub = false, bool mult = false, bool div = false, bool cmp = false, bool and = false, bool or = false, bool xor = false, bool popf = false);
+    void setSR(Z808Operation op1, Z808Operation op2, bool add = false, bool sub = false, bool mult = false, bool div = false, bool cmp = false, bool this_and = false, bool this_not = false, bool this_or = false, bool this_xor = false, bool popf = false);
 
 public:
     Z808Machine();
