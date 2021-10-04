@@ -10,7 +10,7 @@ int main()
     //INSERIR DENTRO DO VETOR DE MEMORIA TODAS AS INSTRUCOES DE UM PROGRAMA EXEMPLO
     //FAZER DA FORMA QUE ACHAR MELHOR
 
-    /** Programa exemplo:
+    /** Programa exemplo (criado por mim, nao faz nada demais, apenas testa umas contas, uns jumps e dps para):
      * ADD AX, 1022
      * ADD AX, AX
      * SUB AX, 511
@@ -20,37 +20,37 @@ int main()
      * JMP 2
      * HLT
      */
-    //Exemplo da instrucao ADD AX, opd com opd = 1022
-    memory.push_back(0x05);
-    memory.push_back(0xFE);
-    memory.push_back(0x03);
+    //Exemplo da instrucao ADD AX, opd com opd = 1022, 0x03FE
+    memory.push_back(0x05);     //Opcode da instrucao ADD AX, opd
+    memory.push_back(0xFE);     //Byte da direita do numero 1022
+    memory.push_back(0x03);     //Byte da esquerda do numero 1022
     //Exemplo da instrucao ADD AX, AX
-    memory.push_back(0x03);
-    memory.push_back(0xC0);
-    //Exemplo da instrucao SUB AX, opd com opd = 511
-    memory.push_back(0x2D);
-    memory.push_back(0xFF);
-    memory.push_back(0x01);
+    memory.push_back(0x03);     //Opcode da instrucao ADD AX, reg
+    memory.push_back(0xC0);     //Opcode do registrador AX
+    //Exemplo da instrucao SUB AX, opd com opd = 511, 0x01FF
+    memory.push_back(0x2D);     //Opcode da instrucao SUB AX, opd
+    memory.push_back(0xFF);     //Byte da direita do numero 511
+    memory.push_back(0x01);     //Byte da esquerda do numero 511
     //Ou, algo mais arbitrario, ainda com opd = 511
     short int numero_instruction = 0x01FF;  //16 bits, 2 bytes, 4 hexadecimais
-    memory.push_back(0x2D);
-    memory.push_back(numero_instruction);   //passando 8 bits mais a direita
+    memory.push_back(0x2D);                 //Opcode da instrucao SUB AX, opd
+    memory.push_back(numero_instruction);   //passando 8 bits, byte mais a direita
     numero_instruction = numero_instruction >> 8; //Deslocamento 8 bits pra direita
-    memory.push_back(numero_instruction);   //passando 8 bits que antes estavam mais a esquerda
+    memory.push_back(numero_instruction);   //passando 8 bits, byte que antes estavam mais a esquerda
     //Exemplo da instrucao JZ 0x0011
-    memory.push_back(0x74);
-    memory.push_back(0x14);
-    memory.push_back(0x00);
+    memory.push_back(0x74);     //Opcode da instrucao jz opd
+    memory.push_back(0x14);     //Byte da direita do numero 11
+    memory.push_back(0x00);     //Byte da esquerda do numero 11
     //Repetindo SUB AX, opd com opd = 511
     memory.push_back(0x2D);
     memory.push_back(0xFF);
     memory.push_back(0x01);
-    //Exemplo da instrucao JMP 02, pula para o indice 02
-    memory.push_back(0xEB);
+    //Exemplo da instrucao JMP 02, pula para o indice 03
+    memory.push_back(0xEB);     //Opcode da instrucao jmp opd
     memory.push_back(0x03);
     memory.push_back(0x00);
     //Exemplo da instrucao hlt
-    memory.push_back(0xEE);
+    memory.push_back(0xEE);     //Opcode da instrucao hlt
 
     //CRIEM OUTROS PROGRAMAS!!!!!!!!!!!!!!!
 
@@ -61,7 +61,7 @@ int main()
     for (int i = 0; i <= memory.size();)
     {
         
-        //Todos os cout e sin sao para testes, depois irao para a conexao da interface
+        //Todos os cout e sin sao para testes, depois no lugar serao feitas a conexao da interface
 
         if (i == memory.size())
         {
@@ -111,6 +111,7 @@ int main()
         std::cout << "\nAX: " << std::hex << registradores[0].to_ulong();
         std::cout << "\nSR: " << std::hex << registradores[5].to_ulong();
         std::cout << "\nIP: " << std::hex << registradores[4].to_ulong() << std::endl;
+        //VER COM O PESSOAL DO FRONT OUTRAS FORMAS DE VISUALIZACAO DOS REGISTRADORES
 
         //No codigo final, em vez de prints as saidas serao convertidas pra interface
 
