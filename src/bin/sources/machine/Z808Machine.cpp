@@ -188,9 +188,9 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i)
         }
 
         operator1 = (Z808Operation) Z808Registers[AX].to_ulong();
-        operator2 |= memory[i+1];       //Talvez precise mudar a ordem, se o mapeamento da memoria for little endian
-        operator2 <<= 16;
-        operator2 |= memory[i+2];
+        operator2 |= memory[i+2];   //memória vai ser little endian*
+        operator2 <<= 8;
+        operator2 |= memory[i+1];
 
         result = operator1 + operator2;
 
@@ -345,7 +345,7 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i)
                 operator1 = (Z808Operation) Z808Registers[AX].to_ulong();
                 operator2 = (Z808Operation) Z808Registers[DX].to_ulong();
                 
-                result = operator1 / operator2; // AX <- AX - DX
+                result = operator1 - operator2; // AX <- AX - DX
                 
                 Z808Registers[AX] = (Z808Word) result;      //Salvando na saida (registrador)
                 Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
