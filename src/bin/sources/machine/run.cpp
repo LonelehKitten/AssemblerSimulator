@@ -1,3 +1,14 @@
+/*
+-----PARA EXECUTAR:
+cd src
+cd bin
+cd sources
+cd machine
+
+g++ Z808Machine.cpp run.cpp -o run 
+run.exe
+*/
+
 #include <iostream>
 #include "Z808Machine.h"
 
@@ -20,6 +31,21 @@ int main()
      * JMP 2
      * HLT
      */
+    
+    memory = std::vector<Z808Byte>(10,0);
+
+    memory[0] = 0x35; //opcode do xor ax, opd com opd = 3840, 0x0F00
+    memory[1] = 0x00; //Byte da direita do numero 3840
+    memory[2] = 0x0F; //Byte da direita do numero 3840
+    memory[3] = 0xF8; // NOT AX
+    memory[4] = 0xC0;
+    memory[5] = 0x0B; // OR AX, AX
+    memory[6] = 0xC0;
+    memory[7] = 0x23; // AND AX, AX
+    memory[8] = 0xC0;
+    memory[9] = 0xEE; // hlt
+
+    
     //Exemplo da instrucao ADD AX, opd com opd = 1022, 0x03FE
     memory.push_back(0x05);     //Opcode da instrucao ADD AX, opd
     memory.push_back(0xFE);     //Byte da direita do numero 1022
@@ -45,14 +71,20 @@ int main()
     memory.push_back(0x2D);
     memory.push_back(0xFF);
     memory.push_back(0x01);
-    //Exemplo da instrucao JMP 02, pula para o indice 03
+    //Exemplo da instrucao JMP 03, pula para o indice 03
     memory.push_back(0xEB);     //Opcode da instrucao jmp opd
     memory.push_back(0x03);
     memory.push_back(0x00);
     //Exemplo da instrucao hlt
     memory.push_back(0xEE);     //Opcode da instrucao hlt
 
-    //CRIEM OUTROS PROGRAMAS!!!!!!!!!!!!!!!
+    /*
+    * XOR AX, 3840
+    * NOT AX
+    * OR AX, AX
+    * AND AX, AX
+    * hlt
+    */
 
     int choice;
     std::vector<Z808Word> registradores;
@@ -110,8 +142,12 @@ int main()
 
         //Exemplo de como pegar o valor numerico do registrador AX (checar indices no Z808Machine.h)
         std::cout << "\nAX: " << std::hex << registradores[0].to_ulong();
+        std::cout << "\nDX: " << std::hex << registradores[1].to_ulong();
+        std::cout << "\nSP: " << std::hex << registradores[2].to_ulong();
+        std::cout << "\nSI: " << std::hex << registradores[3].to_ulong();
+        std::cout << "\nIP: " << std::hex << registradores[4].to_ulong();
         std::cout << "\nSR: " << std::hex << registradores[5].to_ulong();
-        std::cout << "\nIP: " << std::hex << registradores[4].to_ulong() << std::endl;
+        std::cout << std::endl;
         //VER COM O PESSOAL DO FRONT OUTRAS FORMAS DE VISUALIZACAO DOS REGISTRADORES
 
         //No codigo final, em vez de prints as saidas serao convertidas pra interface
