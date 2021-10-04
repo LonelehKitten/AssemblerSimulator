@@ -377,6 +377,17 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i)
         }
 
         operator1 = (Z808Operation) Z808Registers[AX].to_ulong();
+        operator2 |= memory[i+2];   //memória vai ser little endian
+        operator2 <<= 8;
+        operator2 |= memory[i+1];
+        
+        result = operator1 - operator2; // AX <- AX - DX
+
+        Z808Registers[AX] = (Z808Word) result;      //Salvando na saida (registrador)
+        Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
+        
+        //Atualizando registrador de flags
+        setSR(operator1, operator2, false, true);
         //operator2 = opd
 
     }
@@ -601,6 +612,7 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i)
         operator1 <<= 8;
         operator1 |= memory[i+1];
 
+        opbytes = operator1 - i;    //Deslocamento
         Z808Registers[IP] = (Z808Word) operator1;
     }
     break;
@@ -620,7 +632,10 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i)
         operator1 |= memory[i+1];
 
         if (Z808Registers[SR][ZF] == 1)
+        {
+            opbytes = operator1 - i;    //Deslocamento
             Z808Registers[IP] = (Z808Word) operator1;
+        }
         else
             Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
     }
@@ -641,7 +656,10 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i)
         operator1 |= memory[i+1];
 
         if (Z808Registers[SR][ZF] != 1)
+        {
+            opbytes = operator1 - i;    //Deslocamento
             Z808Registers[IP] = (Z808Word) operator1;
+        }
         else
             Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
     }
@@ -662,7 +680,10 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i)
         operator1 |= memory[i+1];
 
         if (Z808Registers[SR][SF] == 0)
+        {
+            opbytes = operator1 - i;    //Deslocamento
             Z808Registers[IP] = (Z808Word) operator1;
+        }
         else
             Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
     }
