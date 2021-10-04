@@ -49,17 +49,19 @@ void Z808Machine::setSR(Z808Operation op1, Z808Operation op2, bool add, bool sub
             Z808Registers[SR].set(0);
         else
             Z808Registers[SR].reset(0);
-    if (sub)
-        if (op1 < 0 && op2 < 0 && !(value & 0x80000000))
+    else if (sub)
+        if (op1 < 0 && op2 > 0 && !(value & 0x80000000))
             Z808Registers[SR].set(0);
         else
             Z808Registers[SR].reset(0);
+    else
+        Z808Registers[SR].reset(0);
 
                                         //flag PF
     if (mult)                           //Testa resultado da mult com ambos 32 bits
     {
         std::bitset<32> hi = (unsigned long) value;
-        if (hi.count() % 2 == 0)
+        if ((word.count() + hi.count()) % 2 == 0)
             Z808Registers[SR].set(6);
         else
             Z808Registers[SR].reset(6);
@@ -146,6 +148,7 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i)
             //Pegando os operadores
             operator1 = (Z808Operation) Z808Registers[AX].to_ulong();
             operator2 = (Z808Operation) Z808Registers[AX].to_ulong();
+
             result = operator1 + operator2;             //Operacao
 
             Z808Registers[AX] = (Z808Word) result;      //Salvando na saida (registrador)
@@ -188,7 +191,7 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i)
         }
 
         operator1 = (Z808Operation) Z808Registers[AX].to_ulong();
-        operator2 |= memory[i+2];   //memória vai ser little endian*
+        operator2 |= memory[i+2];   //memória vai ser little endian
         operator2 <<= 8;
         operator2 |= memory[i+1];
 
@@ -296,7 +299,7 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i)
                 highMult >>= 16;
                 Z808Registers[DX] = (Z808Word) highMult;
                 Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
-                        
+                
                 //Atualizando registrador de flags
                 setSR(operator1, operator1, false, false, true);
 
@@ -334,7 +337,7 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i)
 
                 Z808Registers[AX] = (Z808Word) result;      //Salvando na saida (registrador)
                 Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
-                    
+                
                 //Atualizando registrador de flags
                 setSR(operator1, operator1, false, true);
             
@@ -349,7 +352,7 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i)
                 
                 Z808Registers[AX] = (Z808Word) result;      //Salvando na saida (registrador)
                 Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
-                    
+                
                 //Atualizando registrador de flags
                 setSR(operator1, operator2, false, true);
 
@@ -365,20 +368,23 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i)
 
     case 0x2D :             //sub AX, opd
     {
+        opbytes = 3;               
+
+        if (i+opbytes > memory.size())       //Se a instrucao nao possui bytes suficientes antes do fim da memoria
+        {
+            errorInstruction = true;
+            break;
+        }
+
+        operator1 = (Z808Operation) Z808Registers[AX].to_ulong();
+        //operator2 = opd
 
     }
     break;
 
-        //Continuar com as instrucoes validas
-
-
-
-
-
-    //emerson - cmp ate xor
     case 0x3D :         //cmp AX, opd
     {
-        opbytes = 3;               
+        opbytes = 3;
 
         if (i+opbytes > memory.size())       //Se a instrucao nao possui bytes suficientes antes do fim da memoria
         {
@@ -394,7 +400,7 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i)
 
     case 0x3B :          //cmp AX, DX
     {
-        opbytes = 2;               
+        opbytes = 2;
 
         if (i+opbytes > memory.size())       //Se a instrucao nao possui bytes suficientes antes do fim da memoria
         {
@@ -407,8 +413,9 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i)
 
         //resultado: se op1 = op2 zf = 1, senão zf = 0
         //o setSR faz isso
-        //Atualizando registrador de flags
         Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
+
+        //Atualizando registrador de flags
         setSR(operator1, operator2, false, false, false, false, true);
     }
     break;
@@ -431,9 +438,10 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i)
                 operator2 = (Z808Operation) Z808Registers[AX].to_ulong();
 
                 result = operator1 & operator2;
+
                 Z808Registers[AX] = (Z808Word) result;      //Salvando na saida (registrador)
                 Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
-            
+
                 //Atualizando registrador de flags
                 setSR(operator1, operator2, false, false, false, false, false, true);
             break;
@@ -443,9 +451,10 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i)
                 operator2 = (Z808Operation) Z808Registers[DX].to_ulong();
 
                 result = operator1 & operator2;
+
                 Z808Registers[AX] = (Z808Word) result;      //Salvando na saida (registrador)
                 Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
-            
+
                 //Atualizando registrador de flags
                 setSR(operator1, operator2, false, false, false, false, false, true);
             break;
@@ -471,6 +480,7 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i)
         }
 
         operator1 = (Z808Operation) Z808Registers[AX].to_ulong();
+
         result = ~operator1;
         
         Z808Registers[AX] = (Z808Word) result;
@@ -499,6 +509,7 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i)
                 operator2 = (Z808Operation) Z808Registers[AX].to_ulong();
 
                 result = operator1 | operator2;
+
                 Z808Registers[AX] = (Z808Word) result;      //Salvando na saida (registrador)
                 Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
             
@@ -511,6 +522,7 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i)
                 operator2 = (Z808Operation) Z808Registers[DX].to_ulong();
 
                 result = operator1 | operator2;
+
                 Z808Registers[AX] = (Z808Word) result;      //Salvando na saida (registrador)
                 Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
             
@@ -526,7 +538,7 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i)
 
     }
     break;
-    
+
     case 0x33 :         //xor AX, AX ou DX
     {
         opbytes = 2;
@@ -545,6 +557,7 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i)
                 operator2 = (Z808Operation) Z808Registers[AX].to_ulong();
 
                 result = operator1 ^ operator2;
+
                 Z808Registers[AX] = (Z808Word) result;      //Salvando na saida (registrador)
                 Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
             
@@ -557,6 +570,7 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i)
                 operator2 = (Z808Operation) Z808Registers[DX].to_ulong();
 
                 result = operator1 ^ operator2;
+
                 Z808Registers[AX] = (Z808Word) result;      //Salvando na saida (registrador)
                 Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
             
@@ -583,9 +597,9 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i)
             break;
         }
 
-        operator1 |= memory[i+1];       //Talvez precise mudar a ordem, se o mapeamento da memoria for little endian
-        operator1 <<= 16;
-        operator1 |= memory[i+2];
+        operator1 |= memory[i+2];   //memória vai ser little endian
+        operator1 <<= 8;
+        operator1 |= memory[i+1];
 
         Z808Registers[IP] = (Z808Word) operator1;
     }
@@ -600,10 +614,10 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i)
             errorInstruction = true;
             break;
         }
-        
-        operator1 |= memory[i+1];       //Talvez precise mudar a ordem, se o mapeamento da memoria for little endian
-        operator1 <<= 16;
-        operator1 |= memory[i+2];
+
+        operator1 |= memory[i+2];   //memória vai ser little endian
+        operator1 <<= 8;
+        operator1 |= memory[i+1];
 
         if (Z808Registers[SR][ZF] == 1)
             Z808Registers[IP] = (Z808Word) operator1;
@@ -621,10 +635,10 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i)
             errorInstruction = true;
             break;
         }
-        
-        operator1 |= memory[i+1];       //Talvez precise mudar a ordem, se o mapeamento da memoria for little endian
-        operator1 <<= 16;
-        operator1 |= memory[i+2];
+
+        operator1 |= memory[i+2];   //memória vai ser little endian
+        operator1 <<= 8;
+        operator1 |= memory[i+1];
 
         if (Z808Registers[SR][ZF] != 1)
             Z808Registers[IP] = (Z808Word) operator1;
@@ -642,10 +656,10 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i)
             errorInstruction = true;
             break;
         }
-        
-        operator1 |= memory[i+1];       //Talvez precise mudar a ordem, se o mapeamento da memoria for little endian
-        operator1 <<= 16;
-        operator1 |= memory[i+2];
+
+        operator1 |= memory[i+2];   //memória vai ser little endian
+        operator1 <<= 8;
+        operator1 |= memory[i+1];
 
         if (Z808Registers[SR][SF] == 0)
             Z808Registers[IP] = (Z808Word) operator1;
@@ -676,15 +690,7 @@ int Z808Machine::execute(std::vector<Z808Byte> memory, long int i)
     break;
 
     case 0xEE :         //hlt
-    {
-        opbytes = 0;
-
-        if (i+opbytes > memory.size())  //Essa verificação é desnecessária pois, se leu da memória e for a última posição, sempre dara igual a memory.size() e nao maior
-        {
-            errorInstruction = true;
-            break;
-        }
-    }
+        opbytes = 0;    //Fim de programa
     break;
 
     case 0x58 :         //pop reg

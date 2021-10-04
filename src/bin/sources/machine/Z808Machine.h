@@ -18,20 +18,32 @@ private:
     std::vector<Z808Word> Z808Registers;    //Tabela de registradores
     enum R                                  //Para usar de indice na tabela de registradores
     {
+        //Registrador acumulador AX
         AX,
+        //Registrador de dados DX
         DX,
+        //Registrador de pilha SP
         SP,
+        //Registrador de indice SI
         SI,
+        //Registrador contador de programa IP
         IP,
+        //Registrador das flags de estado SR
         SR
     };
-    enum sr
+    enum SRFlags
     {
+        //Carry flag
         CF = 0,
+        //Parity flag
         PF = 6,
+        //Interruption flag
         IF = 7,
+        //Zero flag
         ZF = 8,
+        //Signal flag
         SF = 9,
+        //Overflow flag
         OF = 12
     };
 
