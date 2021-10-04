@@ -146,7 +146,13 @@ int main()
         std::cout << "\nSP: " << std::hex << registradores[2].to_ulong();
         std::cout << "\nSI: " << std::hex << registradores[3].to_ulong();
         std::cout << "\nIP: " << std::hex << registradores[4].to_ulong();
-        std::cout << "\nSR: " << std::hex << registradores[5].to_ulong();
+        //std::cout << "\nSR: " << std::hex << registradores[5].to_ulong();
+        std::cout << "\nSR->cf: " << registradores[5].test(0);
+        std::cout << "\nSR->pf: " << registradores[5].test(6);
+        std::cout << "\nSR->if: " << registradores[5].test(7);
+        std::cout << "\nSR->zf: " << registradores[5].test(8);
+        std::cout << "\nSR->sf: " << registradores[5].test(9);
+        std::cout << "\nSR->of: " << registradores[5].test(12);
         std::cout << std::endl;
         //VER COM O PESSOAL DO FRONT OUTRAS FORMAS DE VISUALIZACAO DOS REGISTRADORES
 
