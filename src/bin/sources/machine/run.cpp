@@ -61,7 +61,8 @@ int main()
     for (int i = 0; i <= memory.size();)
     {
         
-        //Todos os cout e sin sao para testes, depois no lugar serao feitas a conexao da interface
+        //Todos os cout e cin sao para testes, depois no lugar serao feitas a conexao da interface
+        //Os cout e cin comentados estao funcionando, se quiser usar pra testar eh so descomentar
 
         if (i == memory.size())
         {
