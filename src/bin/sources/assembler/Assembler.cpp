@@ -24,7 +24,7 @@ std::string Assembler::macroExpandParams(std::vector<label *> params, macroDef *
    for (int i = 0; i < macroLines.size(); i++)
    {
        
-        if(macroLines[i]->getType() == Instruction::iMACRO)     //Precisa tabelar a macro
+        if(macroLines[i]->getType() == Instruction::iMACRO)     //Tabelar a macro
         {                                                       //MACRO ANINHADA 
 
                 macroFound.push_back(true);

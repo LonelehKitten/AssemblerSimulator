@@ -7,43 +7,48 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
+import Brightness1Icon from '@material-ui/icons/Brightness1';
 
-function createData(Origin, OpCode, Value, Destiny) {
-  return { Origin, OpCode, Value, Destiny };
+function createData(register, bits, value = null) {
+  if(value == null) value = parseInt(bits,2);
+  return { register, bits, value };
 }
 
-const rows = [
-  createData(159, 6.0, 24, 4.0),
-  createData(158, 6.0, 24, 4.0),
-  createData(157, 6.0, 24, 4.0),
-  createData(156, 6.0, 24, 4.0),
-  createData(155, 6.0, 24, 4.0),
-  createData(154, 6.0, 24, 4.0),
-  createData(153, 6.0, 24, 4.0),
-  createData(152, 6.0, 24, 4.0),
-  createData(151, 6.0, 24, 4.0),
-  createData(150, 6.0, 24, 4.0),
-];
+const registers = [
+  "AX","DX","SI","DS","SS","CS","SP","SR","PC"
+]
+
+
+const rows = registers.map((name) => createData(name,"0101010101101010"));
+console.log("Rows",rows);
+//];
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    display: 'flex',
+    marginTop: '0',
+    padding: '10px',
+    overflow: 'auto',
+    height: 'calc(100% - 48px)'
+    //height: `calc( ${props.height} - 16rem )`,
+  },
+  table: {
+    alignContent: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: 'inherit',
+    backgroundColor: '#313241',
+    overflow: 'auto',
+    "& .MuiTableCell-root":{
+      borderColor: '#999',
+      color:"#fff"
+    }
+  },
+}));
+
+const Bit = ({value}) => <Brightness1Icon style={{fontSize:10,color:value == 0 ? "green": "red"}} />
 
 const LowerMenu = (props) => {
-  const useStyles = makeStyles((theme) => ({
-    root: {
-      display: 'flex',
-      margin: '1rem',
-      marginTop: '0',
-      padding: '10px',
-      overflow: 'auto',
-      height: `calc( ${props.height} - 16rem )`,
-    },
-    table: {
-      alignContent: 'center',
-      alignItems: 'center',
-      justifyContent: 'center',
-      color: 'inherit',
-      backgroundColor: '#313241',
-      overflow: 'auto',
-    },
-  }));
 
   const classes = useStyles();
 
@@ -53,34 +58,22 @@ const LowerMenu = (props) => {
         <Table className={classes.table} aria-label='resgistry operation table'>
           <TableHead>
             <TableRow>
-              <TableCell align='center' style={{ color: '#fff' }}>
-                Origin
-              </TableCell>
-              <TableCell align='center' style={{ color: '#fff' }}>
-                OpCode
-              </TableCell>
-              <TableCell align='center' style={{ color: '#fff' }}>
-                Value
-              </TableCell>
-              <TableCell align='center' style={{ color: '#fff' }}>
-                Destiny
-              </TableCell>
+              <TableCell align='center'>Registrador</TableCell>
+              <TableCell align='center'>Bits</TableCell>
+              <TableCell align='center'>Valor</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.map((row) => (
-              <TableRow key={row.Origin}>
-                <TableCell align='center' style={{ color: '#fff' }}>
-                  {row.Origin}
+            {rows.map((row,key) => (
+              <TableRow key={key}>
+                <TableCell align='center'>
+                  {row.register}
                 </TableCell>
-                <TableCell align='center' style={{ color: '#fff' }}>
-                  {row.OpCode}
+                <TableCell align='center'>
+                  {[...row.bits].map((item) => <Bit value={item} />)}
                 </TableCell>
-                <TableCell align='center' style={{ color: '#fff' }}>
-                  {row.Value}
-                </TableCell>
-                <TableCell align='center' style={{ color: '#fff' }}>
-                  {row.Destiny}
+                <TableCell align='center'>
+                  {row.value}
                 </TableCell>
               </TableRow>
             ))}

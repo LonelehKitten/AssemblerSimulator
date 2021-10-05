@@ -13,6 +13,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 /*
 
+<UpperMenu width={props.width}></UpperMenu>
 */
 
 const Register = (props) => {
@@ -20,8 +21,8 @@ const Register = (props) => {
 
   return (
     <div id='register' className={classes.root}>
-      <UpperMenu width={props.width}></UpperMenu>
-      <LowerMenu width={props.width} height={props.height}></LowerMenu>
+      <UpperMenu />
+      <LowerMenu />
     </div>
   );
 };
