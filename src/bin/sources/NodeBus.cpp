@@ -11,17 +11,17 @@ NodeBus::NodeBus() :
 
 
 // pra expansão de macro
-void NodeBus::onMacroExpanded(std::string code) {
+void NodeBus::dispatchMacroExpanded(std::string code) {
     trigger("macroExpanded", code);
 }
 
 // pra cada ciclo do processador
-std::string NodeBus::onCycle(Z808Response& response) {
+std::string NodeBus::dispatchCycle(Z808Response& response) {
     return trigger("cycle", response.toJSON());
 }
 
 // quando houver alguma mensagem a ser printada no console
-void NodeBus::onLog(std::string message, LogStatus status) {
+void NodeBus::dispatchLog(std::string message, LogStatus status) {
     trigger("log",
         std::string("{message: \"") + message +
         std::string("\", status: ") + std::to_string((int) status) + std::string("}")

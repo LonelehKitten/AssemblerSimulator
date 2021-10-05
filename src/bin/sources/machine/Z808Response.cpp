@@ -71,7 +71,7 @@ std::string Z808Response::i(USint n) {
 std::string Z808Response::bits() {
     std::string bits = "[ ";
     for(int i = 0; i < (int) sr->size(); i++) {
-        bits += this->i((USint) (*sr)[i]);
+        bits += this->i((*sr)[i]);
         if(i+1 < (int) sr->size()) bits += ", ";
     }
     bits += "]";
@@ -98,13 +98,20 @@ std::string Z808Response::toJSON() {
     JSON += std::string("            asFlags: ") + bits() + std::string(",\n");
     JSON += std::string("        }\n") +
     JSON += std::string("    },\n") +
-    JSON += std::string("    stdout: ") + std::string(",\n");
-    JSON += std::string("    stdin: ") + std::string(",\n");
-    JSON += std::string("    memoryChanges: {\n");
-    JSON += std::string("        address: ") + i(memoryWrite->first) + std::string(", \n");
-    JSON += std::string("        newValue: ") + memoryWrite->second + std::string(", \n");
+    JSON += std::string("    stdout: \"") + stdout + std::string("\",\n");
+    JSON += std::string("    stdin: ") + (stdin ? "true" : "false") + std::string(",\n");
+    JSON += std::string("    memoryChange: {\n");
+    if(memoryWrite == nullptr) {
+        JSON += std::string("        address: ") + i(memoryWrite->first) + std::string(", \n");
+        JSON += std::string("        newValue: ") + memoryWrite->second + std::string(", \n");
+    }
     JSON += std::string("    }\n");
     JSON += std::string("}");
+
+    stdout = "";
+    stdin = false;
+    delete memoryWrite;
+    memoryWrite = nullptr;
 
     return JSON;
 }

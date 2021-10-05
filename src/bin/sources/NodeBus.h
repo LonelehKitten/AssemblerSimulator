@@ -47,19 +47,19 @@ class NodeBus {
             Retorna o código com as macros expandidas.
             Deve ser chamado pelo Assembler em caso de sucesso
         */
-         void onMacroExpanded(std::string code); // pra expansão de macro
+         void dispatchMacroExpanded(std::string code); // pra expansão de macro
          /*
             Retorna o estado dos registradores no ciclo corrente bem como
             comandos de entrada e saída de dados, e mudanças na memória.
             Deve ser executado pelo Z808Machine caso a instrução seja válida.
         */
-         std::string onCycle(Z808Response& response);         // pra cada ciclo do processador
+         std::string dispatchCycle(Z808Response& response);         // pra cada ciclo do processador
          /*
             Retorna uma mensagem no console da interface.
             A mensagem pode ser de log, erro ou sucesso.
             Ver LogStatus
         */
-         void onLog(std::string message, LogStatus status);           // quando houver alguma mensagem a ser printada no console
+         void dispatchLog(std::string message, LogStatus status);           // quando houver alguma mensagem a ser printada no console
 
 
 
