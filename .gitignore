@@ -14,6 +14,7 @@
 /src/bin/teste.pro
 /src/bin/teste.pro.user
 /src/bin/obj
+/src/bin/build-teste-Desktop-Debug
 
 # production
 /build
