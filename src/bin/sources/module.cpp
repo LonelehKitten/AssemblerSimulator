@@ -1,6 +1,0 @@
-
-/*
-
-    AQUI FAZ O BIND COM O V8 PRA MÓDULO JAVASCRIPT
-
-*/

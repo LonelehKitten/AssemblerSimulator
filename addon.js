@@ -16,7 +16,7 @@ emitter.on('end', () => {
   console.log('### END ###');
 });
 
-addon.expandMacros('ADD AX, DX\n MUL SI', emitter.emit.bind(emitter));
+//addon.expandMacros('ADD AX, DX\n MUL SI', emitter.emit.bind(emitter));
 //addon.callEmit('hello');
 
 /*
@@ -25,3 +25,6 @@ var addon = require('bindings')('addon.node')
 console.log('This should be eight:', addon.add(3, 5))
 
 */
+
+addon.setTest();
+addon.persistenceTest();
