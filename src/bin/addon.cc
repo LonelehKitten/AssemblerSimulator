@@ -1,12 +1,4 @@
-#include <nan.h>
-
-#include <chrono>
-#include <iostream>
-#include <thread>
-#include <string>
-
-#include "sources/analyzer/RecognitionManager.h"
-#include "sources/assembler/Assembler.h"
+#include "NodeBus.h"
 
 void trigger(char * event, v8::Local<v8::Function>& callback, int numArgs, std::string result) {
     v8::Local<v8::Value> arguments[numArgs] = {
@@ -51,6 +43,11 @@ void expandMacros(const Nan::FunctionCallbackInfo<v8::Value> & info) {
 
 }
 
+void init(const Nan::FunctionCallbackInfo<v8::Value> & info) {
+    if(nodeBus != nullptr) return;
+    nodeBus = new NodeBus(info[0].As<v8::Function>());
+}
+
 // Init
 void Init(v8::Local<v8::Object> exports) {
 
@@ -58,6 +55,18 @@ void Init(v8::Local<v8::Object> exports) {
   exports->Set(context,
                Nan::New("expandMacros").ToLocalChecked(),
                Nan::New<v8::FunctionTemplate>(expandMacros)
+                   ->GetFunction(context)
+                   .ToLocalChecked());
+
+  exports->Set(context,
+               Nan::New("setTest").ToLocalChecked(),
+               Nan::New<v8::FunctionTemplate>(setTest)
+                   ->GetFunction(context)
+                   .ToLocalChecked());
+
+  exports->Set(context,
+               Nan::New("persistenceTest").ToLocalChecked(),
+               Nan::New<v8::FunctionTemplate>(persistenceTest)
                    ->GetFunction(context)
                    .ToLocalChecked());
 

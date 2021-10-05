@@ -43,20 +43,20 @@ EndM::EndM(std::string line) : Semantic(line, Instruction::iENDM) {}
 //instructions
 
 
-Add::Add(std::string line, std::string segundoOperando) :
+Add::Add(std::string line, std::string operand2) :
     Semantic(line, Instruction::iADD),
-    segundoOperando(segundoOperando),
+    operand2(operand2),
     expression(nullptr)
 {}
 
 Add::Add(std::string line, std::vector<Token *> * expression) :
     Semantic(line, Instruction::iADD),
-    segundoOperando(""),
+    operand2(""),
     expression(expression)
 {}
 
-std::string Add::getSegundoOperando() {
-    return segundoOperando;
+std::string Add::getOperand2() {
+    return operand2;
 }
 
 std::vector<Token *> * Add::getExpression() const
@@ -64,20 +64,20 @@ std::vector<Token *> * Add::getExpression() const
     return expression;
 }
 
-Sub::Sub(std::string line, std::string segundoOperando) :
+Sub::Sub(std::string line, std::string operand2) :
     Semantic(line, Instruction::iSUB),
-    segundoOperando(segundoOperando),
+    operand2(operand2),
     expression(nullptr)
 {}
 
 Sub::Sub(std::string line, std::vector<Token *> * expression) :
     Semantic(line, Instruction::iSUB),
-    segundoOperando(""),
+    operand2(""),
     expression(expression)
 {}
 
-std::string Sub::getSegundoOperando() {
-    return segundoOperando;
+std::string Sub::getOperand2() {
+    return operand2;
 }
 
 std::vector<Token *> * Sub::getExpression() const
@@ -85,23 +85,63 @@ std::vector<Token *> * Sub::getExpression() const
     return expression;
 }
 
-Div::Div(std::string line, std::string operando)
-    : Semantic(line, Instruction::iDIV), operando(operando) {}
-std::string Div::getOperando() {
-    return operando;
+Div::Div(std::string line, std::string operand)
+    : Semantic(line, Instruction::iDIV), operand(operand) {}
+std::string Div::getOperand() {
+    return operand;
 }
 
-Mul::Mul(std::string line, std::string operando)
-    : Semantic(line, Instruction::iMUL), operando(operando) {}
-std::string Mul::getOperando() {
-    return operando;
+Mul::Mul(std::string line, std::string operand)
+    : Semantic(line, Instruction::iMUL), operand(operand) {}
+std::string Mul::getOperand() {
+    return operand;
 }
 
-Cmp::Cmp(std::string line, std::string segundoOperando)
-    : Semantic(line, Instruction::iCMP), segundoOperando(segundoOperando) {}
-std::string Cmp::getSegundoOperando() {
-    return segundoOperando;
+Cmp::Cmp(std::string line, std::string operand2)
+    : Semantic(line, Instruction::iCMP), operand2(operand2) {}
+std::string Cmp::getOperand2() {
+    return operand2;
 }
+
+//lógicas
+
+Or::Or(std::string line, std::string operand2) :
+    Semantic(line, Instruction::iOR),
+    operand2(operand2),
+    expression(nullptr)
+{}
+
+Or::Or(std::string line, std::vector<Token *> * expression) :
+    Semantic(line, Instruction::iOR),
+    operand2(""),
+    expression(expression)
+{}
+
+And::And(std::string line, std::string operand2) :
+    Semantic(line, Instruction::iAND),
+    operand2(operand2),
+    expression(nullptr)
+{}
+
+And::And(std::string line, std::vector<Token *> * expression) :
+    Semantic(line, Instruction::iAND),
+    operand2(""),
+    expression(expression)
+{}
+
+Xor::Xor(std::string line, std::string operand2) :
+    Semantic(line, Instruction::iXOR),
+    operand2(operand2),
+    expression(nullptr)
+{}
+
+Xor::Xor(std::string line, std::vector<Token *> * expression) :
+    Semantic(line, Instruction::iXOR),
+    operand2(""),
+    expression(expression)
+{}
+
+Not::Not(std::string line) : Semantic(line, Instruction::iNOT) {};
 
 //movimentação
 
@@ -214,12 +254,12 @@ std::vector<Token *> *Dw::getExpression() const
     return expression;
 }
 
-Equ::Equ(std::string line, std::string name, std::string expression)
+Equ::Equ(std::string line, std::string name, std::vector<Token *> * expression)
     : Semantic(line, Instruction::iEQU), name(name), expression(expression) {}
 std::string Equ::getName() {
     return name;
 }
-std::string Equ::getExpression() {
+std::vector<Token *> * Equ::getExpression() {
     return expression;
 }
 

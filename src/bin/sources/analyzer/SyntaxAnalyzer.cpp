@@ -177,8 +177,11 @@ Semantic * SyntaxAnalyzer::getRow() {
                     if(row[2]->getType() == TokenTypes::tUNDEFINED) {
                         return new Dw(this->line, this->aux1, nullptr);
                     }
-                    expression = getExpression(1, t);
+                    expression = getExpression(2, t);
                     return new Dw(this->line, this->aux1, expression);
+                case TokenTypes::tCONSTDEF:
+                    expression = getExpression(2, t);
+                    return new Equ(this->line, this->aux1, expression);
                 default:
                     break;
             }
@@ -236,7 +239,6 @@ Semantic * SyntaxAnalyzer::getRow() {
                         row[t]->getType() == TokenTypes::tINDEX_OP
                     );
 
-                    /*
                 case TokenNames::nOpOR:
                     return new Or(this->line, this->getAux1());
                     break;
@@ -246,7 +248,7 @@ Semantic * SyntaxAnalyzer::getRow() {
                 case TokenNames::nOpXOR:
                     return new Xor(this->line, this->getAux1());
                     break;
-                    */
+
                 case TokenNames::nOpPUSH:
                     return new Push(this->line);
                 case TokenNames::nOpPOP:
