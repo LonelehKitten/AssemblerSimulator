@@ -8,10 +8,10 @@
 
 /*
  * tipo e linha
- * operador / parametros / operando
+ * operador / parametros / operand
  */
 
-//intruções:
+// intruções:
 enum Instruction{
     //aritmeticas
     iADD,
@@ -85,7 +85,7 @@ class Invalid : public Semantic {
         Invalid(std::string line);
 };
 
-//MACRO
+// MACRO
 
 class Macro : public Semantic {
     private:
@@ -122,64 +122,106 @@ class MacroCall : public Semantic{
         std::vector<std::vector<Token *> *> *getParams() const;
 };
 
-//aritmeticas
+// aritmeticas
 
 class Add : public Semantic {
     private:
-        //primeiro operando : registrador AX
-        std::string segundoOperando; //registrador AX, DX ou cte
+        //primeiro operand : registrador AX
+        std::string operand2; //registrador AX, DX ou cte
         std::vector<Token *> * expression;
 
     public:
-        Add(std::string line, std::string segundoOperando);
+        Add(std::string line, std::string operand2);
         Add(std::string line, std::vector<Token *> * expression);
 
-        std::string getSegundoOperando();
+        std::string getOperand2();
 
         std::vector<Token *> *getExpression() const;
 };
 
 class Sub : public Semantic {
     private:
-        //primeiro operando : registrador AX
-        std::string segundoOperando; //AX, DX ou cte
+        //primeiro operand : registrador AX
+        std::string operand2; //AX, DX ou cte
         std::vector<Token *> * expression;
     public:
-        Sub(std::string line, std::string segundoOperando);
+        Sub(std::string line, std::string operand2);
         Sub(std::string line, std::vector<Token *> * expression);
 
-        std::string getSegundoOperando();
+        std::string getOperand2();
 
         std::vector<Token *> *getExpression() const;
 };
 
 class Div : public Semantic {
     private:
-        std::string operando; //AX ou SI
+        std::string operand; //AX ou SI
     public:
-        Div(std::string line, std::string operando);
-        std::string getOperando();
+        Div(std::string line, std::string operand);
+        std::string getOperand();
 };
 
 class Mul : public Semantic {
     private:
-        std::string operando; //AX ou SI
+        std::string operand; //AX ou SI
     public:
-        Mul(std::string line, std::string operando);
-        std::string getOperando();
+        Mul(std::string line, std::string operand);
+        std::string getOperand();
 };
 
 class Cmp : public Semantic {
     private:
-        //primeiro operando : regitrador AX
-        std::string segundoOperando; //DX ou cte
+        //primeiro operand : regitrador AX
+        std::string operand2; //DX ou cte
     public:
-        Cmp(std::string line, std::string segundoOperando);
-        std::string getSegundoOperando();
+        Cmp(std::string line, std::string operand2);
+        std::string getOperand2();
+};
+
+// logicas
+
+class Or : public Semantic {
+    private:
+        //primeiro operand : registrador AX
+        std::string operand2; //registrador AX, DX ou cte
+        std::vector<Token *> * expression;
+    public:
+        Or(std::string line, std::string operand2);
+        Or(std::string line, std::vector<Token *> * expression);
+};
+
+class And : public Semantic {
+    private:
+        //primeiro operand : registrador AX
+        std::string operand2; //registrador AX, DX ou cte
+        std::vector<Token *> * expression;
+    public:
+        And(std::string line, std::string operand2);
+        And(std::string line, std::vector<Token *> * expression);
+        //opcode = 23 ou 25
+};
+
+class Xor : public Semantic {
+    private:
+    //primeiro operand : registrador AX
+    std::string operand2; //registrador AX, DX ou cte
+    std::vector<Token *> * expression;
+    public:
+        Xor(std::string line, std::string operand2);
+        Xor(std::string line, std::vector<Token *> * expression);
+        //opcode = 33 ou 35
+};
+
+class Not : public Semantic {
+    private:
+        //int opcodeAX;         //regitrador AX
+    public:
+        Not(std::string line);
+        //opcode = F7
 };
 
 
-//movimentação
+// movimentação
 
 class Mov : public Semantic {
     private:
@@ -201,37 +243,113 @@ class Mov : public Semantic {
         bool isIndexed() const;
 };
 
-//pilha
+// desvio
+/*
+Jmp(std::string line);
+Je(std::string line);
+Jnz(std::string line);
+Jz(std::string line);
+Jp(std::string line);
+Int(std::string line);
+Call(std::string line);
+Ret(std::string line);
+
+*/
+class Jmp : public Semantic {
+    private:
+        std::vector<Token *> * expression;         //endereço
+    public:
+        Jmp(std::string line);
+        //opcode = EB
+};
+
+class Je : public Semantic {
+    private:
+        std::vector<Token *> * expression;         //endereço
+    public:
+        Je(std::string line);
+        //opcode = 74
+};
+
+class Jnz : public Semantic {
+    private:
+        std::vector<Token *> * expression;         //endereço
+    public:
+        Jnz(std::string line);
+        //opcode = 75
+};
+
+class Jz : public Semantic {
+    private:
+        std::vector<Token *> * expression;         //endereço
+    public:
+        Jz(std::string line);
+        //opcode = 74
+};
+
+class Jp : public Semantic {
+    private:
+        std::vector<Token *> * expression;         //endereço
+    public:
+        Jp(std::string line);
+        //opcode = 7A
+};
+
+class Call : public Semantic {
+    private:
+        std::vector<Token *> * expression;         //endereço
+    public:
+        Call(std::string line);
+        //opcode = E8
+};
+
+class Int : public Semantic {
+    private:
+        std::vector<Token *> * expression;         //sei la oq é cte
+    public:
+        Int(std::string line);
+        //opcode = CD
+};
+
+class Ret : public Semantic {
+    private:
+
+    public:
+        Ret(std::string line);
+        //opcode = C3
+};
+
+// pilha
 
 class Pop : public Semantic {
     private:
-        //o pop só recebe como operando o registrador AX
+        //o pop só recebe como operand o registrador AX
     public:
         Pop(std::string line);
 };
 
 class Push : public Semantic {
     private:
-        //o push só recebe como operando o registrador AX
+        //o push só recebe como operand o registrador AX
     public:
         Push(std::string line);
 };
 
 class Popf : public Semantic {
     private:
-        //o poft não recebe nenhum operando
+        //o poft não recebe nenhum operand
     public:
         Popf(std::string line);
 };
 
 class Pushf : public Semantic {
     private:
-        //o pushf não recebe nenhum operando
+        //o pushf não recebe nenhum operand
     public:
         Pushf(std::string line);
 };
 
-//montagem
+// montagem
 
 class End : public Semantic {
     private:
@@ -257,7 +375,7 @@ class EndS : public Semantic {
         std::string getName();
 };
 
-//declaração de variavel do tamanho de uma word, pode ser inteiro, uma constante, end de expressao, ...
+// declaração de variavel do tamanho de uma word, pode ser inteiro, uma constante, end de expressao, ...
 class Dw : public Semantic {
     private:
         std::string name;
@@ -271,15 +389,15 @@ class Dw : public Semantic {
         std::vector<Token *> *getExpression() const;
 };
 
-//declaração de constante
+// declaração de constante
 class Equ : public Semantic {
     private:
         std::string name;
-        std::string expression;     //essa expressão eu não sei como funciona, então fica assim por enquanto
+        std::vector<Token *> * expression;     //essa expressão eu não sei como funciona, então fica assim por enquanto
     public:
-        Equ(std::string line, std::string name, std::string expression);
+        Equ(std::string line, std::string name, std::vector<Token *> *  expression);
         std::string getName();
-        std::string getExpression();
+        std::vector<Token *> * getExpression();
 };
 
 class Assume : public Semantic {
@@ -325,109 +443,8 @@ class Org : Semantic {
 */
 
 
-//logicas
-/*
-class Or : public Semantic {
-    private:
-        //primeiro operando : regitrador AX
-        std::string segundoOperando; //registrador AX, DX ou cte
-    public:
-        Or(std::string line, std::string segundoOperando);
-};
 
-class And : public Semantic {
-    private:
-        int opcodeAX;         //regitrador AX
-        //std::string secondParameter;    //regitrador AX, DX ou cte
-    public:
-        And(std::string line);
-        //opcode = 23 ou 25
-};
 
-class Not : public Semantic {
-    private:
-        int opcodeAX;         //regitrador AX
-    public:
-        Not(std::string line);
-        //opcode = F7
-};
-
-class Xor : public Semantic {
-    private:
-        int opcodeAX;         //regitrador AX
-        //std::string secondParameter;    //regitrador AX, DX ou cte
-    public:
-        Xor(std::string line);
-        //opcode = 33 ou 35
-};
-*/
-
-//desvio
-/*
-class Jmp : public Semantic {
-    private:
-        int end;         //endereço
-    public:
-        Jmp(std::string line);
-        //opcode = EB
-};
-
-class JE : public Semantic {
-    private:
-        int end;         //endereço
-    public:
-        JE(std::string line);
-        //opcode = 74
-};
-
-class Jnz : public Semantic {
-    private:
-        int end;         //endereço
-    public:
-        Jnz(std::string line);
-        //opcode = 75
-};
-
-class Jz : public Semantic {
-    private:
-        int end;         //endereço
-    public:
-        Jz(std::string line);
-        //opcode = 74
-};
-
-class Jp : public Semantic {
-    private:
-        int end;         //endereço
-    public:
-        Jp(std::string line);
-        //opcode = 7A
-};
-
-class Call : public Semantic {
-    private:
-        int end;         //endereço
-    public:
-        Call(std::string line);
-        //opcode = E8
-};
-
-class Int : public Semantic {
-    private:
-        //int cte;         //sei la oq é cte
-    public:
-        Int(std::string line);
-        //opcode = CD
-};
-
-class Ret : public Semantic {
-    private:
-
-    public:
-        Ret(std::string line);
-        //opcode = C3
-};
-*/
 
 
 

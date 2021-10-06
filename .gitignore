@@ -1,5 +1,8 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+#design
+/refs
+
 # dependencies
 /node_modules
 /.pnp
@@ -11,9 +14,11 @@
 /src/bin/teste.pro
 /src/bin/teste.pro.user
 /src/bin/obj
+/src/bin/build-teste-Desktop-Debug
 
 # production
 /build
+/bin
 
 # misc
 .DS_Store
