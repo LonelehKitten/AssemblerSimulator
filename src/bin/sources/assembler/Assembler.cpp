@@ -1,4 +1,5 @@
 #include "Assembler.h"
+#include "../InterfaceBus.h"
 
 Assembler::Assembler(std::vector<Semantic *> * lines) :
     lines(lines)
@@ -211,16 +212,24 @@ int Assembler::preproccessDoDaniel (std::vector<Semantic *> * lines, int k) {
 
 }
 
-std::string Assembler::init() {
+void Assembler::init(bool willExecute) {
 
-    //std::string output = "";
+    double startTime = InterfaceBus::getInstance().getMilliseconds();
     this->preproccessDoDaniel(lines, 0);
+    double totalTime = (InterfaceBus::getInstance().getMilliseconds() - startTime) / 1000;
 
     std::cout << "============ INIT ==========" << std::endl;
     std::cout << output << std::endl;
     std::cout << "============ INIT ==========" << std::endl;
 
-    return output;
+    if(willExecute) return;
+
+    InterfaceBus::getInstance().dispatchMacroExpanded(output);
+    InterfaceBus::getInstance().dispatchLog("Macros expandidas com sucesso!", LogStatus::SUCCESS);
+    InterfaceBus::getInstance().dispatchLog(
+        std::string("Tempo:    ") + std::to_string(totalTime) + std::string(" segundos"),
+        LogStatus::INFO
+    );
 }
 
 std::string Assembler::preproccess() {

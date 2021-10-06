@@ -33,8 +33,10 @@ public:
 
     std::string preproccess();
 
-    std::string init();
+    void init(bool willExecute);
     int preproccessDoDaniel (std::vector<Semantic *> * lines, int k);
+
+
 
 };
 
