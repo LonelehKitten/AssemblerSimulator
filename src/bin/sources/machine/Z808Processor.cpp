@@ -1,22 +1,22 @@
-#include "Z808Machine.h"
+#include "Z808Processor.h"
 
-Z808Machine::Z808Machine()
+Z808Processor::Z808Processor()
 {
     Z808Registers = std::vector<Z808Word>(6,0);
     errorInstruction = false;
 }
 
-std::vector<Z808Word> Z808Machine::getRegisters()
+std::vector<Z808Word> Z808Processor::getRegisters()
 {
     return Z808Registers;
 }
 
-bool Z808Machine::instructionError()
+bool Z808Processor::instructionError()
 {
     return errorInstruction;
 }
 
-void Z808Machine::setSR(Z808Operation op1, Z808Operation op2, bool add, bool sub, bool mult, bool this_div, bool cmp, bool this_and, bool this_not, bool this_or, bool this_xor, bool popf)
+void Z808Processor::setSR(Z808Operation op1, Z808Operation op2, bool add, bool sub, bool mult, bool this_div, bool cmp, bool this_and, bool this_not, bool this_or, bool this_xor, bool popf)
 {
     Z808Operation value = 0;
 
@@ -111,7 +111,7 @@ void Z808Machine::setSR(Z808Operation op1, Z808Operation op2, bool add, bool sub
         Z808Registers[SR].reset(12);
 }
 
-int Z808Machine::execute(std::vector<Z808Byte> memory, long int i)
+int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
 {
     int opbytes = 0;                                        //Inicializacao
     errorInstruction = false;

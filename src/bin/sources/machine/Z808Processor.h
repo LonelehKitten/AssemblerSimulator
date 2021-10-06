@@ -12,7 +12,7 @@ typedef std::bitset<16> Z808Word; //Registradores
 typedef unsigned char Z808Byte; //Leitura da memória de instruções
 typedef long int Z808Operation; //Operaçoes dentro da VM
 
-class Z808Machine
+class Z808Processor
 {
 private:
     std::vector<Z808Word> Z808Registers;    //Tabela de registradores
@@ -54,7 +54,7 @@ private:
     void setSR(Z808Operation op1, Z808Operation op2, bool add = false, bool sub = false, bool mult = false, bool this_div = false, bool cmp = false, bool this_and = false, bool this_not = false, bool this_or = false, bool this_xor = false, bool popf = false);
 
 public:
-    Z808Machine();
+    Z808Processor();
 
     std::vector<Z808Word> getRegisters();
     bool instructionError();                //Checagem se a última leitura de instrução deu erro

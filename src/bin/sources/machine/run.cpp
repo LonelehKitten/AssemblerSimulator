@@ -5,16 +5,16 @@ cd bin
 cd sources
 cd machine
 
-g++ Z808Machine.cpp run.cpp -o run 
+g++ Z808Processor.cpp run.cpp -o run 
 run.exe
 */
 
 #include <iostream>
-#include "Z808Machine.h"
+#include "Z808Processor.h"
 
 int main()
 {
-    Z808Machine processor;
+    Z808Processor processor;
 
     std::vector<Z808Byte> memory;
 
@@ -140,7 +140,7 @@ int main()
         //Metodos pra trabalhar com a classe:
         //https://www.cplusplus.com/reference/bitset/bitset/
 
-        //Exemplo de como pegar o valor numerico do registrador AX (checar indices no Z808Machine.h)
+        //Exemplo de como pegar o valor numerico do registrador AX (checar indices no Z808Processor.h)
         std::cout << "\nAX: " << std::hex << registradores[0].to_ulong();
         std::cout << "\nDX: " << std::hex << registradores[1].to_ulong();
         std::cout << "\nSP: " << std::hex << registradores[2].to_ulong();
