@@ -17,6 +17,8 @@ using namespace std::chrono;
 
 typedef v8::Local<v8::Function> EventEmitter;
 typedef Nan::FunctionCallbackInfo<v8::Value> NodeInfo;
+typedef v8::Local<v8::Value> V8Var ;
+typedef v8::Local<v8::Context> V8Context;
 
 enum LogStatus {
     INFO = 0,
@@ -28,6 +30,7 @@ class InterfaceBus {
     private:
          EventEmitter * eventEmitter;
          NodeInfo * info;
+         V8Context * context;
 
          RecognitionManager * recognitionManager;
          Assembler * assembler;
@@ -36,7 +39,10 @@ class InterfaceBus {
          InterfaceBus();
 
          std::string trigger(std::string event, std::string data);
-         std::string castV8String(v8::Value& jsString);
+
+         std::string castV8toString(V8Var& jsString);
+         int castV8toInt(V8Var& jsNumber);
+         char * castV8toByteArray(V8Var& jsNumberArray);
 
     public:
 
@@ -44,6 +50,8 @@ class InterfaceBus {
          void operator=(InterfaceBus const&) = delete;
 
          static InterfaceBus& getInstance();
+
+         void init(NodeInfo& info);
 
          // =======================================================
          //                  DESPACHANTES DE EVENTOS
@@ -74,28 +82,28 @@ class InterfaceBus {
           * Expansão de macro
           * @param instruções em string
           */
-         void serviceExpandMacros(std::string code);
+         void serviceExpandMacros(V8Var code);
          /**
           * Montagem e execução direta
           * @param instruções em string
           * @param 128Kb de memória em um array de int
           */
-         void serviceAssembleAndRun(std::string code, char * memory);
+         void serviceAssembleAndRun(V8Var code, V8Var memory);
          /**
           * Montagem e execução passo a passo
           * @param instruções em string
           */
-         void serviceAssembleAndRunBySteps(std::string code, char * memory);
+         void serviceAssembleAndRunBySteps(V8Var code, V8Var memory);
          /**
           * Requisita execução direta
           * @param bytecode em string
           */
-         void serviceRun(std::string bytecode, char * memory);
+         void serviceRun(V8Var bytecode, V8Var memory);
          /**
           * Requisita execução passo a passo
           * @param bytecode em string
           */
-         void serviceRunBySteps(std::string bytecode,  char * memory);
+         void serviceRunBySteps(V8Var bytecode,  V8Var memory);
 
          // =======================================================
          //                  SERVIÇOS AUXILIARES
@@ -110,18 +118,12 @@ class InterfaceBus {
           * Requisita mudança no clock do processador
           * @param frequencia em int
           */
-         void serviceClockChange(int clock);
+         void serviceClockChange(V8Var clock);
 
          /**
           * Requisita parada forçada da execução
           */
          void serviceKillProcess();
-
-
-         EventEmitter * getEventEmitter();
-         void setEventEmitter(EventEmitter *newEventEmitter);
-         NodeInfo * getInfo();
-         void setInfo(NodeInfo *newInfo);
 
          double getMilliseconds();
 

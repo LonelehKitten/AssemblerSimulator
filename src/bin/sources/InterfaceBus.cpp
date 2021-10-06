@@ -8,7 +8,11 @@ InterfaceBus::InterfaceBus() :
     machine(new Z808Machine())
 {}
 
-
+void InterfaceBus::init(NodeInfo& info) {
+    this->info = &info;
+    this->eventEmitter = &info[0].As<v8::Function>();
+    this->context = &info->GetIsolate()->GetCurrentContext();
+}
 
 // pra expansão de macro
 void InterfaceBus::dispatchMacroExpanded(std::string code) {
@@ -35,8 +39,8 @@ void InterfaceBus::dispatchLog(std::string message, LogStatus status) {
  * Expansão de macro
  * @param instruções em string
  */
-void InterfaceBus::serviceExpandMacros(std::string code) {
-    std::vector<Semantic *> * semantics = recognitionManager->analyze(code, false);
+void InterfaceBus::serviceExpandMacros(V8Var code) {
+    std::vector<Semantic *> * semantics = recognitionManager->analyze(castV8toString(code), false);
     assembler = new Assembler(semantics);
     assembler->init(false);
     delete assembler;
@@ -47,7 +51,7 @@ void InterfaceBus::serviceExpandMacros(std::string code) {
  * @param instruções em string
  * @param 128Kb de memória em um array de int
  */
-void InterfaceBus::serviceAssembleAndRun(std::string code, char * memory) {
+void InterfaceBus::serviceAssembleAndRun(V8Var code, V8Var memory) {
 
 }
 
@@ -55,7 +59,7 @@ void InterfaceBus::serviceAssembleAndRun(std::string code, char * memory) {
  * Montagem e execução passo a passo
  * @param instruções em string
  */
-void InterfaceBus::serviceAssembleAndRunBySteps(std::string code, char * memory) {
+void InterfaceBus::serviceAssembleAndRunBySteps(V8Var code, V8Var memory) {
 
 }
 
@@ -63,7 +67,7 @@ void InterfaceBus::serviceAssembleAndRunBySteps(std::string code, char * memory)
  * Requisita execução direta
  * @param bytecode em string
  */
-void InterfaceBus::serviceRun(std::string bytecode, char * memory) {
+void InterfaceBus::serviceRun(V8Var bytecode, V8Var memory) {
 
 }
 
@@ -71,7 +75,7 @@ void InterfaceBus::serviceRun(std::string bytecode, char * memory) {
  * Requisita execução passo a passo
  * @param bytecode em string
  */
-void InterfaceBus::serviceRunBySteps(std::string bytecode,  char * memory) {
+void InterfaceBus::serviceRunBySteps(V8Var bytecode,  V8Var memory) {
 
 }
 
@@ -90,7 +94,7 @@ void InterfaceBus::serviceNextStep() {
  * Requisita mudança no clock do processador
  * @param frequencia em int
  */
-void InterfaceBus::serviceClockChange(int clock) {
+void InterfaceBus::serviceClockChange(V8Var clock) {
 
 }
 
@@ -118,32 +122,30 @@ std::string InterfaceBus::trigger(std::string event, std::string data) {
                 );
 }
 
-std::string InterfaceBus::castV8String(v8::Value& jsString) {
+std::string InterfaceBus::castV8toString(V8Var& jsString) {
   v8::Isolate* isolate = info->GetIsolate();
   v8::String::Utf8Value str(isolate, jsString);
   return std::string(*str);
+}
+
+int InterfaceBus::castV8toInt(V8Var& jsNumber) {
+    return (int) jsNumber->NumberValue(*context).FromJust();
+}
+
+char * InterfaceBus::castV8toByteArray(V8Var& jsNumberArray) {
+    v8::Local<v8::Array> jsArray = v8::Local<v8::Array>::Cast(jsNumberArray);
+    unsigned int length = (unsigned int) jsArray->Get(v8::String::New("length"))->ToObject()->Uint32Value();
+    char * array = (char *) malloc(sizeof(char)*length);
+    for(unsigned int i = 0; i < length; i++) {
+        array[i] = (char) castV8toInt(jsArray->Get(i));
+    }
+    return array;
 }
 
 InterfaceBus& InterfaceBus::getInstance() {
 
     static InterfaceBus nodeBus;
     return nodeBus;
-}
-
-EventEmitter * InterfaceBus::getEventEmitter() {
-    return eventEmitter;
-}
-
-void InterfaceBus::setEventEmitter(EventEmitter * newEventEmitter) {
-    eventEmitter = newEventEmitter;
-}
-
-NodeInfo * InterfaceBus::getInfo() {
-    return info;
-}
-
-void InterfaceBus::setInfo(NodeInfo * newInfo) {
-    info = newInfo;
 }
 
 double InterfaceBus::getMilliseconds() {

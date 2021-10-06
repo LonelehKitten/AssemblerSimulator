@@ -1,13 +1,11 @@
 #include "sources/InterfaceBus.h"
 
 /**
- * Inicializa as configurações do NodeBus
+ * Inicializa as configurações da InterfaceBus
  * @param handler de eventos
  */
 void init(const Nan::FunctionCallbackInfo<v8::Value> & info) {
-    InterfaceBus * interfaceBus = &InterfaceBus::getInstance();
-    interfaceBus->setInfo(info);
-    interfaceBus->setEventEmitter(info[0].As<v8::Function>());
+    InterfaceBus::getInstance().init(info);
 }
 
 // =======================================================
@@ -19,7 +17,7 @@ void init(const Nan::FunctionCallbackInfo<v8::Value> & info) {
  * @param instruções em string
  */
 void requestExpandMacros(const Nan::FunctionCallbackInfo<v8::Value> & info) {
-
+    InterfaceBus::getInstance().serviceExpandMacros(info[0]);
 }
 /**
  * Requisita montagem e execução direta
@@ -27,7 +25,7 @@ void requestExpandMacros(const Nan::FunctionCallbackInfo<v8::Value> & info) {
  * @param 128Kb de memória em um array de int
  */
 void requestAssembleAndRun(const Nan::FunctionCallbackInfo<v8::Value> & info) {
-
+    InterfaceBus::getInstance().serviceAssembleAndRun(info[0], info[1]);
 }
 /**
  * Requisita montagem e execução passo a passo
@@ -35,7 +33,7 @@ void requestAssembleAndRun(const Nan::FunctionCallbackInfo<v8::Value> & info) {
  * @param 128Kb de memória em um array de int
  */
 void requestAssembleAndRunBySteps(const Nan::FunctionCallbackInfo<v8::Value> & info) {
-
+    InterfaceBus::getInstance().serviceAssembleAndRunBySteps(info[0], info[1]);
 }
 /**
  * Requisita execução direta
@@ -43,7 +41,7 @@ void requestAssembleAndRunBySteps(const Nan::FunctionCallbackInfo<v8::Value> & i
  * @param 128Kb de memória em um array de int
  */
 void requestRun(const Nan::FunctionCallbackInfo<v8::Value> & info) {
-
+    InterfaceBus::getInstance().serviceRun(info[0], info[1]);
 }
 /**
  * Requisita execução passo a passo
@@ -51,7 +49,7 @@ void requestRun(const Nan::FunctionCallbackInfo<v8::Value> & info) {
  * @param 128Kb de memória em um array de int
  */
 void requestRunBySteps(const Nan::FunctionCallbackInfo<v8::Value> & info) {
-
+    InterfaceBus::getInstance().serviceRunBySteps(info[0], info[1]);
 }
 
 
@@ -64,7 +62,7 @@ void requestRunBySteps(const Nan::FunctionCallbackInfo<v8::Value> & info) {
  * Utilizado junto dos serviços AssembleAndRunBySteps e RunBySteps.
  */
 void requestNextStep(const Nan::FunctionCallbackInfo<v8::Value> & info) {
-
+    InterfaceBus::getInstance().serviceNextStep();
 }
 
 /**
@@ -72,14 +70,14 @@ void requestNextStep(const Nan::FunctionCallbackInfo<v8::Value> & info) {
  * @param frequencia em int
  */
 void requestClockChange(const Nan::FunctionCallbackInfo<v8::Value> & info) {
-
+    InterfaceBus::getInstance().serviceClockChange(info[0]);
 }
 
 /**
  * Requisita parada forçada da execução
  */
 void requestKillProcess(const Nan::FunctionCallbackInfo<v8::Value> & info) {
-
+    InterfaceBus::getInstance().serviceKillProcess();
 }
 
 
