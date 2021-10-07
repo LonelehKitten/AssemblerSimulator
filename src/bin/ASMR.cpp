@@ -91,8 +91,9 @@ void requestSendInput(const Nan::FunctionCallbackInfo<v8::Value> & info) {
 bool endTest = false;
 
 void requestTest(const Nan::FunctionCallbackInfo<v8::Value> & info) {
+    std::cout << "cpp: start" << std::endl;
     while(!endTest);
-    std::cout << "ok" << std::endl;
+    std::cout << "cpp: ok" << std::endl;
 }
 
 void requestEndTest(const Nan::FunctionCallbackInfo<v8::Value> & info) {
