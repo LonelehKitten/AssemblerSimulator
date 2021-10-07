@@ -12,8 +12,8 @@ typedef std::bitset<16> Z808Word;   //Registradores
 typedef unsigned char Z808Byte;     //Leitura da memória de instruções
 typedef long int Z808Operation;     //Operaçoes dentro da VM
 
-#define SP_MAXADDR 0xF100               //Definição do limite da pilha
-#define SP_MINADDR 0xF000               //Definição do início da pilha
+#define SP_MAXADDR 0x0000               //Definição do limite da pilha
+#define SP_BASEADDR 0x0000               //Definição do início da pilha
 
 class Z808Processor
 {
@@ -54,7 +54,6 @@ private:
         ADD,
         SUB,
         MULT,
-        DIV,
         CMP,
         AND,
         NOT,
@@ -79,7 +78,7 @@ private:
 
 public:
     Z808Processor();
-    
+
     //Pega os registradores
     std::vector<Z808Word> getRegisters();
     //Limpa todas as flags de erro
