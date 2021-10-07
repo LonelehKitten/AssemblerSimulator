@@ -3,6 +3,7 @@ import { useContext } from '../../utils/context';
 
 import Ace from './ace';
 import Tabs from './tabs';
+import Memory from './memory';
 
 const Editor = (props) => {
   const { listFiles, changeFile } = useContext();
@@ -16,9 +17,10 @@ const Editor = (props) => {
   return (
     <div id='editor' {...props}>
       <Tabs value={value} onChange={handleChange} listFiles={listFiles} />
-      <Ace onChange={() => console.log('aa')} />
+      <Memory />
     </div>
   );
 };
 
+//<Ace onChange={() => console.log('aa')} />
 export default Editor;
