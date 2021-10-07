@@ -18,17 +18,17 @@ private:
     std::vector<Z808Word> Z808Registers;    //Tabela de registradores
     enum R                                  //Para usar de indice na tabela de registradores
     {
-        //Registrador acumulador AX - 0
+        //Registrador acumulador AX
         AX,
-        //Registrador de dados DX - 1
+        //Registrador de dados DX
         DX,
-        //Registrador de pilha SP - 2
+        //Registrador de pilha SP
         SP,
-        //Registrador de indice SI - 3
+        //Registrador de indice SI
         SI,
-        //Registrador contador de programa IP - 4
+        //Registrador contador de programa IP
         IP,
-        //Registrador das flags de estado SR - 5
+        //Registrador das flags de estado SR
         SR
     };
     enum SRFlags
@@ -51,7 +51,7 @@ private:
     bool errorInstruction;
     //Setar flags no registrador SR
     //Se for operacao de subtracao, enviar o terceiro parametro como false
-    void setSR(Z808Operation op1, Z808Operation op2, bool add = false, bool sub = false, bool mult = false, bool this_div = false, bool cmp = false, bool this_and = false, bool this_not = false, bool this_or = false, bool this_xor = false, bool popf = false);
+    void setSR(Z808Operation op1, Z808Operation op2, bool add = false, bool sub = false, bool mult = false, bool this_div = false, bool cmp = false, bool this_and = false, bool this_not = false, bool this_or = false, bool this_xor = false);
 
 public:
     Z808Processor();
