@@ -105,6 +105,14 @@ void InterfaceBus::serviceKillProcess() {
 
 }
 
+/**
+ * Envio de input para o Z808.
+ * @param texto em string
+ */
+void InterfaceBus::serviceSendInput(V8Var input) {
+
+}
+
 
 std::string InterfaceBus::trigger(std::string event, std::string data) {
     v8::Local<v8::Value> arguments[2] = {

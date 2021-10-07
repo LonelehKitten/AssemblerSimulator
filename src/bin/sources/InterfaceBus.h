@@ -95,12 +95,12 @@ class InterfaceBus {
           */
          void serviceAssembleAndRunBySteps(V8Var code, V8Var memory);
          /**
-          * Requisita execução direta
+          * Execução direta
           * @param bytecode em string
           */
          void serviceRun(V8Var bytecode, V8Var memory);
          /**
-          * Requisita execução passo a passo
+          * Execução passo a passo
           * @param bytecode em string
           */
          void serviceRunBySteps(V8Var bytecode,  V8Var memory);
@@ -109,21 +109,29 @@ class InterfaceBus {
          //                  SERVIÇOS AUXILIARES
          // =======================================================
          /**
-          * Requisita execução do próximo passo
+          * Execução do próximo passo
           * Utilizado junto dos serviços AssembleAndRunBySteps e RunBySteps.
           */
          void serviceNextStep();
 
          /**
-          * Requisita mudança no clock do processador
+          * Parada forçada da execução
+          */
+         void serviceKillProcess();
+
+         /**
+          * Mudança no clock do processador
           * @param frequencia em int
           */
          void serviceClockChange(V8Var clock);
 
          /**
-          * Requisita parada forçada da execução
+          * Envio de input para o Z808.
+          * @param texto em string
           */
-         void serviceKillProcess();
+         void serviceSendInput(V8Var input);
+
+
 
          double getMilliseconds();
 

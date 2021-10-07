@@ -80,6 +80,14 @@ void requestKillProcess(const Nan::FunctionCallbackInfo<v8::Value> & info) {
     InterfaceBus::getInstance().serviceKillProcess();
 }
 
+/**
+ * Requisita envio de input para o Z808.
+ * @param texto em string
+ */
+void requestSendInput(const Nan::FunctionCallbackInfo<v8::Value> & info) {
+    InterfaceBus::getInstance().serviceSendInput(info[0]);
+}
+
 
 // Init
 void moduleExports(v8::Local<v8::Object> exports) {
