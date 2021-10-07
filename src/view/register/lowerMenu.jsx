@@ -48,7 +48,7 @@ const useStyles = makeStyles((theme) => ({
 
 const Bit = ({value}) => <Brightness1Icon style={{fontSize:10,color:value == 0 ? "green": "red"}} />
 
-const LowerMenu = (props) => {
+const LowerMenu = ({register}) => {
 
   const classes = useStyles();
 
@@ -64,16 +64,16 @@ const LowerMenu = (props) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.map((row,key) => (
+            {Object.entries(register).map(([row,value],key) => (
               <TableRow key={key}>
                 <TableCell align='center'>
-                  {row.register}
+                  {row}
                 </TableCell>
                 <TableCell align='center'>
-                  {[...row.bits].map((item) => <Bit value={item} />)}
+                  {[].map((item) => <Bit value={item} />)}
                 </TableCell>
                 <TableCell align='center'>
-                  {row.value}
+                  
                 </TableCell>
               </TableRow>
             ))}

@@ -1,4 +1,4 @@
-import {useMemo} from 'react';
+import {useEffect, useMemo, useState} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -34,14 +34,25 @@ const useStyles = makeStyles((theme) => ({
       }
     },
   }));
+
+  const {ipcRenderer} = window.electron;
+
 const Memory = () => {
     const classes = useStyles();
 
+    const [memory,setMemory] = useState([]);
+
+    useEffect(() => {
+        ipcRenderer.on("cycle_memory",() => {
+
+        });
+    },[]);
+
     const rows = useMemo(() => {
         const row = [];
-        for(let i=0;i<16;i++){
+        for(let i=0;i<32;i++){
             const t = [];
-            for(let j=0;j<32;j++){
+            for(let j=0;j<16;j++){
                 t.push(<TableCell align='center'>{j}</TableCell>);
             }
             row.push({id:i,values:t});

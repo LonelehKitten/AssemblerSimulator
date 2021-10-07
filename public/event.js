@@ -1,4 +1,4 @@
-//const asmr = require('bindings')('ASMR');
+const asmr = require('bindings')('ASMR');
 //const addon = require('../build/Release/addon.node');
 const EventEmitter = require('events');
 const fs = require('fs');
@@ -27,8 +27,35 @@ emitter.on('log', (data) => {
 ipcMain.on("play", (event, type, params) => {
     if(requests.includes(type) && isAsmr){
         asmr[type].apply(asmr,params);
+    }else{
+        const array = JSON.parse(simulate());
+        BrowserWindow.getAllWindows()[0].webContents.send("cycle_memory",array.memoryChanges);
+        BrowserWindow.getAllWindows()[0].webContents.send("cycle_registers",array.registers);
     }
 })
+
+const simulate = () => {
+    const json = {
+        registers: {
+            AX: Math.random() * 50,
+            DX: Math.random() * 50,
+            SI: Math.random() * 50,
+            SS: Math.random() * 50,
+            DS: Math.random() * 50,
+            CS: Math.random() * 50,
+            SP: Math.random() * 50,
+            PC: Math.random() * 50,
+            SR: {
+                asLiteral: Math.random() * 50,
+                asFlags: [true,false,true,true,false,true,true,false]
+            }
+        },
+        stdout: Math.random() % 5 == 0 ? "Teste "+Date.now() : "",
+        stdin: Math.random() % 2 == 0,
+        memoryChanges: []
+    }
+    return JSON.stringify(json);
+}
 
 /*
 ipcMain.on('play_expandMacros', (event, code) => {
