@@ -8,10 +8,16 @@ InterfaceBus::InterfaceBus() :
     machine(new Z808Machine())
 {}
 
-void InterfaceBus::init(NodeInfo& info) {
-    this->info = &info;
-    this->eventEmitter = &info[0].As<v8::Function>();
-    this->context = &info->GetIsolate()->GetCurrentContext();
+void InterfaceBus::init(NodeInfo * info) {
+    this->info = info;
+}
+
+EventEmitter InterfaceBus::getEventEmitter() {
+    return (*info)[0].As<v8::Function>();
+}
+
+V8Context InterfaceBus::getV8Context() {
+    return info->GetIsolate()->GetCurrentContext();
 }
 
 // pra expansão de macro
@@ -30,6 +36,10 @@ void InterfaceBus::dispatchLog(std::string message, LogStatus status) {
         std::string("{message: \"") + message +
         std::string("\", status: ") + std::to_string((int) status) + std::string("}")
     );
+}
+
+void InterfaceBus::dispatchTimeUp() {
+    trigger("timeup", "");
 }
 
 // =======================================================
@@ -105,39 +115,47 @@ void InterfaceBus::serviceKillProcess() {
 
 }
 
+/**
+ * Envio de input para o Z808.
+ * @param texto em string
+ */
+void InterfaceBus::serviceSendInput(V8Var input) {
 
-std::string InterfaceBus::trigger(std::string event, std::string data) {
+}
+
+
+std::string InterfaceBus::trigger(char * event, std::string data) {
     v8::Local<v8::Value> arguments[2] = {
       Nan::New(event).ToLocalChecked(),
       Nan::New(data).ToLocalChecked()
     };
     Nan::AsyncResource resource("nan:makeCallback");
-    return castV8String(
+    return castV8toString(
                 resource.runInAsyncScope(
                         Nan::GetCurrentContext()->Global(),
-                        eventEmitter,
+                        getEventEmitter(),
                         2,
                         arguments
                     ).ToLocalChecked()
                 );
 }
 
-std::string InterfaceBus::castV8toString(V8Var& jsString) {
+std::string InterfaceBus::castV8toString(V8Var jsString) {
   v8::Isolate* isolate = info->GetIsolate();
   v8::String::Utf8Value str(isolate, jsString);
   return std::string(*str);
 }
 
-int InterfaceBus::castV8toInt(V8Var& jsNumber) {
-    return (int) jsNumber->NumberValue(*context).FromJust();
+int InterfaceBus::castV8toInt(V8Var jsNumber) {
+    return (int) jsNumber->NumberValue(getV8Context()).FromJust();
 }
 
-char * InterfaceBus::castV8toByteArray(V8Var& jsNumberArray) {
+char * InterfaceBus::castV8toByteArray(V8Var jsNumberArray) {
     v8::Local<v8::Array> jsArray = v8::Local<v8::Array>::Cast(jsNumberArray);
-    unsigned int length = (unsigned int) jsArray->Get(v8::String::New("length"))->ToObject()->Uint32Value();
+    unsigned int length = (unsigned int) jsArray->Length();
     char * array = (char *) malloc(sizeof(char)*length);
     for(unsigned int i = 0; i < length; i++) {
-        array[i] = (char) castV8toInt(jsArray->Get(i));
+        array[i] = (char) castV8toInt(Nan::Get(jsArray, i).ToLocalChecked());
     }
     return array;
 }
