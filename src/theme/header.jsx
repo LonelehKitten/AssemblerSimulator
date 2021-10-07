@@ -75,12 +75,12 @@ const Header = () => {
   };
 
   const handlePlay = (type) => () => {
-    if (type == "stop") return setPlaying(false);
     // play_expandMacros
     if (!isEmpty(currentFile?.code)) {
-      setPlaying(true);
+      if (type == "requestEndTest" || type == "requestKillProcess") setPlaying(false);
+      else setPlaying(true);
       event("play", [type, currentFile.code], () => {
-        //   setPlaying(false);
+        setPlaying(false);
       });
     }
   };

@@ -1,4 +1,4 @@
-const asmr = require('bindings')('ASMR');
+//const asmr = require('bindings')('ASMR');
 //const addon = require('../build/Release/addon.node');
 const EventEmitter = require('events');
 const fs = require('fs');
