@@ -1,4 +1,4 @@
-//const addon = require('bindings')('addon.node');
+//const asmr = require('bindings')('ASMR');
 //const addon = require('../build/Release/addon.node');
 const EventEmitter = require('events');
 const fs = require('fs');
@@ -8,25 +8,26 @@ const { BrowserWindow, ipcMain, dialog, webContents } = require('electron');
 //   webContents.getFocusedWebContents().send('on_event', event, data);
 //   console.log(event, data);
 // });]
-const isAddon = typeof addon != undefined;
+const isAsmr = typeof asmr != "undefined";
 const emitter = new EventEmitter();
-if(isAddon) addon.emit(emitter.emit.bind(emitter)); // Para não dar pau no windows
+if(isAsmr) asmr.init(emitter.emit.bind(emitter)); // Para não dar pau no windows
 
-ipcMain.on("play", (event, type, code) => {
-    if(isAddon){
-        addon.start(type);
-        addon.code(code);
+const requests = ['requestExpandMacros','requestAssembleAndRun','requestAssembleAndRunBySteps','requestRun','requestRunBySteps','requestNextStep','requestKillProcess'];
+
+emitter.on('macroExpanded', (data) => {
+    BrowserWindow.getAllWindows()[0].webContents.send("macroExpanded",data);
+});
+emitter.on('cycle', (data) => {
+    BrowserWindow.getAllWindows()[0].webContents.send("console",(data));
+});
+emitter.on('log', (data) => {
+    BrowserWindow.getAllWindows()[0].webContents.send("console",(data));
+});
+
+ipcMain.on("play", (event, type, params) => {
+    if(requests.includes(type) && isAsmr){
+        asmr[type].apply(asmr,params);
     }
-    emitter.on('success', (evt) => {
-        event.sender.send('on_console', evt);
-        event.sender.send('expand_macro', evt);
-        console.log('### START ... ' + evt);
-    });
-    emitter.on('error', (evt) => {
-
-    });
-    //event.sender.send('expand_macro', "novo codigo"); //  Para debugar
-    //addon.expandMacros(code, emitter.emit.bind(emitter));
 })
 
 /*
