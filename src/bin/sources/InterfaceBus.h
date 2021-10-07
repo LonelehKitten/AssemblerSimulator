@@ -17,7 +17,7 @@ using namespace std::chrono;
 
 typedef v8::Local<v8::Function> EventEmitter;
 typedef Nan::FunctionCallbackInfo<v8::Value> NodeInfo;
-typedef v8::Local<v8::Value> V8Var ;
+typedef v8::Local<v8::Value> V8Var;
 typedef v8::Local<v8::Context> V8Context;
 
 enum LogStatus {
@@ -38,11 +38,14 @@ class InterfaceBus {
 
          InterfaceBus();
 
-         std::string trigger(std::string event, std::string data);
+         std::string trigger(char * event, std::string data);
 
-         std::string castV8toString(V8Var& jsString);
-         int castV8toInt(V8Var& jsNumber);
-         char * castV8toByteArray(V8Var& jsNumberArray);
+         std::string castV8toString(V8Var jsString);
+         int castV8toInt(V8Var jsNumber);
+         char * castV8toByteArray(V8Var jsNumberArray);
+
+         EventEmitter getEventEmitter();
+         V8Context getV8Context();
 
     public:
 
@@ -51,7 +54,7 @@ class InterfaceBus {
 
          static InterfaceBus& getInstance();
 
-         void init(NodeInfo& info);
+         void init(NodeInfo * info);
 
          // =======================================================
          //                  DESPACHANTES DE EVENTOS
@@ -74,6 +77,7 @@ class InterfaceBus {
          */
          void dispatchLog(std::string message, LogStatus status);           // quando houver alguma mensagem a ser printada no console
 
+         void dispatchTimeUp();
 
          // =======================================================
          //                  SERVIÇOS DE EXECUÇÃO
@@ -95,12 +99,12 @@ class InterfaceBus {
           */
          void serviceAssembleAndRunBySteps(V8Var code, V8Var memory);
          /**
-          * Requisita execução direta
+          * Execução direta
           * @param bytecode em string
           */
          void serviceRun(V8Var bytecode, V8Var memory);
          /**
-          * Requisita execução passo a passo
+          * Execução passo a passo
           * @param bytecode em string
           */
          void serviceRunBySteps(V8Var bytecode,  V8Var memory);
@@ -109,21 +113,29 @@ class InterfaceBus {
          //                  SERVIÇOS AUXILIARES
          // =======================================================
          /**
-          * Requisita execução do próximo passo
+          * Execução do próximo passo
           * Utilizado junto dos serviços AssembleAndRunBySteps e RunBySteps.
           */
          void serviceNextStep();
 
          /**
-          * Requisita mudança no clock do processador
+          * Parada forçada da execução
+          */
+         void serviceKillProcess();
+
+         /**
+          * Mudança no clock do processador
           * @param frequencia em int
           */
          void serviceClockChange(V8Var clock);
 
          /**
-          * Requisita parada forçada da execução
+          * Envio de input para o Z808.
+          * @param texto em string
           */
-         void serviceKillProcess();
+         void serviceSendInput(V8Var input);
+
+
 
          double getMilliseconds();
 

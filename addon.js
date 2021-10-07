@@ -1,30 +1,21 @@
 'use strict';
 
 const EventEmitter = require('events').EventEmitter;
-const addon = require('bindings')('addon.node');
-//const addon = require('./build/Release/addon.node');
+const addon = require('bindings')('ASMR.node');
+//const addon = require('./build/Release/ASMR.node');
 const emitter = new EventEmitter();
 
-emitter.on('success', (evt) => {
-  console.log('### START ... ' + evt);
+let myPromise = new Promise(function(myResolve, myReject) {
+  addon.requestTest();
+  myResolve(); // when successful
+  myReject();  // when error
 });
-emitter.on('data', (evt) => {
-  console.log(evt);
-});
+  
+myPromise.then(
+  function(value) { /* code if successful */ },
+  function(error) { /* code if some error */ }
+);
 
-emitter.on('end', () => {
-  console.log('### END ###');
-});
+addon.requestEndTest();
 
-//addon.expandMacros('ADD AX, DX\n MUL SI', emitter.emit.bind(emitter));
-//addon.callEmit('hello');
-
-/*
-var addon = require('bindings')('addon.node')
-
-console.log('This should be eight:', addon.add(3, 5))
-
-*/
-
-addon.setTest();
-addon.persistenceTest();
+console.log("-- referencial")

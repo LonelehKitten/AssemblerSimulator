@@ -5,7 +5,7 @@
  * @param handler de eventos
  */
 void init(const Nan::FunctionCallbackInfo<v8::Value> & info) {
-    InterfaceBus::getInstance().init(info);
+    InterfaceBus::getInstance().init((NodeInfo *) &info);
 }
 
 // =======================================================
@@ -80,6 +80,24 @@ void requestKillProcess(const Nan::FunctionCallbackInfo<v8::Value> & info) {
     InterfaceBus::getInstance().serviceKillProcess();
 }
 
+/**
+ * Requisita envio de input para o Z808.
+ * @param texto em string
+ */
+void requestSendInput(const Nan::FunctionCallbackInfo<v8::Value> & info) {
+    InterfaceBus::getInstance().serviceSendInput(info[0]);
+}
+
+bool endTest = false;
+
+void requestTest(const Nan::FunctionCallbackInfo<v8::Value> & info) {
+    while(!endTest);
+    std::cout << "ok" << std::endl;
+}
+
+void requestEndTest(const Nan::FunctionCallbackInfo<v8::Value> & info) {
+    endTest = true;
+}
 
 // Init
 void moduleExports(v8::Local<v8::Object> exports) {
@@ -136,6 +154,18 @@ void moduleExports(v8::Local<v8::Object> exports) {
   exports->Set(context,
                Nan::New("requestKillProcess").ToLocalChecked(),
                Nan::New<v8::FunctionTemplate>(requestKillProcess)
+                   ->GetFunction(context)
+                   .ToLocalChecked());
+
+  exports->Set(context,
+               Nan::New("requestTest").ToLocalChecked(),
+               Nan::New<v8::FunctionTemplate>(requestTest)
+                   ->GetFunction(context)
+                   .ToLocalChecked());
+
+  exports->Set(context,
+               Nan::New("requestEndTest").ToLocalChecked(),
+               Nan::New<v8::FunctionTemplate>(requestEndTest)
                    ->GetFunction(context)
                    .ToLocalChecked());
 
