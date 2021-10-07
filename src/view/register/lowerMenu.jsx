@@ -10,17 +10,17 @@ import Paper from '@material-ui/core/Paper';
 import Brightness1Icon from '@material-ui/icons/Brightness1';
 
 function createData(register, bits, value = null) {
-  if(value == null) value = parseInt(bits,2);
+  if (value == null) value = parseInt(bits, 2);
   return { register, bits, value };
 }
 
 const registers = [
-  "AX","DX","SI","DS","SS","CS","SP","SR","PC"
+  "AX", "DX", "SI", "DS", "SS", "CS", "SP", "SR", "PC"
 ]
 
 
-const rows = registers.map((name) => createData(name,"0101010101101010"));
-console.log("Rows",rows);
+const rows = registers.map((name) => createData(name, "0101010101101010"));
+console.log("Rows", rows);
 //];
 
 const useStyles = makeStyles((theme) => ({
@@ -39,16 +39,16 @@ const useStyles = makeStyles((theme) => ({
     color: 'inherit',
     backgroundColor: '#313241',
     overflow: 'auto',
-    "& .MuiTableCell-root":{
+    "& .MuiTableCell-root": {
       borderColor: '#999',
-      color:"#fff"
+      color: "#fff"
     }
   },
 }));
 
-const Bit = ({value}) => <Brightness1Icon style={{fontSize:10,color:value == 0 ? "green": "red"}} />
+const Bit = ({ value }) => <Brightness1Icon style={{ fontSize: 10, color: value == 1 ? "green" : "red" }} />
 
-const LowerMenu = ({register}) => {
+const LowerMenu = ({ register }) => {
 
   const classes = useStyles();
 
@@ -64,19 +64,24 @@ const LowerMenu = ({register}) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {Object.entries(register).map(([row,value],key) => (
-              <TableRow key={key}>
-                <TableCell align='center'>
-                  {row}
-                </TableCell>
-                <TableCell align='center'>
-                  {[].map((item) => <Bit value={item} />)}
-                </TableCell>
-                <TableCell align='center'>
-                  
-                </TableCell>
-              </TableRow>
-            ))}
+            {Object.entries(register).map(([row, value], key) => {
+              if(row == "SR") return;
+              const bits = parseInt(value).toString("2").padStart(16,0);
+              return (
+                <TableRow key={key}>
+                  <TableCell align='center'>
+                    {row}
+                  </TableCell>
+                  <TableCell align='center'>
+                    {[...bits].map((item) => <Bit value={item} />)}
+                  </TableCell>
+                  <TableCell align='center'>
+                    {parseInt(value)}
+                  </TableCell>
+                </TableRow>
+              )
+            }
+            )}
           </TableBody>
         </Table>
       </TableContainer>

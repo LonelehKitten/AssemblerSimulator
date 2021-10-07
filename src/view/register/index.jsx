@@ -37,9 +37,11 @@ const Register = (props) => {
 
   useEffect(() => {
     ipcRenderer.on("cycle_registers", (data) => {
-      setRegister(data);
+    //  setRegister(data);
     });
   }, []);
+
+  console.log("Testeasdsa",register);
 
   return (
     <div id='register' className={classes.root}>
