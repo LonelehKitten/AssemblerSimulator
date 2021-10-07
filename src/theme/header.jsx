@@ -18,6 +18,7 @@ import MenuIcon from '@material-ui/icons/Menu';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import AllOutIcon from '@material-ui/icons/AllOut';
+import BugReportIcon from '@material-ui/icons/BugReport';
 
 import { useContext } from '../utils/context';
 import event from '../utils/event';
@@ -106,6 +107,11 @@ const Header = () => {
               <AllOutIcon />
             </Button>
           </Tooltip>
+          <Tooltip title="Testar (requestTest)">
+            <Button color='inherit' onClick={handlePlay("requestTest")} disabled={playing} className={classes.button}>
+              <BugReportIcon />
+            </Button>
+          </Tooltip>
           <Tooltip title="Rodar (requestAssembleAndRun)">
             <Button color='inherit' onClick={handlePlay("requestAssembleAndRun")} disabled={playing} className={classes.button}>
               <PlayArrowIcon />
@@ -133,6 +139,11 @@ const Header = () => {
           </Tooltip>
           <Tooltip title="Parar (requestKillProcess)">
             <Button color='inherit' onClick={handlePlay("requestKillProcess")} disabled={!playing} className={classes.button}>
+              <StopIcon />
+            </Button>
+          </Tooltip>
+          <Tooltip title="Parar (requestEndTest)">
+            <Button color='inherit' onClick={handlePlay("requestEndTest")} disabled={!playing} className={classes.button}>
               <StopIcon />
             </Button>
           </Tooltip>

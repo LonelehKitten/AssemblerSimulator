@@ -3,6 +3,7 @@ import { useContext } from '../../utils/context';
 
 import Ace from './ace';
 import Tabs from './tabs';
+import Memory from './memory';
 
 const Editor = (props) => {
   const { listFiles, changeFile } = useContext();
@@ -21,4 +22,5 @@ const Editor = (props) => {
   );
 };
 
+<Memory />
 export default Editor;
