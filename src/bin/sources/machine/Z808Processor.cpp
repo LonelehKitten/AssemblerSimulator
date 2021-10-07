@@ -38,98 +38,138 @@ void Z808Processor::setSR(Z808Operation op1, Z808Operation op2, int instruction)
 {
     Z808Operation value = 0;
 
-    if (ADD)
+    if (instruction == ADD)
         value = op1 + op2;
-    else if (SUB)
+    else if (instruction == SUB)
         value = op1 - op2;
-    else if (MULT)
+    else if (instruction == MULT)
         value = op1 * op2;
-    else if (DIV)
-        value = op1 / op2;
-    else if (CMP)
-        value = op1 != op2;     //!= retorna 0 quando igual, seta o registrador ZF
-    else if (AND)
+    //else if (instruction == DIV)             //Divisao nao afeta nenhum bit
+    //    value = op1 / op2;
+    else if (instruction == CMP)
+        value = op1 == op2;
+    else if (instruction == AND)
         value = op1 & op2;
-    else if (NOT)
+    else if (instruction == NOT)
         value = ~op1;
-    else if (OR)
+    else if (instruction == OR)
         value = op1 | op2;
-    else if (XOR)
+    else if (instruction == XOR)
         value = op1 ^ op2;
 
     Z808Word word = (Z808Word) value;
 
-                                        //flag CF
-    if (ADD)
-        if (value & 0x00010000)
-            Z808Registers[SR].set(0);
-        else
-            Z808Registers[SR].reset(0);
-    else if (SUB)
-        if (op1 < 0 && op2 > 0 && !(value & 0x80000000))
-            Z808Registers[SR].set(0);
-        else
-            Z808Registers[SR].reset(0);
-    else if (MULT)
-        if (value & 0xFFFF0000)
-            Z808Registers[SR].set(0);
-        else
-            Z808Registers[SR].reset(0);
-    else
-        Z808Registers[SR].reset(0);
-
-                                        //flag PF
-    if (MULT)                           //Testa resultado da mult com todos os 32 bits
+    if (instruction == ADD)
     {
-        std::bitset<32> fullWord = (unsigned long) value;
-        if (fullWord.count() % 2 == 0)
-            Z808Registers[SR].set(6);
+                                            //flag CF
+        if (abs(value) & 0x00010000)
+            Z808Registers[SR].set(CF);
         else
-            Z808Registers[SR].reset(6);
-    }
-    else if (word.count() % 2 == 0)
-        Z808Registers[SR].set(6);
-    else
-        Z808Registers[SR].reset(6);
-    //if (DIV)
-    //{
-    //    long divMod = op1 % op2;
-    //    Z808Word dMod = (Z808Word) divMod;
-    //    if ((word.count() + dMod.count()) % 2 == 0)
-    //        Z808Registers[SR].set(6);
-    //}
-
-                                        //flag ZF
-    if (value == 0)
-        Z808Registers[SR].set(8);
-    else
-        Z808Registers[SR].reset(8);
-    if (DIV)                            //Testa se a divisao foi zero mas o resto nao foi zero, ai reseta a flag
-    {
-        long divMod = op1 % op2;
-        if ((value == 0 && divMod != 0))
-            Z808Registers[SR].reset(6);
-    }
-
-                                        //flag SF
-    if (value & 0x80000000)
-        Z808Registers[SR].set(9);
-    else
-        Z808Registers[SR].reset(9);
-
-                                        //flag OF
-    if (ADD || MULT)
+            Z808Registers[SR].reset(CF);
+                                            //flag PF
+        if (word.count() % 2 == 0)
+            Z808Registers[SR].set(PF);
+        else
+            Z808Registers[SR].reset(PF);
+                                            //flag ZF
+        if (value == 0)
+            Z808Registers[SR].set(ZF);
+        else
+            Z808Registers[SR].reset(ZF);
+                                            //flag SF
         if (value & 0x80000000)
-            Z808Registers[SR].set(12);
+            Z808Registers[SR].set(SF);
         else
-            Z808Registers[SR].reset(12);
-    else if (SUB)
+            Z808Registers[SR].reset(SF);
+                                            //flag OF
+        if (value & 0x80000000)
+            Z808Registers[SR].set(OF);
+        else
+            Z808Registers[SR].reset(OF);
+    }
+    
+    if (instruction == SUB)
+    {
+                                            //flag CF
         if (op1 < 0 && op2 > 0 && !(value & 0x80000000))
-            Z808Registers[SR].set(12);
+            Z808Registers[SR].set(CF);
         else
-            Z808Registers[SR].reset(12);
-    else
-        Z808Registers[SR].reset(12);
+            Z808Registers[SR].reset(CF);
+                                            //flag PF
+        if (word.count() % 2 == 0)
+            Z808Registers[SR].set(PF);
+        else
+            Z808Registers[SR].reset(PF);
+                                            //flag ZF
+        if (value == 0)
+            Z808Registers[SR].set(ZF);
+        else
+            Z808Registers[SR].reset(ZF);
+                                            //flag SF
+        if (value & 0x80000000)
+            Z808Registers[SR].set(SF);
+        else
+            Z808Registers[SR].reset(SF);
+                                            //flag OF
+        if (value & 0x80000000)
+            Z808Registers[SR].set(OF);
+        else
+            Z808Registers[SR].reset(OF);
+    }
+
+    if (instruction == MULT)
+    {
+                                            //flag CF
+        Z808Registers[SR].reset(CF);
+                                            //flag PF
+        Z808Registers[SR].reset(PF);
+                                            //flag ZF
+        Z808Registers[SR].reset(ZF);
+                                            //flag SF
+        Z808Registers[SR].reset(SF);
+                                            //flag OF
+        Z808Registers[SR].reset(OF);
+    }
+
+    if (instruction == CMP)
+    {
+                                            //flag CF
+        Z808Registers[SR].reset(CF);
+                                            //flag PF
+        Z808Registers[SR].reset(PF);
+                                            //flag ZF
+        if (value)
+            Z808Registers[SR].set(ZF);
+        else
+            Z808Registers[SR].reset(ZF);
+                                            //flag SF
+        Z808Registers[SR].reset(SF);
+                                            //flag OF
+        Z808Registers[SR].reset(OF);
+    }
+
+    if (instruction == AND || instruction == OR || instruction == XOR || instruction == NOT)
+    {
+                                            //flag CF
+        Z808Registers[SR].reset(CF);
+                                            //flag PF
+        if (word.count() % 2 == 0)
+            Z808Registers[SR].set(PF);
+        else
+            Z808Registers[SR].reset(PF);
+                                            //flag ZF
+        if (value == 0)
+            Z808Registers[SR].set(ZF);
+        else
+            Z808Registers[SR].reset(ZF);
+                                            //flag SF
+        if (value & 0x00008000)
+            Z808Registers[SR].set(SF);
+        else
+            Z808Registers[SR].reset(SF);
+                                            //flag OF
+        Z808Registers[SR].reset(OF);
+    }
 }
 
 int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
