@@ -3,7 +3,8 @@
 Z808Processor::Z808Processor()
 {
     Z808Registers = std::vector<Z808Word>(6,0);
-    errorInstruction = false;
+    Z808Registers[SP] = SP_MINADDR;
+    clearError();
 }
 
 std::vector<Z808Word> Z808Processor::getRegisters()
@@ -16,43 +17,60 @@ bool Z808Processor::instructionError()
     return errorInstruction;
 }
 
-void Z808Processor::setSR(Z808Operation op1, Z808Operation op2, bool add, bool sub, bool mult, bool this_div, bool cmp, bool this_and, bool this_not, bool this_or, bool this_xor)
+bool Z808Processor::stackOverflowError()
+{
+    return stackOverflow;
+}
+
+bool Z808Processor::stackUnderflowError()
+{
+    return stackUnderflow;
+}
+
+void Z808Processor::clearError()
+{
+    errorInstruction = false;
+    stackOverflow = false;
+    stackUnderflow = false;
+}
+
+void Z808Processor::setSR(Z808Operation op1, Z808Operation op2, int instruction)
 {
     Z808Operation value = 0;
 
-    if (add)
+    if (ADD)
         value = op1 + op2;
-    else if (sub)
+    else if (SUB)
         value = op1 - op2;
-    else if (mult)
+    else if (MULT)
         value = op1 * op2;
-    else if (this_div)
+    else if (DIV)
         value = op1 / op2;
-    else if (cmp)
+    else if (CMP)
         value = op1 != op2;     //!= retorna 0 quando igual, seta o registrador ZF
-    else if (this_and)
+    else if (AND)
         value = op1 & op2;
-    else if (this_not)
+    else if (NOT)
         value = ~op1;
-    else if (this_or)
+    else if (OR)
         value = op1 | op2;
-    else if (this_xor)
+    else if (XOR)
         value = op1 ^ op2;
 
     Z808Word word = (Z808Word) value;
 
                                         //flag CF
-    if (add)
+    if (ADD)
         if (value & 0x00010000)
             Z808Registers[SR].set(0);
         else
             Z808Registers[SR].reset(0);
-    else if (sub)
+    else if (SUB)
         if (op1 < 0 && op2 > 0 && !(value & 0x80000000))
             Z808Registers[SR].set(0);
         else
             Z808Registers[SR].reset(0);
-    else if (mult)
+    else if (MULT)
         if (value & 0xFFFF0000)
             Z808Registers[SR].set(0);
         else
@@ -61,10 +79,10 @@ void Z808Processor::setSR(Z808Operation op1, Z808Operation op2, bool add, bool s
         Z808Registers[SR].reset(0);
 
                                         //flag PF
-    if (mult)                           //Testa resultado da mult com ambos 32 bits
+    if (MULT)                           //Testa resultado da mult com todos os 32 bits
     {
-        std::bitset<32> hi = (unsigned long) value;
-        if ((word.count() + hi.count()) % 2 == 0)
+        std::bitset<32> fullWord = (unsigned long) value;
+        if (fullWord.count() % 2 == 0)
             Z808Registers[SR].set(6);
         else
             Z808Registers[SR].reset(6);
@@ -73,7 +91,7 @@ void Z808Processor::setSR(Z808Operation op1, Z808Operation op2, bool add, bool s
         Z808Registers[SR].set(6);
     else
         Z808Registers[SR].reset(6);
-    //if (this_div)
+    //if (DIV)
     //{
     //    long divMod = op1 % op2;
     //    Z808Word dMod = (Z808Word) divMod;
@@ -86,7 +104,7 @@ void Z808Processor::setSR(Z808Operation op1, Z808Operation op2, bool add, bool s
         Z808Registers[SR].set(8);
     else
         Z808Registers[SR].reset(8);
-    if (this_div)                            //Testa se a divisao foi zero mas o resto nao foi zero, ai reseta a flag
+    if (DIV)                            //Testa se a divisao foi zero mas o resto nao foi zero, ai reseta a flag
     {
         long divMod = op1 % op2;
         if ((value == 0 && divMod != 0))
@@ -100,12 +118,12 @@ void Z808Processor::setSR(Z808Operation op1, Z808Operation op2, bool add, bool s
         Z808Registers[SR].reset(9);
 
                                         //flag OF
-    if (add || mult)
+    if (ADD || MULT)
         if (value & 0x80000000)
             Z808Registers[SR].set(12);
         else
             Z808Registers[SR].reset(12);
-    else if (sub)
+    else if (SUB)
         if (op1 < 0 && op2 > 0 && !(value & 0x80000000))
             Z808Registers[SR].set(12);
         else
@@ -158,7 +176,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
             Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
                 
             //Atualizando registrador de flags
-            setSR(operator1, operator2, true);
+            setSR(operator1, operator2, ADD);
 
         break;
 
@@ -173,7 +191,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
             Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
             
             //Atualizando registrador de flags
-            setSR(operator1, operator2, true);
+            setSR(operator1, operator2, ADD);
             
         break;
         default:
@@ -204,7 +222,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
         Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
 
         //Atualizando registrador de flags
-        setSR(operator1, operator2, true);
+        setSR(operator1, operator2, ADD);
 
     }
     break;
@@ -243,7 +261,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
                 Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
 
                 //Atualizando registrador de flags
-                setSR(aux, operator2, false, false, false, true);   //Envia os operadores originais
+                setSR(aux, operator2, DIV);   //Envia os operadores originais
             
                 break;
             }
@@ -261,7 +279,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
                 Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
 
                 //Atualizando registrador de flags
-                setSR(operator1, result, false, false, false, true);   //Envia os operadores originais
+                setSR(aux, aux, DIV);   //Envia os operadores originais
 
                 break;
             }
@@ -283,7 +301,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
                 Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
                         
                 //Atualizando registrador de flags
-                setSR(operator1, operator2, false, false, true);
+                setSR(operator1, operator2, MULT);
                
             break;
             }
@@ -304,7 +322,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
                 Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
                 
                 //Atualizando registrador de flags
-                setSR(operator1, operator1, false, false, true);
+                setSR(operator1, operator1, MULT);
 
             }
             break;
@@ -342,7 +360,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
                 Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
                 
                 //Atualizando registrador de flags
-                setSR(operator1, operator1, false, true);
+                setSR(operator1, operator1, SUB);
             
                 break;
             } 
@@ -357,7 +375,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
                 Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
                 
                 //Atualizando registrador de flags
-                setSR(operator1, operator2, false, true);
+                setSR(operator1, operator2, SUB);
 
                 break;
         
@@ -390,7 +408,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
         Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
         
         //Atualizando registrador de flags
-        setSR(operator1, operator2, false, true);
+        setSR(operator1, operator2, SUB);
         //operator2 = opd
 
     }
@@ -414,7 +432,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
         Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
 
         //Atualizando registrador de flags
-        setSR(operator1, operator2, false, false, false, false, true);
+        setSR(operator1, operator2, CMP);
 
     }
     break;
@@ -437,7 +455,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
         Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
 
         //Atualizando registrador de flags
-        setSR(operator1, operator2, false, false, false, false, true);
+        setSR(operator1, operator2, CMP);
     }
     break;
 
@@ -464,7 +482,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
                 Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
 
                 //Atualizando registrador de flags
-                setSR(operator1, operator2, false, false, false, false, false, true);
+                setSR(operator1, operator2, AND);
             break;
             
             case 0xC2:      //and AX, DX
@@ -477,7 +495,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
                 Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
 
                 //Atualizando registrador de flags
-                setSR(operator1, operator2, false, false, false, false, false, true);
+                setSR(operator1, operator2, AND);
             break;
         }
 
@@ -504,7 +522,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
         Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
 
         //Atualizando registrador de flags
-        setSR(operator1, operator2, false, false, false, false, false, true);
+        setSR(operator1, operator2, AND);
     }
     break;
 
@@ -526,7 +544,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
         Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
 
         //Atualizando registrador de flags
-        setSR(operator1, operator1, false, false, false, false, false, false, true);
+        setSR(operator1, operator1, NOT);
     }
     break;
 
@@ -553,7 +571,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
                 Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
             
                 //Atualizando registrador de flags
-                setSR(operator1, operator2, false, false, false, false, false, false, false, true);
+                setSR(operator1, operator2, OR);
             break;
             
             case 0xC2:      //or AX, DX
@@ -566,7 +584,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
                 Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
             
                 //Atualizando registrador de flags
-                setSR(operator1, operator2, false, false, false, false, false, false, false, true);
+                setSR(operator1, operator2, OR);
             break;
         }
     }
@@ -592,7 +610,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
         Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
 
         //Atualizando registrador de flags
-        setSR(operator1, operator2, false, false, false, false, false, false, false, true);
+        setSR(operator1, operator2, OR);
 
     }
     break;
@@ -620,7 +638,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
                 Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
             
                 //Atualizando registrador de flags
-                setSR(operator1, operator2, false, false, false, false, false, false, false, false, true);
+                setSR(operator1, operator2, XOR);
             break;
             
             case 0xC2:      //xor AX, DX
@@ -633,7 +651,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
                 Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
             
                 //Atualizando registrador de flags
-                setSR(operator1, operator2, false, false, false, false, false, false, false, false, true);
+                setSR(operator1, operator2, XOR);
             break;
         }
     }
@@ -659,7 +677,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
         Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
 
         //Atualizando registrador de flags
-        setSR(operator1, operator2, false, false, false, false, false, false, false, false, true);
+        setSR(operator1, operator2, XOR);
 
     }
     break;
@@ -760,14 +778,19 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
         operator1 |= memory[i+2];   //memória vai ser little endian
         operator1 <<= 8;
         operator1 |= memory[i+1];
-        
-        operator2 =  (Z808Operation) (Z808Registers[IP].to_ulong() + opbytes);     //Passa a posicao de retorno posterior (chamada de ret)
-
-        Z808Registers[SP] = (Z808Word) (Z808Registers[SP].to_ulong() + 2);                  //Incremento na posicao atual da pilha
-        
-        memory[Z808Registers[SP].to_ulong()] = (Z808Byte) operator2;      //Push no endereco da pilha
+                                                                                //Passa a posicao de retorno posterior (chamada de ret)
+        operator2 =  (Z808Operation) (Z808Registers[IP].to_ulong() + opbytes);
+                                                                            //Push no endereco da pilha
+        memory[Z808Registers[SP].to_ulong()] = (Z808Byte) operator2;
         operator2 >>= 8;
         memory[Z808Registers[SP].to_ulong()+1] = (Z808Byte) operator2;
+                                                                            //Incremento na posicao atual da pilha
+        Z808Registers[SP] = (Z808Word) (Z808Registers[SP].to_ulong() + 2);
+                                                                            
+        if (Z808Registers[SP].to_ulong() >= SP_MAXADDR)                     //Verifica se passou do topo da pilha
+        {
+            stackOverflow = true;
+        }
 
         Z808Registers[IP] = (Z808Word) operator1;       //Jump para a posicao da chamada
     }
@@ -782,12 +805,17 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
             errorInstruction = true;
             break;
         }
-
+        
+        Z808Registers[SP] = (Z808Word) (Z808Registers[SP].to_ulong() - 2);                  //Decremento na posicao atual da pilha
+        
         operator1 |= memory[Z808Registers[SP].to_ulong()];                                  //Pop do topo da pilha
         operator1 <<= 8;
         operator1 |= memory[Z808Registers[SP].to_ulong()+1];
-
-        Z808Registers[SP] = (Z808Word) (Z808Registers[SP].to_ulong() - 2);                  //Decremento na posicao atual da pilha
+                                                                        //Verifica se passou do minimo da pilha
+        if (Z808Registers[SP].to_ulong() < SP_MINADDR)
+        {
+            stackUnderflow = true;
+        }
 
         Z808Registers[IP] = (Z808Word) operator1;       //Jump para a posicao
 
@@ -813,13 +841,17 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
         switch(op)
         {
             case 0xC0 :     // pop AX
-                
+
+                Z808Registers[SP] = (Z808Word) (Z808Registers[SP].to_ulong() - 2);      //Decremento na posicao atual da pilha
+                                                                       
+                if (Z808Registers[SP].to_ulong() < SP_MINADDR)                   //Verifica se passou do minimo da pilha
+                {
+                    stackUnderflow = true;
+                }
 
                 operator1 |= memory[Z808Registers[SP].to_ulong()];                                  //Pop do topo da pilha
                 operator1 <<= 8;
                 operator1 |= memory[Z808Registers[SP].to_ulong()+1];
-
-                Z808Registers[SP] = (Z808Word) (Z808Registers[SP].to_ulong() - 2);                  //Decremento na posicao atual da pilha
 
                 Z808Registers[AX] = (Z808Word) operator1;       //Passa para o AX
 
@@ -829,11 +861,16 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
 
             case 0xC2 :     //pop DX
 
+                Z808Registers[SP] = (Z808Word) (Z808Registers[SP].to_ulong() - 2);                  //Decremento na posicao atual da pilha
+                                                                       
+                if (Z808Registers[SP].to_ulong() < SP_MINADDR)                   //Verifica se passou do minimo da pilha
+                {
+                    stackUnderflow = true;
+                }
+
                 operator1 |= memory[Z808Registers[SP].to_ulong()];                                  //Pop do topo da pilha
                 operator1 <<= 8;
                 operator1 |= memory[Z808Registers[SP].to_ulong()+1];
-
-                Z808Registers[SP] = (Z808Word) (Z808Registers[SP].to_ulong() - 2);                  //Decremento na posicao atual da pilha
 
                 Z808Registers[DX] = (Z808Word) operator1;       //Passa para o AX
 
@@ -858,11 +895,16 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
         operator1 <<= 8;
         operator1 |= memory[i+1];
 
+        Z808Registers[SP] = (Z808Word) (Z808Registers[SP].to_ulong() - 2);      //Decremento na posicao atual da pilha
+                                                                       
+        if (Z808Registers[SP].to_ulong() < SP_MINADDR)                   //Verifica se passou do minimo da pilha
+        {
+            stackUnderflow = true;
+        }
+
         operator2 |= memory[Z808Registers[SP].to_ulong()];                      //Pop do topo da pilha
         operator2 <<= 8;
         operator2 |= memory[Z808Registers[SP].to_ulong()+1];
-
-        Z808Registers[SP] = (Z808Word) (Z808Registers[SP].to_ulong() - 2);      //Decremento na posicao atual da pilha
 
         memory[operator1] = (Z808Byte) operator2;          //Salva o topo da pilha, salvo em operator2, na posicao salva em operator1
         operator2 >>= 8;
@@ -883,11 +925,16 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
             break;
         }
 
+        Z808Registers[SP] = (Z808Word) (Z808Registers[SP].to_ulong() - 2);                  //Decremento na posicao atual da pilha
+                                                                       
+        if (Z808Registers[SP].to_ulong() < SP_MINADDR)                   //Verifica se passou do minimo da pilha
+        {
+            stackUnderflow = true;
+        }
+
         operator1 |= memory[Z808Registers[SP].to_ulong()];                                  //Pop do topo da pilha
         operator1 <<= 8;
         operator1 |= memory[Z808Registers[SP].to_ulong()+1];
-
-        Z808Registers[SP] = (Z808Word) (Z808Registers[SP].to_ulong() - 2);                  //Decremento na posicao atual da pilha
 
         Z808Registers[SR] = (Z808Word) operator1;       //Passa para o SR
 
@@ -912,11 +959,16 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
             case 0xC0 :     // push AX
                 operator1 = (Z808Operation) Z808Registers[AX].to_ulong();
 
-                Z808Registers[SP] = (Z808Word) (Z808Registers[SP].to_ulong() + 2);              //Incremento na posicao atual da pilha
-
                 memory[Z808Registers[SP].to_ulong()] = (Z808Byte) operator1;                    //Push no topo da pilha
                 operator1 >>= 8;
                 memory[Z808Registers[SP].to_ulong()+1] = (Z808Byte) operator1;
+
+                Z808Registers[SP] = (Z808Word) (Z808Registers[SP].to_ulong() + 2);              //Incremento na posicao atual da pilha
+                                                                            
+                if (Z808Registers[SP].to_ulong() >= SP_MAXADDR)                     //Verifica se passou do topo da pilha
+                {
+                    stackOverflow = true;
+                }
 
                 Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
             break;
@@ -924,11 +976,16 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
             case 0xC2 :     //push DX
                 operator1 = (Z808Operation) Z808Registers[DX].to_ulong();
 
-                Z808Registers[SP] = (Z808Word) (Z808Registers[SP].to_ulong() + 2);              //Incremento na posicao atual da pilha
-
                 memory[Z808Registers[SP].to_ulong()] = (Z808Byte) operator1;                    //Push no topo da pilha
                 operator1 >>= 8;
                 memory[Z808Registers[SP].to_ulong()+1] = (Z808Byte) operator1;
+
+                Z808Registers[SP] = (Z808Word) (Z808Registers[SP].to_ulong() + 2);              //Incremento na posicao atual da pilha
+                                                                            
+                if (Z808Registers[SP].to_ulong() >= SP_MAXADDR)                     //Verifica se passou do topo da pilha
+                {
+                    stackOverflow = true;
+                }
 
                 Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
             break;
@@ -948,11 +1005,16 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
 
         operator1 = (Z808Operation) Z808Registers[SR].to_ulong();
 
-        Z808Registers[SP] = (Z808Word) (Z808Registers[SP].to_ulong() + 2);              //Incremento na posicao atual da pilha
-
         memory[Z808Registers[SP].to_ulong()] = (Z808Byte) operator1;                    //Push no topo da pilha
         operator1 >>= 8;
         memory[Z808Registers[SP].to_ulong()+1] = (Z808Byte) operator1;
+
+        Z808Registers[SP] = (Z808Word) (Z808Registers[SP].to_ulong() + 2);              //Incremento na posicao atual da pilha
+                                                                            
+        if (Z808Registers[SP].to_ulong() >= SP_MAXADDR)                     //Verifica se passou do topo da pilha
+        {
+            stackOverflow = true;
+        }
 
         Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
 

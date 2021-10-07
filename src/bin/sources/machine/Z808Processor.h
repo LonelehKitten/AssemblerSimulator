@@ -8,14 +8,16 @@
             result = ~operator1; //not
             */
 
-typedef std::bitset<16> Z808Word; //Registradores
-typedef unsigned char Z808Byte; //Leitura da memória de instruções
-typedef long int Z808Operation; //Operaçoes dentro da VM
+typedef std::bitset<16> Z808Word;   //Registradores
+typedef unsigned char Z808Byte;     //Leitura da memória de instruções
+typedef long int Z808Operation;     //Operaçoes dentro da VM
+
+#define SP_MAXADDR 0xF100               //Definição do limite da pilha
+#define SP_MINADDR 0xF000               //Definição do início da pilha
 
 class Z808Processor
 {
 private:
-    std::vector<Z808Word> Z808Registers;    //Tabela de registradores
     enum R                                  //Para usar de indice na tabela de registradores
     {
         //Registrador acumulador AX
@@ -47,17 +49,47 @@ private:
         OF = 12
     };
 
+    enum Instruction    //Para a chamada do registrador SR
+    {
+        ADD,
+        SUB,
+        MULT,
+        DIV,
+        CMP,
+        AND,
+        NOT,
+        OR,
+        XOR
+    };
+
+    //Tabela de registradores
+    std::vector<Z808Word> Z808Registers;
+
     //Flag para caso alguma instrução esteja errada
     bool errorInstruction;
+
+    //Flag para caso aconteça um push depois do limite da pilha
+    bool stackOverflow;
+
+    //Flag para caso aconteça um pop no mínimo da pilha
+    bool stackUnderflow;
+
     //Setar flags no registrador SR
-    //Se for operacao de subtracao, enviar o terceiro parametro como false
-    void setSR(Z808Operation op1, Z808Operation op2, bool add = false, bool sub = false, bool mult = false, bool this_div = false, bool cmp = false, bool this_and = false, bool this_not = false, bool this_or = false, bool this_xor = false);
+    void setSR(Z808Operation op1, Z808Operation op2, int instruction);
 
 public:
     Z808Processor();
-
+    
+    //Pega os registradores
     std::vector<Z808Word> getRegisters();
-    bool instructionError();                //Checagem se a última leitura de instrução deu erro
+    //Limpa todas as flags de erro
+    void clearError();
+    //Checagem se a última leitura de instrução deu erro
+    bool instructionError();
+    //Checagem se houve estouro no maximo da pilha
+    bool stackOverflowError();
+    //Checagem se houve estouro no minimo da pilha
+    bool stackUnderflowError();
 
     /**
      * Recebe a memória inteira
