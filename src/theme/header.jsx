@@ -101,23 +101,38 @@ const Header = () => {
             Assembler Simulator
           </Typography>
           <Slider className={classes.slider} defaultValue={20} style={{ color: "#fff", width: 200 }} />
-          <Tooltip title="Expandir Macro">
-            <Button color='inherit' onClick={handlePlay("expandMacros")} disabled={playing} className={classes.button}>
+          <Tooltip title="Expandir Macro (requestExpandMacros)">
+            <Button color='inherit' onClick={handlePlay("requestExpandMacros")} disabled={playing} className={classes.button}>
               <AllOutIcon />
             </Button>
           </Tooltip>
-          <Tooltip title="Rodar">
-            <Button color='inherit' onClick={handlePlay("program")} disabled={playing} className={classes.button}>
+          <Tooltip title="Rodar (requestAssembleAndRun)">
+            <Button color='inherit' onClick={handlePlay("requestAssembleAndRun")} disabled={playing} className={classes.button}>
               <PlayArrowIcon />
             </Button>
           </Tooltip>
-          <Tooltip title="Avançar">
-            <Button color='inherit' onClick={handlePlay("next")} disabled={playing} className={classes.button}>
+          <Tooltip title="Rodar (requestRun)">
+            <Button color='inherit' onClick={handlePlay("requestRun")} disabled={playing} className={classes.button}>
+              <PlayArrowIcon />
+            </Button>
+          </Tooltip>
+          <Tooltip title="Rodar (requestRunBySteps)">
+            <Button color='inherit' onClick={handlePlay("requestRunBySteps")} disabled={playing} className={classes.button}>
+              <PlayArrowIcon />
+            </Button>
+          </Tooltip>
+          <Tooltip title="Avançar (requestAssembleAndRunBySteps)">
+            <Button color='inherit' onClick={handlePlay("requestAssembleAndRunBySteps")} disabled={playing} className={classes.button}>
               <SkipNextIcon />
             </Button>
           </Tooltip>
-          <Tooltip title="Parar">
-            <Button color='inherit' onClick={handlePlay("stop")} disabled={!playing} className={classes.button}>
+          <Tooltip title="Avançar (requestNextStep)">
+            <Button color='inherit' onClick={handlePlay("requestNextStep")} disabled={playing} className={classes.button}>
+              <SkipNextIcon />
+            </Button>
+          </Tooltip>
+          <Tooltip title="Parar (requestKillProcess)">
+            <Button color='inherit' onClick={handlePlay("requestKillProcess")} disabled={!playing} className={classes.button}>
               <StopIcon />
             </Button>
           </Tooltip>
