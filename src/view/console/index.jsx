@@ -91,11 +91,11 @@ end VALEUSEGMENT
 */
 
   useEffect(() => {
-    ipcRenderer.on('on_console', (e, message) => {
+    ipcRenderer.on('console', (e, message) => {
       setHistory((oldValue) => [...oldValue, message]);
       console.log(message);
     });
-    ipcRenderer.on('expand_macro', (e, message) => {
+    ipcRenderer.on('macroExpanded', (e, message) => {
       console.log('Teste', message);
       ipcRenderer.send(
         'invoke_save_file',
