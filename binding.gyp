@@ -5,6 +5,7 @@
       "sources": [ 
         "src/bin/ASMR.cpp",
         "src/bin/sources/InterfaceBus.cpp",
+        "src/bin/sources/ServiceBus.cpp",
         "src/bin/sources/analyzer/LexiconAutomatons.cpp",
         "src/bin/sources/analyzer/LexiconScanner.cpp",
         "src/bin/sources/analyzer/LexiconScannerStatus.cpp",

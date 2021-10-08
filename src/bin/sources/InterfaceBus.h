@@ -35,7 +35,8 @@ enum Service {
     ASSEMBLE_AND_RUN,
     ASSEMBLE_AND_RUN_BY_STEPS,
     RUN,
-    RUN_BY_STEPS
+    RUN_BY_STEPS,
+    TEST
 };
 
 typedef struct InputReport {
@@ -120,9 +121,9 @@ class InterfaceBus {
          // =======================================================
          //          VERIFICADORES DE EVENTOS DESPACHADOS
          // =======================================================
-         void checkMacroExpanded(NodeInfo& info);
-         void checkCycle(NodeInfo& info);
-         void checkLog(NodeInfo& info);
+         void checkMacroExpanded(NodeInfo * info);
+         void checkCycle(NodeInfo * info);
+         void checkLog(NodeInfo * info);
 
          // =======================================================
          //                  SERVIÇOS DE EXECUÇÃO
@@ -131,28 +132,28 @@ class InterfaceBus {
           * Expansão de macro
           * @param instruções em string
           */
-         void serviceExpandMacros(V8Var code);
+         void serviceExpandMacros(NodeInfo * info, V8Var code);
          /**
           * Montagem e execução direta
           * @param instruções em string
           * @param 128Kb de memória em um array de int
           */
-         void serviceAssembleAndRun(V8Var code, V8Var memory);
+         void serviceAssembleAndRun(NodeInfo * info, V8Var code, V8Var memory);
          /**
           * Montagem e execução passo a passo
           * @param instruções em string
           */
-         void serviceAssembleAndRunBySteps(V8Var code, V8Var memory);
+         void serviceAssembleAndRunBySteps(NodeInfo * info, V8Var code, V8Var memory);
          /**
           * Execução direta
           * @param bytecode em string
           */
-         void serviceRun(V8Var bytecode, V8Var memory);
+         void serviceRun(NodeInfo * info, V8Var bytecode, V8Var memory);
          /**
           * Execução passo a passo
           * @param bytecode em string
           */
-         void serviceRunBySteps(V8Var bytecode,  V8Var memory);
+         void serviceRunBySteps(NodeInfo * info, V8Var bytecode,  V8Var memory);
 
          // =======================================================
          //                  SERVIÇOS AUXILIARES
@@ -180,7 +181,8 @@ class InterfaceBus {
           */
          void serviceSendInput(V8Var input);
 
-
+         // test
+         void serviceTest();
 
          void runExpandMacros();
 
@@ -192,9 +194,12 @@ class InterfaceBus {
 
          void runRunBySteps();
 
+         void runTest();
+
 
 
          double getMilliseconds();
+         milliseconds getClock();
 
 };
 

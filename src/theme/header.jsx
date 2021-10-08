@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -10,6 +10,8 @@ import TreeView from '@material-ui/lab/TreeView';
 import TreeItem from '@material-ui/lab/TreeItem';
 import Tooltip from '@material-ui/core/Tooltip';
 import Slider from '@material-ui/core/Slider';
+import MenuItem from '@material-ui/core/MenuItem';
+import Menu from '@material-ui/core/Menu';
 
 import PlayArrowIcon from '@material-ui/icons/PlayArrow';
 import StopIcon from '@material-ui/icons/Stop';
@@ -45,26 +47,36 @@ const useStyles = makeStyles((theme) => ({
     "& .MuiSlider-valueLabel": {
       top: "inherit",
       bottom: -51,
-      "&>span":{
+      "&>span": {
         transform: "rotate(135deg)",
         "& >span": {
           transform: "rotate(-135deg)",
-          color:"#333"
+          color: "#333"
         }
       }
     }
   }
 }));
 
+const requests = [
+  'requestExpandMacros',
+  'requestTest',
+  'requestAssembleAndRun',
+  'requestAssembleAndRunBySteps',
+  'requestRun',
+  'requestRunBySteps',
+  'requestNextStep',
+  'requestKillProcess',
+  'requestClockChange',
+  'requestSendInput'
+];
+
 const Header = () => {
-  const {
-    currentFile,
-    playing,
-    setPlaying,
-  } = useContext();
+  const {currentFile,playing,setPlaying} = useContext();
+  const [anchorEl, setAnchorEl] = useState(null);
   const classes = useStyles();
 
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -79,11 +91,16 @@ const Header = () => {
     if (!isEmpty(currentFile?.code)) {
       if (type == "requestEndTest" || type == "requestTest" || type == "requestKillProcess") setPlaying(false);
       else setPlaying(true);
-      event("play", [type, currentFile.code], () => {
+      event("play", [type, [currentFile.code]], () => {
         setPlaying(false);
       });
     }
   };
+
+  const handleClickDebug = (type) => () => {
+    handlePlay(type)();
+    setAnchorEl(null);
+  }
 
   return (
     <div className={classes.root}>
@@ -107,29 +124,9 @@ const Header = () => {
               <AllOutIcon />
             </Button>
           </Tooltip>
-          <Tooltip title="Testar (requestTest)">
-            <Button color='inherit' onClick={handlePlay("requestTest")} disabled={playing} className={classes.button}>
-              <BugReportIcon />
-            </Button>
-          </Tooltip>
-          <Tooltip title="Rodar (requestAssembleAndRun)">
-            <Button color='inherit' onClick={handlePlay("requestAssembleAndRun")} disabled={playing} className={classes.button}>
-              <PlayArrowIcon />
-            </Button>
-          </Tooltip>
           <Tooltip title="Rodar (requestRun)">
             <Button color='inherit' onClick={handlePlay("requestRun")} disabled={playing} className={classes.button}>
               <PlayArrowIcon />
-            </Button>
-          </Tooltip>
-          <Tooltip title="Rodar (requestRunBySteps)">
-            <Button color='inherit' onClick={handlePlay("requestRunBySteps")} disabled={playing} className={classes.button}>
-              <PlayArrowIcon />
-            </Button>
-          </Tooltip>
-          <Tooltip title="Avançar (requestAssembleAndRunBySteps)">
-            <Button color='inherit' onClick={handlePlay("requestAssembleAndRunBySteps")} disabled={playing} className={classes.button}>
-              <SkipNextIcon />
             </Button>
           </Tooltip>
           <Tooltip title="Avançar (requestNextStep)">
@@ -142,9 +139,9 @@ const Header = () => {
               <StopIcon />
             </Button>
           </Tooltip>
-          <Tooltip title="Parar (requestEndTest)">
-            <Button color='inherit' onClick={handlePlay("requestEndTest")} disabled={!playing} className={classes.button}>
-              <StopIcon />
+          <Tooltip title="Debugar">
+            <Button color='inherit' onClick={(event) => setAnchorEl(event.currentTarget)} className={classes.button}>
+              <BugReportIcon />
             </Button>
           </Tooltip>
         </Toolbar>
@@ -164,6 +161,17 @@ const Header = () => {
           </TreeItem>
         </TreeView>
       </Drawer>
+      <Menu
+        anchorEl={anchorEl}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        id="debug"
+        keepMounted
+        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        open={Boolean(anchorEl)}
+        onClose={() => setAnchorEl(null)}
+      >
+        {requests.map((name) => <MenuItem onClick={handleClickDebug(name)}>{name}</MenuItem>)}
+      </Menu>
     </div>
   );
 };
