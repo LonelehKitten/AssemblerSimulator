@@ -77,7 +77,7 @@ const Header = () => {
   const handlePlay = (type) => () => {
     // play_expandMacros
     if (!isEmpty(currentFile?.code)) {
-      if (type == "requestEndTest" || type == "requestKillProcess") setPlaying(false);
+      if (type == "requestEndTest" || type == "requestTest" || type == "requestKillProcess") setPlaying(false);
       else setPlaying(true);
       event("play", [type, currentFile.code], () => {
         setPlaying(false);

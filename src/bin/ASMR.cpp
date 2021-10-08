@@ -5,7 +5,11 @@
  * @param handler de eventos
  */
 void init(const Nan::FunctionCallbackInfo<v8::Value> & info) {
-    InterfaceBus::getInstance().init((NodeInfo *) &info);
+    InterfaceBus::getInstance().init();
+}
+
+void finish(const Nan::FunctionCallbackInfo<v8::Value> & info) {
+    InterfaceBus::getInstance().finish();
 }
 
 // =======================================================
@@ -88,16 +92,20 @@ void requestSendInput(const Nan::FunctionCallbackInfo<v8::Value> & info) {
     InterfaceBus::getInstance().serviceSendInput(info[0]);
 }
 
-bool endTest = false;
+// =======================================================
+//            OBSERVADORES DE DISPARO DE EVENTOS
+// =======================================================
 
-void requestTest(const Nan::FunctionCallbackInfo<v8::Value> & info) {
-    std::cout << "cpp: start" << std::endl;
-    while(!endTest);
-    std::cout << "cpp: ok" << std::endl;
+void observeExpandedMacrosFiring(const Nan::FunctionCallbackInfo<v8::Value> & info) {
+    InterfaceBus::getInstance().checkMacroExpanded(info);
 }
 
-void requestEndTest(const Nan::FunctionCallbackInfo<v8::Value> & info) {
-    endTest = true;
+void observeCycleFiring(const Nan::FunctionCallbackInfo<v8::Value> & info) {
+    InterfaceBus::getInstance().checkCycle(info);
+}
+
+void observeLogFiring(const Nan::FunctionCallbackInfo<v8::Value> & info) {
+    InterfaceBus::getInstance().checkLog(info);
 }
 
 // Init
@@ -155,18 +163,6 @@ void moduleExports(v8::Local<v8::Object> exports) {
   exports->Set(context,
                Nan::New("requestKillProcess").ToLocalChecked(),
                Nan::New<v8::FunctionTemplate>(requestKillProcess)
-                   ->GetFunction(context)
-                   .ToLocalChecked());
-
-  exports->Set(context,
-               Nan::New("requestTest").ToLocalChecked(),
-               Nan::New<v8::FunctionTemplate>(requestTest)
-                   ->GetFunction(context)
-                   .ToLocalChecked());
-
-  exports->Set(context,
-               Nan::New("requestEndTest").ToLocalChecked(),
-               Nan::New<v8::FunctionTemplate>(requestEndTest)
                    ->GetFunction(context)
                    .ToLocalChecked());
 
