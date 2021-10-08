@@ -44,8 +44,6 @@ void Z808Processor::setSR(Z808Operation op1, Z808Operation op2, int instruction)
         value = op1 - op2;
     else if (instruction == MULT)
         value = op1 * op2;
-    //else if (instruction == DIV)             //Divisao nao afeta nenhum bit
-    //    value = op1 / op2;
     else if (instruction == CMP)
         value = op1 == op2;
     else if (instruction == AND)
@@ -62,7 +60,6 @@ void Z808Processor::setSR(Z808Operation op1, Z808Operation op2, int instruction)
     if (instruction == ADD)
     {
                                             //flag CF
-                                            //Verifica se o bit 17 da soma esta setado e o bit 16 de um dos operadores estava setado
         if (word[16] && (wordop1[15] || wordop2[15]))
             Z808Registers[SR].set(CF);
         else
@@ -83,7 +80,7 @@ void Z808Processor::setSR(Z808Operation op1, Z808Operation op2, int instruction)
         else
             Z808Registers[SR].reset(SF);
                                             //flag OF
-        if (word[15] && (wordop1[14] || wordop2[14]))
+        if (op1 > 0 && op2 > 0 && value < 0 || op1 < 0 && op2 < 0 && value > 0)
             Z808Registers[SR].set(OF);
         else
             Z808Registers[SR].reset(OF);
@@ -107,12 +104,12 @@ void Z808Processor::setSR(Z808Operation op1, Z808Operation op2, int instruction)
         else
             Z808Registers[SR].reset(ZF);
                                             //flag SF
-        if (value & 0x80000000)
+        if (word[31])
             Z808Registers[SR].set(SF);
         else
             Z808Registers[SR].reset(SF);
                                             //flag OF
-        if (word[15] && (wordop1[14] || wordop2[14]))
+        if (op1 > 0 && (-op2) > 0 && value < 0 || op1 < 0 && (-op2) < 0 && value > 0)
             Z808Registers[SR].set(OF);
         else
             Z808Registers[SR].reset(OF);
@@ -128,19 +125,11 @@ void Z808Processor::setSR(Z808Operation op1, Z808Operation op2, int instruction)
 
     if (instruction == CMP)
     {
-                                            //flag CF
-        Z808Registers[SR].reset(CF);
-                                            //flag PF
-        Z808Registers[SR].reset(PF);
                                             //flag ZF
         if (value)
             Z808Registers[SR].set(ZF);
         else
             Z808Registers[SR].reset(ZF);
-                                            //flag SF
-        Z808Registers[SR].reset(SF);
-                                            //flag OF
-        Z808Registers[SR].reset(OF);
     }
 
     if (instruction == AND || instruction == OR || instruction == XOR || instruction == NOT)
