@@ -1,4 +1,4 @@
-//const asmr = require('bindings')('ASMR');
+const asmr = require('bindings')('ASMR');
 //const addon = require('../build/Release/addon.node');
 const EventEmitter = require('events');
 const fs = require('fs');
@@ -10,7 +10,6 @@ const { BrowserWindow, ipcMain, dialog, webContents } = require('electron');
 // });]
 const isAsmr = typeof asmr != "undefined";
 const emitter = new EventEmitter();
-if(isAsmr) asmr.init(emitter.emit.bind(emitter)); // Para não dar pau no windows
 
 const requests = ['requestExpandMacros','requestAssembleAndRun','requestAssembleAndRunBySteps','requestRun','requestRunBySteps','requestNextStep','requestKillProcess'];
 
@@ -23,6 +22,11 @@ emitter.on('cycle', (data) => {
 emitter.on('log', (data) => {
     BrowserWindow.getAllWindows()[0].webContents.send("console",(data));
 });
+
+if(isAsmr) {
+    console.log("INICIALIZANDO CPP")
+    asmr.init(emitter.emit.bind(emitter)); // Para não dar pau no windows
+}
 
 ipcMain.on("play", (event, type, params) => {
     if(requests.includes(type) && isAsmr){

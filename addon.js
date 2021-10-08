@@ -5,6 +5,7 @@ const addon = require('bindings')('ASMR.node');
 //const addon = require('./build/Release/ASMR.node');
 const emitter = new EventEmitter();
 
+/*
 let myPromise = new Promise(function(myResolve, myReject) {
   addon.requestTest();
   myResolve(); // when successful
@@ -12,9 +13,20 @@ let myPromise = new Promise(function(myResolve, myReject) {
 });
   
 myPromise.then(
-  function(value) { /* code if successful */ },
-  function(error) { /* code if some error */ }
+  function(value) {  },
+  function(error) {  }
 );
+
+addon.requestEndTest();
+*/
+
+emitter.on("log", (data) => {
+    console.log(JSON.parse(data).message);
+})
+
+addon.init(emitter.emit.bind(emitter));
+
+console.log("-- post init")
 
 addon.requestEndTest();
 

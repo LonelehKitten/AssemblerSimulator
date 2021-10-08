@@ -7,13 +7,16 @@
 #include <iostream>
 #include <thread>
 #include <string>
+#include <queue>
 
 #include "analyzer/RecognitionManager.h"
 #include "assembler/Assembler.h"
 #include "machine/Z808Machine.h"
 #include "machine/Z808Response.h"
+#include "ServiceBus.h"
 
 using namespace std::chrono;
+using namespace std::literals::chrono_literals;
 
 typedef v8::Local<v8::Function> EventEmitter;
 typedef Nan::FunctionCallbackInfo<v8::Value> NodeInfo;
@@ -26,6 +29,31 @@ enum LogStatus {
     SUCCESS
 };
 
+enum Service {
+    NONE,
+    EXPAND_MACROS,
+    ASSEMBLE_AND_RUN,
+    ASSEMBLE_AND_RUN_BY_STEPS,
+    RUN,
+    RUN_BY_STEPS
+};
+
+typedef struct InputReport {
+    bool ready;
+    std::string code;
+    char * bytecode;
+    char * memory;
+    std::string input;
+    int clock;
+} InputReport;
+
+typedef struct OutputReport {
+    bool ready;
+    std::string response;
+    std::string logMessage;
+    std::string code;
+} OutputReport;
+
 class InterfaceBus {
     private:
          EventEmitter * eventEmitter;
@@ -36,9 +64,18 @@ class InterfaceBus {
          Assembler * assembler;
          Z808Machine * machine;
 
+         std::thread * producerThread, * serviceThread;
+
+         bool running, waiting, updating;
+         Service service;
+
+         InputReport inputReport;
+         OutputReport outputReport;
+         std::queue<std::string> logMessages;
+
          InterfaceBus();
 
-         std::string trigger(char * event, std::string data);
+         void trigger(char * event, std::string data);
 
          std::string castV8toString(V8Var jsString);
          int castV8toInt(V8Var jsNumber);
@@ -54,7 +91,9 @@ class InterfaceBus {
 
          static InterfaceBus& getInstance();
 
-         void init(NodeInfo * info);
+         void init();
+         void finish();
+         void producer();
 
          // =======================================================
          //                  DESPACHANTES DE EVENTOS
@@ -69,7 +108,8 @@ class InterfaceBus {
             comandos de entrada e saída de dados, e mudanças na memória.
             Deve ser executado pelo Z808Machine caso a instrução seja válida.
          */
-         std::string dispatchCycle(Z808Response& response);         // pra cada ciclo do processador
+         void dispatchCycle(Z808Response& response);         // pra cada ciclo do processador
+         void dispatchHalt(); // sinaliza fim de execução do processador
          /*
             Retorna uma mensagem no console da interface.
             A mensagem pode ser de log, erro ou sucesso.
@@ -77,7 +117,12 @@ class InterfaceBus {
          */
          void dispatchLog(std::string message, LogStatus status);           // quando houver alguma mensagem a ser printada no console
 
-         void dispatchTimeUp();
+         // =======================================================
+         //          VERIFICADORES DE EVENTOS DESPACHADOS
+         // =======================================================
+         void checkMacroExpanded(NodeInfo& info);
+         void checkCycle(NodeInfo& info);
+         void checkLog(NodeInfo& info);
 
          // =======================================================
          //                  SERVIÇOS DE EXECUÇÃO
@@ -137,8 +182,22 @@ class InterfaceBus {
 
 
 
+         void runExpandMacros();
+
+         void runAssembleAndRun();
+
+         void runAssembleAndRunBySteps();
+
+         void runRun();
+
+         void runRunBySteps();
+
+
+
          double getMilliseconds();
 
 };
+
+void startProducer();
 
 #endif // INTERFACEBUS_H
