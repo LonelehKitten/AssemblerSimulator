@@ -5,7 +5,7 @@ cd bin
 cd sources
 cd machine
 
-g++ Z808Machine.cpp run.cpp -o run 
+g++ Z808Processor.cpp Z808Machine.cpp run.cpp -o run 
 run.exe
 */
 
@@ -14,8 +14,6 @@ run.exe
 
 int main()
 {
-    Z808Machine processor;
-
     std::vector<Z808Byte> memory;
 
     //INSERIR DENTRO DO VETOR DE MEMORIA TODAS AS INSTRUCOES DE UM PROGRAMA EXEMPLO
@@ -86,6 +84,13 @@ int main()
     * hlt
     */
 
+   
+    Z808Machine machine(&memory);
+
+    machine.run();
+
+    /*
+
     int choice;
     std::vector<Z808Word> registradores;
     int incremento = 0;
@@ -115,7 +120,7 @@ int main()
             incremento = processor.execute(memory);
         //std::cout << "Instrucao executada: " << std::hex << (int)memory[i] << std::endl;
         //std::cout << "Deslocamento para somar com i: " << std::dec << incremento << std::endl;
-        //std::cout << "Deu erro? " << processor.instructionError() ? "true" : "false" << std::endl;
+        //std::cout << "Deu erro? " << procesros.instructionError() ? "true" : "false" << std::endl;
         
         i += incremento;
         
@@ -140,7 +145,7 @@ int main()
         //Metodos pra trabalhar com a classe:
         //https://www.cplusplus.com/reference/bitset/bitset/
 
-        //Exemplo de como pegar o valor numerico do registrador AX (checar indices no Z808Machine.h)
+        //Exemplo de como pegar o valor numerico do registrador AX (checar indices no Z808Processor.h)
         std::cout << "\nAX: " << std::hex << registradores[0].to_ulong();
         std::cout << "\nDX: " << std::hex << registradores[1].to_ulong();
         std::cout << "\nSP: " << std::hex << registradores[2].to_ulong();
@@ -165,6 +170,8 @@ int main()
         //if (!choice)
         //    break;
     }
+
+    */
 
     return 0;
 }
