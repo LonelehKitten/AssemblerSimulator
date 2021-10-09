@@ -14,13 +14,10 @@ function createData(register, bits, value = null) {
   return { register, bits, value };
 }
 
-const registers = [
-  "AX", "DX", "SI", "DS", "SS", "CS", "SP", "SR", "PC"
-]
+const registers = ['AX', 'DX', 'SI', 'DS', 'SS', 'CS', 'SP', 'SR', 'PC'];
 
-
-const rows = registers.map((name) => createData(name, "0101010101101010"));
-console.log("Rows", rows);
+const rows = registers.map((name) => createData(name, '0101010101101010'));
+console.log('Rows', rows);
 //];
 
 const useStyles = makeStyles((theme) => ({
@@ -28,9 +25,8 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     marginTop: '0',
     padding: '10px',
-    overflow: 'auto',
-    height: 'calc(100% - 48px)'
-    //height: `calc( ${props.height} - 16rem )`,
+    height: 'calc(70vh - 3rem)',
+    maxHeight: '31rem',
   },
   table: {
     alignContent: 'center',
@@ -38,18 +34,26 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'center',
     color: 'inherit',
     backgroundColor: '#313241',
+    minWidth: '25rem',
     overflow: 'auto',
-    "& .MuiTableCell-root": {
+    overflowY: 'scroll',
+    '& .MuiTableCell-root': {
       borderColor: '#999',
-      color: "#fff"
-    }
+      color: '#fff',
+    },
   },
 }));
 
-const Bit = ({ value }) => <Brightness1Icon style={{ fontSize: 10, color: value == 1 ? "green" : "red" }} />
+const Bit = ({ value }) => (
+  <Brightness1Icon
+    style={{
+      fontSize: 10,
+      color: value == 1 ? '#1956c5' : 'rgba(25,86,197,0.20)',
+    }}
+  />
+);
 
 const LowerMenu = ({ register }) => {
-
   const classes = useStyles();
 
   return (
@@ -65,23 +69,20 @@ const LowerMenu = ({ register }) => {
           </TableHead>
           <TableBody>
             {Object.entries(register).map(([row, value], key) => {
-              if(row == "SR") return;
-              const bits = parseInt(value).toString("2").padStart(16,0);
+              if (row == 'SR') return;
+              const bits = parseInt(value).toString('2').padStart(16, 0);
               return (
                 <TableRow key={key}>
+                  <TableCell align='center'>{row}</TableCell>
                   <TableCell align='center'>
-                    {row}
+                    {[...bits].map((item) => (
+                      <Bit value={item} />
+                    ))}
                   </TableCell>
-                  <TableCell align='center'>
-                    {[...bits].map((item) => <Bit value={item} />)}
-                  </TableCell>
-                  <TableCell align='center'>
-                    {parseInt(value)}
-                  </TableCell>
+                  <TableCell align='center'>{parseInt(value)}</TableCell>
                 </TableRow>
-              )
-            }
-            )}
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>

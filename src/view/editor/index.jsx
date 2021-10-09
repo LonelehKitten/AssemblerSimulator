@@ -17,10 +17,10 @@ const Editor = (props) => {
   return (
     <div id='editor' {...props}>
       <Tabs value={value} onChange={handleChange} listFiles={listFiles} />
-      <Ace onChange={() => console.log('aa')} />
+<Memory />
     </div>
   );
 };
+//<Ace onChange={() => console.log('aa')} />
 
-<Memory />
 export default Editor;
