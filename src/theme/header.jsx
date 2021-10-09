@@ -21,6 +21,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import AllOutIcon from '@material-ui/icons/AllOut';
 import BugReportIcon from '@material-ui/icons/BugReport';
+import UpdateIcon from '@material-ui/icons/Update';
 
 import { useContext } from '../utils/context';
 import event from '../utils/event';
@@ -118,7 +119,17 @@ const Header = () => {
           <Typography variant='h6' className={classes.title}>
             Assembler Simulator
           </Typography>
-          <Slider className={classes.slider} defaultValue={20} style={{ color: "#fff", width: 200 }} />
+          <UpdateIcon  />
+          <Slider 
+            className={classes.slider} 
+            defaultValue={8} 
+            valueLabelDisplay="auto"
+            step={1}
+            marks
+            min={1}
+            max={10}
+            style={{ color: "#fff", width: 200, marginLeft: "1em", marginRight: "2em"}} 
+          />
           <Tooltip title="Expandir Macro (requestExpandMacros)">
             <Button color='inherit' onClick={handlePlay("requestExpandMacros")} disabled={playing} className={classes.button}>
               <AllOutIcon />
