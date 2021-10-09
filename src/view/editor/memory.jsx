@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useState} from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -10,55 +10,64 @@ import Paper from '@material-ui/core/Paper';
 
 
 
-const rows = [{},{},{},{},{}];
+const rows = [{}, {}, {}, {}, {}];
 
 const useStyles = makeStyles((theme) => ({
     root: {
-      display: 'flex',
-      marginTop: '0',
-      padding: '10px',
-      overflow: 'auto',
-      height: 'calc(100% - 48px)'
-      //height: `calc( ${props.height} - 16rem )`,
+        display: 'flex',
+        marginTop: '0',
+        padding: '10px',
+        overflow: 'auto',
+        height: 'calc(100% - 48px)'
+        //height: `calc( ${props.height} - 16rem )`,
     },
     table: {
-      alignContent: 'center',
-      alignItems: 'center',
-      justifyContent: 'center',
-      color: 'inherit',
-      backgroundColor: '#313241',
-      overflow: 'auto',
-      "& .MuiTableCell-root":{
-        borderColor: '#999',
-        color:"#fff"
-      }
+        alignContent: 'center',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: 'inherit',
+        backgroundColor: '#313241',
+        overflow: 'auto',
+        "& .MuiTableCell-root": {
+            borderColor: '#999',
+            color: "#fff"
+        }
     },
-  }));
+}));
 
-  const {ipcRenderer} = window.electron;
+const { ipcRenderer } = window.electron;
 
 const Memory = () => {
     const classes = useStyles();
 
-    const [memory,setMemory] = useState([]);
+    const [memory, setMemory] = useState([]);
 
     useEffect(() => {
-        ipcRenderer.on("cycle_memory",() => {
-
+        const memoryChanges = [];
+        let a = 0;
+        for (let i = 0; i < 32; i++) {
+            const t = [];
+            for (let j = 0; j < 16; j++) {
+                memoryChanges.push({ address: a++, newValue: Math.floor(Math.random() * 100) });
+            }
+        }
+        setMemory(memoryChanges);
+        ipcRenderer.on("cycle_memory", (evt, data) => {
+            setMemory(data);
         });
-    },[]);
+    }, []);
 
     const rows = useMemo(() => {
         const row = [];
-        for(let i=0;i<32;i++){
-            const t = [];
-            for(let j=0;j<16;j++){
-                t.push(<TableCell align='center'>{j}</TableCell>);
-            }
-            row.push({id:i,values:t});
+        for (let i = 0; i < 32; i++) {
+            row.push([]);
         }
+        memory.map((item) => {
+            const key = Math.floor(item.address / 16);
+            row[key].push(<TableCell align='center'>{item.newValue.toString("16")}</TableCell>);
+        });
         return row;
-    },[]);
+    }, [memory]);
 
     return (
         <div className={classes.root}>
@@ -68,9 +77,9 @@ const Memory = () => {
                         {rows.map((row, key) => (
                             <TableRow key={key}>
                                 <TableCell align='center'>
-                                    {parseInt(row.id * 22).toString("16").padStart(5,0)}
+                                    {parseInt(key * 22).toString("16").padStart(5, 0)}
                                 </TableCell>
-                                {row.values}
+                                {row}
                             </TableRow>
                         ))}
                     </TableBody>

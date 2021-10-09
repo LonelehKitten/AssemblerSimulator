@@ -3,11 +3,25 @@ import { makeStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
 
 import { useContext } from '../../utils/context';
 
-var remote = window.require('electron').remote;
-const { app } = window.require('electron').remote;
+import InfoIcon from '@material-ui/icons/Info';
+import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import ErrorIcon from '@material-ui/icons/Error';
+
+const messagesIcon = {
+  0: <InfoIcon />,
+  1: <ErrorIcon />,
+  2: <CheckCircleIcon />
+}
+
+const messagesType = {
+  0: 'info',
+  1: 'error',
+  2: 'success'
+}
 
 const useStyles = makeStyles((theme) => ({
   textField: {
@@ -54,27 +68,54 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: '20px 0px 0px 20px',
     minHeight: '30px',
     marginTop: '5px',
+    "& .MuiListItemIcon-root":{
+      minWidth: 28
+    },
+    "&.info": {
+      color: "rgb(166, 213, 250)",
+      "& .MuiSvgIcon-root": {
+        color: "rgb(166, 213, 250)",
+      }
+    },
+    "&.error": {
+      color: "rgb(250, 179, 174)",
+      "& .MuiSvgIcon-root": {
+        color: "rgb(250, 179, 174)",
+      }
+    },
+    "&.success": {
+      color: "rgb(183, 223, 185)",
+      "& .MuiSvgIcon-root": {
+        color: "rgb(183, 223, 185)",
+      }
+    }
   },
 }));
 
 const { ipcRenderer } = window.electron;
-
+/*
+0 = Info
+1 = Error
+2 = Sucess
+*/
 const Console = (props) => {
   const {
     addFile,
-    consoleFlag,
-    setConsoleFlag,
     alertShow
   } = useContext();
+
   const classes = useStyles();
   const consoleEndRef = useRef(null);
   const [history, setHistory] = useState([]);
+  const [stdIn,setstdIn] = useState(false);
 
   const handleSubmit = (e) => {
     if (e.keyCode == 13) {
-      const value = e.target.value;
-      if (value === '') return;
-      setHistory((oldValue) => [...oldValue, value]);
+      const message = e.target.value;
+      if (message === '') return;
+      const data = [{ message, type: 0 }];
+      console.log(data);
+      setHistory((oldValue) => [...oldValue, ...data]);
       e.target.value = '';
     }
   };
@@ -91,12 +132,18 @@ end VALEUSEGMENT
 */
 
   useEffect(() => {
+    // Evento do Console
     ipcRenderer.on('console', (e, message) => {
-      setHistory((oldValue) => [...oldValue, message]);
-      console.log(message);
+      console.log("message",message);
+      setHistory((oldValue) => [...oldValue, ...[message]]);
     });
+    ipcRenderer.on('cycle_stdin',(value) => {
+      setstdIn(value);
+    });
+  
+
+    // Evento da MacroExpandida
     ipcRenderer.on('macroExpanded', (e, message) => {
-      console.log('Teste', message);
       ipcRenderer.send(
         'invoke_save_file',
         JSON.stringify({
@@ -119,13 +166,17 @@ end VALEUSEGMENT
     <div id='console' {...props}>
       <List className={classes.root}>
         {history.map((item, key) => (
-          <ListItem key={key} className={classes.inputedTexts}>
-            <ListItemText fontFamily='VT323' primary={`>⠀${item?.message}`} />
+          <ListItem key={key} className={classes.inputedTexts + " " + messagesType[key]}>
+            <ListItemIcon>
+              {messagesIcon[key]}
+            </ListItemIcon>
+            <ListItemText fontFamily='VT323' primary={item?.message} />
           </ListItem>
         ))}
         <div ref={consoleEndRef}></div>
       </List>
       <input
+        disabled={!stdIn}
         onKeyDown={handleSubmit}
         placeholder='Digite um comando . . .'
         className={classes.textField}

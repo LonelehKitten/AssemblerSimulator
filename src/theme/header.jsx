@@ -69,7 +69,8 @@ const requests = [
   'requestNextStep',
   'requestKillProcess',
   'requestClockChange',
-  'requestSendInput'
+  'requestSendInput',
+  'simulate'
 ];
 
 const Header = () => {
@@ -89,10 +90,10 @@ const Header = () => {
 
   const handlePlay = (type) => () => {
     // play_expandMacros
-    if (!isEmpty(currentFile?.code)) {
+    if (!isEmpty(currentFile?.code) || type == "simulate") {
       if (type == "requestEndTest" || type == "requestTest" || type == "requestKillProcess") setPlaying(false);
       else setPlaying(true);
-      event("play", [type, [currentFile.code]], () => {
+      event("play", [type, [currentFile?.code]], () => {
         setPlaying(false);
       });
     }
@@ -174,7 +175,7 @@ const Header = () => {
       </Drawer>
       <Menu
         anchorEl={anchorEl}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        //anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         id="debug"
         keepMounted
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}

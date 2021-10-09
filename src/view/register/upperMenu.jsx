@@ -1,3 +1,4 @@
+import {useMemo} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 
@@ -65,10 +66,20 @@ const useStyles = makeStyles((theme, props) => ({
 const listBits = ["OF", "SF", "ZF", "IF", "PF", "CF"]
 const sr = "11100";
 const pc = "1001111";
+// (0, cf), (6, pf), (7, if), (8, zf), (9, sf), (12, of)
 
-const UpperMenu = ({register}) => {
+const UpperMenu = ({ register }) => {
   const classes = useStyles();
-console.log(register.PC);
+
+  const flags = useMemo(() => [
+    register.SR.asFlags[12],
+    register.SR.asFlags[9],
+    register.SR.asFlags[8],
+    register.SR.asFlags[7],
+    register.SR.asFlags[6],
+    register.SR.asFlags[0]
+  ], [register]);
+
   return (
     <>
       <section style={{ margin: 10, display: "flex" }}>
@@ -83,7 +94,7 @@ console.log(register.PC);
         <Paper className={classes.root + " " + classes.bits}>
           <div className={classes.row}>
             {listBits.map((name, key) =>
-              <div><span className={register.SR.asFlags[key] ? "active" : ""}>{name}</span></div>
+              <div><span className={flags[key] ? "active" : ""}>{name}</span></div>
             )}
           </div>
         </Paper>
