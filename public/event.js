@@ -27,6 +27,14 @@ emitter.on('macroExpanded', (data) => {
     clearInterval(MacroExpandedEventObserver)
     playing = false;
 });
+emitter.on("programToMemory",(data) => {
+   // const total = data.length/2;
+    const text= [];
+    for(let i=0;i<data.length;i += 2){
+        text.push(data[i].toString(16)+data[i+1].toString(16));
+    }
+    getCurrentBrowser()?.webContents.send("init_memory",text);
+});
 emitter.on('cycle', (data) => {
     if(data == "halt"){
         playing = false;

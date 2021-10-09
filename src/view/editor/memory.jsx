@@ -69,16 +69,8 @@ const { ipcRenderer } = window.electron;
 
 const Memory = () => {
     const classes = useStyles();
-    const {memory,setMemory} = useContext();
+    const {memory} = useContext();
     const [page, setPage] = useState(1);
-
-    useEffect(() => {
-        //setMemory(memoryChanges);
-        ipcRenderer.on("cycle_memory", (evt, data) => {
-            if(typeof data.address == undefined || typeof data.newValue == undefined) return;
-            setMemory((old) => old.map((value,key) => key == data.address ? data.newValue : value));
-        });
-    }, []);
 
     const rows = useMemo(() => {
         const row = [];
@@ -86,7 +78,7 @@ const Memory = () => {
         memory.slice(512 * (page-1),512 * page).map((item,key) => {
             const id = Math.floor(key / 16);
             if(row[id] == undefined) row[id] = [];
-            row[id].push(<TableCell align='center'>{item.toString("16")}</TableCell>);
+            row[id].push(<TableCell align='center'>{item}</TableCell>);
         });
         return row;
     }, [memory,page]);
