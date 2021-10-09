@@ -7,14 +7,17 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
+import { IconButton } from '@material-ui/core';
 
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 
 
 const rows = [{}, {}, {}, {}, {}];
 
 const useStyles = makeStyles((theme) => ({
     root: {
-        display: 'flex',
+        display: 'block',
         marginTop: '0',
         padding: '10px',
         overflow: 'auto',
@@ -34,7 +37,21 @@ const useStyles = makeStyles((theme) => ({
         }
     },
     form: {
-        display:"block"
+        display:"flex",
+        flex:1,
+        "& input":{
+
+            background:'transparent',
+            border:'none',
+            color:'#f1f1f1',
+            outline: "none !important",
+            textAlign: 'center',
+            flexGrow: 1
+        },
+        "& .MuiIconButton-root":{
+            color:"#fff",
+            flexGrow: 1
+        }
     }
 }));
 
@@ -74,20 +91,34 @@ const Memory = () => {
     }, [memory,page]);
 
     const handleKeyDown = (e) => {
-        if(e.keyCode == 13) setPage(e.target.value);
+        if(e.target.value == ""){
+            setPage("");
+        }else{
+            handlePageChange(parseInt(e.target.value))();
+        }
     }
+
+    const handlePageChange = (current) => () => {
+        console.log(current);
+        if(current < 1) current = 1;
+        if(current > 127) current = 127;
+        setPage(current);
+    }
+
     return (
         <div className={classes.root}>
             <div className={classes.form}>
-                <input type='number' defaultValue={page} onKeyDown={handleKeyDown}/>
+                <IconButton onClick={handlePageChange(page-1)}><ChevronLeftIcon/></IconButton>
+                <input type='number' value={page} onChange={handleKeyDown}/>
+                <IconButton onClick={handlePageChange(page+1)}><ChevronRightIcon/></IconButton>
             </div>
-            <TableContainer component={Paper} style={{ backgroundColor: '#313241' }}>
+            <TableContainer component={Paper} style={{ backgroundColor: '#313241',height:'calc(100% - 50px)' }}>
                 <Table className={classes.table} aria-label='resgistry operation table'>
                     <TableBody>
                         {rows.map((row, key) => (
                             <TableRow key={key}>
                                 <TableCell align='center'>
-                                    {String(parseInt(key * 16 + (page-1)*512)).padStart(5, 0)}
+                                    {parseInt(key * 16 + (page-1)*512).toString("16").padStart(5, 0)}
                                 </TableCell>
                                 {row}
                             </TableRow>
