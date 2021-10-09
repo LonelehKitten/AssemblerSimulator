@@ -8,6 +8,7 @@ namespace ServiceBus {
     void startAssembleAndRunBySteps();
     void startRun();
     void startRunBySteps();
+    void startTest();
     //void startExpandMacros();
     //void startExpandMacros();
 };

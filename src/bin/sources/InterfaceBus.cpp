@@ -12,15 +12,23 @@ InterfaceBus::InterfaceBus() :
     service(Service::NONE)
 {
     inputReport.ready = false;
+    inputReport.clock = 8;
     outputReport.ready = false;
 }
 
 void InterfaceBus::init() {
+    running = true;
     producerThread = new std::thread(startProducer);
 }
 
 void InterfaceBus::finish() {
+    if(service != Service::NONE) {
 
+    }
+    setRunning(false);
+    setWaiting(false);
+    producerThread->join();
+    delete producerThread;
 }
 
 void startProducer() {
@@ -30,7 +38,7 @@ void startProducer() {
 void InterfaceBus::producer() {
     while(running) {
         std::this_thread::sleep_for(1s);
-        waiting = true;
+        setWaiting(true);
         switch(service) {
             case Service::EXPAND_MACROS:
                 serviceThread = new std::thread(ServiceBus::startExpandMacros);
@@ -47,15 +55,64 @@ void InterfaceBus::producer() {
             case Service::RUN_BY_STEPS:
                 serviceThread = new std::thread(ServiceBus::startRunBySteps);
                 break;
+            case Service::TEST:
+                serviceThread = new std::thread(ServiceBus::startTest);
+                break;
             default:
-                waiting = false;
+                setWaiting(false);
         }
 
-        while(waiting && running);
+        if(!isWaiting()) continue;
 
+        service = Service::NONE;
+        while(isWaiting() && isRunning());
+        std::this_thread::sleep_for(250ms);
+        dispatchLog("thread primaria liberada", LogStatus::INFO);
         serviceThread->join();
         delete serviceThread;
     }
+}
+
+bool InterfaceBus::isRunning() {
+    bool running;
+    mutex.lock();
+    running = this->running;
+    mutex.unlock();
+    return running;
+}
+
+void InterfaceBus::setRunning(bool running) {
+    mutex.lock();
+    this->running = running;
+    mutex.unlock();
+}
+
+bool InterfaceBus::isWaiting() {
+    bool waiting;
+    mutex.lock();
+    waiting = this->waiting;
+    mutex.unlock();
+    return waiting;
+}
+
+void InterfaceBus::setWaiting(bool waiting) {
+    mutex.lock();
+    this->waiting = waiting;
+    mutex.unlock();
+}
+
+bool InterfaceBus::isUpdating() {
+    bool updating;
+    mutex.lock();
+    updating = this->updating;
+    mutex.unlock();
+    return updating;
+}
+
+void InterfaceBus::setUpdating(bool updating) {
+    mutex.lock();
+    this->updating = updating;
+    mutex.unlock();
 }
 
 void InterfaceBus::runExpandMacros() {
@@ -67,26 +124,38 @@ void InterfaceBus::runExpandMacros() {
 
 void InterfaceBus::runAssembleAndRun() {
 
-    while(updating);
-    waiting = false;
+    while(isUpdating());
+    setWaiting(false);
 }
 
 void InterfaceBus::runAssembleAndRunBySteps() {
 
-    while(updating);
-    waiting = false;
+    while(isUpdating());
+    setWaiting(false);
 }
 
 void InterfaceBus::runRun() {
 
-    while(updating);
-    waiting = false;
+    while(isUpdating());
+    setWaiting(false);
 }
 
 void InterfaceBus::runRunBySteps() {
 
-    while(updating);
-    waiting = false;
+    while(isUpdating());
+    setWaiting(false);
+}
+
+void InterfaceBus::runTest() {
+
+    for(int i = 0; i < 10; i++) {
+        dispatchLog("teste info", LogStatus::INFO);
+        dispatchLog("teste error", LogStatus::ERROR);
+        dispatchLog("teste success", LogStatus::SUCCESS);
+        std::this_thread::sleep_for(1s);
+    }
+    //service = Service::NONE;
+    setWaiting(false);
 }
 
 EventEmitter InterfaceBus::getEventEmitter() {
@@ -129,25 +198,24 @@ void InterfaceBus::dispatchLog(std::string message, LogStatus status) {
 // =======================================================
 //          VERIFICADORES DE EVENTOS DESPACHADOS
 // =======================================================
-void InterfaceBus::checkMacroExpanded(NodeInfo& info) {
-    this->info = &info;
+void InterfaceBus::checkMacroExpanded(NodeInfo * info) {
+    this->info = info;
     if(!outputReport.ready) return;
     trigger("macroExpanded", outputReport.code);
-    service = Service::NONE;
     outputReport.ready = false;
-    waiting = false;
+    setWaiting(false);
 }
 
-void InterfaceBus::checkCycle(NodeInfo& info) {
-    this->info = &info;
+void InterfaceBus::checkCycle(NodeInfo * info) {
+    this->info = info;
     if(!outputReport.ready) return;
     trigger("cycle", outputReport.response);
     outputReport.ready = false;
-    updating = false;
+    setUpdating(false);
 }
 
-void InterfaceBus::checkLog(NodeInfo& info) {
-    this->info = &info;
+void InterfaceBus::checkLog(NodeInfo * info) {
+    this->info = info;
     if(logMessages.empty()) return;
     trigger("log", logMessages.front());
     logMessages.pop();
@@ -160,8 +228,11 @@ void InterfaceBus::checkLog(NodeInfo& info) {
  * Expansão de macro
  * @param instruções em string
  */
-void InterfaceBus::serviceExpandMacros(V8Var code) {
+void InterfaceBus::serviceExpandMacros(NodeInfo * info, V8Var code) {
+    this->info = info;
+    std::cout << "vai atribuir o code" << std::endl;
     inputReport.code = castV8toString(code);
+    std::cout << "vai atribuir o service" << std::endl;
     service = Service::EXPAND_MACROS;
 }
 
@@ -170,7 +241,8 @@ void InterfaceBus::serviceExpandMacros(V8Var code) {
  * @param instruções em string
  * @param 128Kb de memória em um array de int
  */
-void InterfaceBus::serviceAssembleAndRun(V8Var code, V8Var memory) {
+void InterfaceBus::serviceAssembleAndRun(NodeInfo * info, V8Var code, V8Var memory) {
+    this->info = info;
     inputReport.code = castV8toString(code);
     inputReport.memory = castV8toByteArray(memory);
     service = Service::ASSEMBLE_AND_RUN;
@@ -180,7 +252,8 @@ void InterfaceBus::serviceAssembleAndRun(V8Var code, V8Var memory) {
  * Montagem e execução passo a passo
  * @param instruções em string
  */
-void InterfaceBus::serviceAssembleAndRunBySteps(V8Var code, V8Var memory) {
+void InterfaceBus::serviceAssembleAndRunBySteps(NodeInfo * info, V8Var code, V8Var memory) {
+    this->info = info;
     inputReport.code = castV8toString(code);
     inputReport.memory = castV8toByteArray(memory);
     service = Service::ASSEMBLE_AND_RUN_BY_STEPS;
@@ -190,7 +263,8 @@ void InterfaceBus::serviceAssembleAndRunBySteps(V8Var code, V8Var memory) {
  * Requisita execução direta
  * @param bytecode em string
  */
-void InterfaceBus::serviceRun(V8Var bytecode, V8Var memory) {
+void InterfaceBus::serviceRun(NodeInfo * info, V8Var bytecode, V8Var memory) {
+    this->info = info;
     inputReport.bytecode = castV8toByteArray(bytecode);
     inputReport.memory = castV8toByteArray(memory);
     service = Service::RUN;
@@ -200,10 +274,16 @@ void InterfaceBus::serviceRun(V8Var bytecode, V8Var memory) {
  * Requisita execução passo a passo
  * @param bytecode em string
  */
-void InterfaceBus::serviceRunBySteps(V8Var bytecode,  V8Var memory) {
+void InterfaceBus::serviceRunBySteps(NodeInfo * info, V8Var bytecode,  V8Var memory) {
+    this->info = info;
     inputReport.bytecode = castV8toByteArray(bytecode);
     inputReport.memory = castV8toByteArray(memory);
     service = Service::RUN_BY_STEPS;
+}
+
+// test
+void InterfaceBus::serviceTest() {
+    service = Service::TEST;
 }
 
 // =======================================================
@@ -287,4 +367,8 @@ InterfaceBus& InterfaceBus::getInstance() {
 
 double InterfaceBus::getMilliseconds() {
     return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+}
+
+milliseconds InterfaceBus::getClock() {
+    return milliseconds(1000/inputReport.clock);
 }

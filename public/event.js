@@ -1,43 +1,96 @@
-const asmr = require('bindings')('ASMR');
+const bindings = require('bindings')
 //const addon = require('../build/Release/addon.node');
 const EventEmitter = require('events');
 const fs = require('fs');
 const { BrowserWindow, ipcMain, dialog, webContents } = require('electron');
 
-// callback(function (event, data) {
-//   webContents.getFocusedWebContents().send('on_event', event, data);
-//   console.log(event, data);
-// });]
-const isAsmr = typeof asmr != "undefined";
+//const isAsmr = typeof asmr != "undefined"; // Para não dar pau no windows
+// require('bindings')('ASMR')
+const asmr = bindings('ASMR') ?? null; // Pega o ASMR se ele estiver compilado
+console.log(asmr);
+const isAsmr = asmr != null; 
+if(isAsmr) asmr.init();
 const emitter = new EventEmitter();
+let playing = false;
+let MacroExpandedEventObserver = null, CycleEventObserver = null, LogEventObserver = null;
 
-const requests = ['requestExpandMacros','requestAssembleAndRun','requestAssembleAndRunBySteps','requestRun','requestRunBySteps','requestNextStep','requestKillProcess'];
+const getCurrentBrowser = () => BrowserWindow.getAllWindows()[0];
 
+// Eventos
 emitter.on('macroExpanded', (data) => {
-    BrowserWindow.getAllWindows()[0].webContents.send("macroExpanded",data);
+    getCurrentBrowser()?.webContents.send("macroExpanded",data);
+    clearInterval(MacroExpandedEventObserver)
+    playing = false;
 });
 emitter.on('cycle', (data) => {
-    BrowserWindow.getAllWindows()[0].webContents.send("console",(data));
+    if(data == "halt"){
+        playing = false;
+        clearInterval(CycleEventObserver)
+    }else{
+        const array = JSON.parse(data);
+        console.log(array);
+        getCurrentBrowser()?.webContents.send("cycle_memory",array.memoryChanges);
+        getCurrentBrowser()?.webContents.send("cycle_registers",array.registers);
+    }
 });
 emitter.on('log', (data) => {
-    BrowserWindow.getAllWindows()[0].webContents.send("console",(data));
+    getCurrentBrowser()?.webContents.send("console",JSON.parse(data));
 });
 
-if(isAsmr) {
-    console.log("INICIALIZANDO CPP")
-    asmr.init(emitter.emit.bind(emitter)); // Para não dar pau no windows
-}
+const getEmitter = () => emitter.emit.bind(emitter);
 
+LogEventObserver = setInterval(() => asmr?.observeLogFiring(getEmitter()), 10);
+
+// Requisições
+const requests = [
+    'requestExpandMacros',
+    'requestTest',
+    'requestAssembleAndRun',
+    'requestAssembleAndRunBySteps',
+    'requestRun',
+    'requestRunBySteps',
+    'requestNextStep',
+    'requestKillProcess',
+    'requestClockChange',
+    'requestSendInput'
+];
 ipcMain.on("play", (event, type, params) => {
+    console.log("Play INIT")
+    // Executa as requisições após o evento do front
     if(requests.includes(type) && isAsmr){
+        console.log("Request",type,params);
         asmr[type].apply(asmr,params);
-    }else{
+        console.log("Passou do Apply");
+        playing = true;
+
+        // Adicionar os observações
+        switch(type){
+            case "requestExpandMacros":
+                console.log("Observer Macro");
+                MacroExpandedEventObserver = setInterval(() => asmr.observeExpandedMacrosFiring(getEmitter()), 10);
+                console.log("Passou");
+                break;
+            case "requestAssembleAndRun":
+            case "requestAssembleAndRunBySteps":
+            case "requestRun":
+            case "requestRunBySteps":
+                console.log("Observer Run");
+                CycleEventObserver = setInterval(() => asmr.observeCycleFiring(getEmitter()), 10);
+                console.log("Passou");
+                break;
+        }
+    }
+
+    console.log("End");
+    // Para simulações das memorias e registradores
+    if(type == "simulate"){
         const array = JSON.parse(simulate());
-        BrowserWindow.getAllWindows()[0].webContents.send("cycle_memory",array.memoryChanges);
-        BrowserWindow.getAllWindows()[0].webContents.send("cycle_registers",array.registers);
+        getCurrentBrowser()?.webContents.send("cycle_memory",array.memoryChanges);
+        getCurrentBrowser()?.webContents.send("cycle_registers",array.registers);
     }
 })
 
+// Simulação
 const simulate = () => {
     const json = {
         registers: {
@@ -61,19 +114,6 @@ const simulate = () => {
     return JSON.stringify(json);
 }
 
-/*
-ipcMain.on('play_expandMacros', (event, code) => {
-    const emitter = new EventEmitter();
-    console.log(code);
-    emitter.on('success', (evt) => {
-        event.sender.send('on_console', evt);
-        event.sender.send('expand_macro', evt);
-        console.log('### START ... ' + evt);
-    });
-    //event.sender.send('expand_macro', "novo codigo"); //  Para debugar
-    //addon.expandMacros(code, emitter.emit.bind(emitter));
-});
-*/
 // Salvar Arquivo
 ipcMain.on('invoke_save_file', async (event, data) => {
     let file = JSON.parse(data);
@@ -122,3 +162,12 @@ ipcMain.on('invoke_open_file', async (event, data) => {
         event.sender.send('open_file', false, err);
     }
 });
+
+const ASMRFinish = () => {
+    if(isAsmr) asmr.finish();
+    clearInterval(LogEventObserver);
+}
+
+module.exports = {
+    ASMRFinish
+}

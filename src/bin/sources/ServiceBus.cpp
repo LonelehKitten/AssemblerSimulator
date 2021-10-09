@@ -17,6 +17,9 @@ namespace ServiceBus {
     void startRunBySteps() {
         InterfaceBus::getInstance().runRunBySteps();
     }
+    void startTest() {
+        InterfaceBus::getInstance().runTest();
+    }
     //void startExpandMacros();
     //void startExpandMacros();
 };

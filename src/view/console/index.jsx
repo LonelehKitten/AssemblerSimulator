@@ -120,7 +120,7 @@ end VALEUSEGMENT
       <List className={classes.root}>
         {history.map((item, key) => (
           <ListItem key={key} className={classes.inputedTexts}>
-            <ListItemText fontFamily='VT323' primary={`>⠀${item}`} />
+            <ListItemText fontFamily='VT323' primary={`>⠀${item?.message}`} />
           </ListItem>
         ))}
         <div ref={consoleEndRef}></div>

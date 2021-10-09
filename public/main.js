@@ -3,7 +3,7 @@ const isDev = require('electron-is-dev');
 const path = require('path');
 
 require('@electron/remote/main').initialize();
-require('./event');
+const {ASMRFinish} = require('./event');
 
 function createWindow() {
   // Create the browser window.
@@ -43,6 +43,7 @@ app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') {
     app.quit();
   }
+  ASMRFinish();
 });
 
 app.on('activate', function () {
