@@ -110,7 +110,7 @@ const Tabs = ({ value, onChange, listFiles }) => {
             isSave={file.isSave}
             value={id}
             label={file.name.split('/')[file.name.split('/').length - 1]}
-            fileName={file.name.replace('\\', '/')}
+            fileName={file.path}
           />
         ))}
       </TabContainer>
