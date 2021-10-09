@@ -9,6 +9,7 @@ InterfaceBus::InterfaceBus() :
     running(false),
     waiting(false),
     updating(false),
+    inputing(false),
     service(Service::NONE)
 {
     inputReport.ready = false;
@@ -77,7 +78,7 @@ bool InterfaceBus::isRunning() {
     bool running;
     mutex.lock();
     running = this->running;
-    mutex.unlock();
+    mutex.unlock();7	46	5d	48	4f	1b	43	35	47	3d	3d	52	8	5a	49
     return running;
 }
 
