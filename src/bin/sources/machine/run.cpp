@@ -5,17 +5,15 @@ cd bin
 cd sources
 cd machine
 
-g++ Z808Processor.cpp run.cpp -o run 
+g++ Z808Processor.cpp Z808Machine.cpp run.cpp -o run 
 run.exe
 */
 
 #include <iostream>
-#include "Z808Processor.h"
+#include "Z808Machine.h"
 
 int main()
 {
-    Z808Processor processor;
-
     std::vector<Z808Byte> memory;
 
     //INSERIR DENTRO DO VETOR DE MEMORIA TODAS AS INSTRUCOES DE UM PROGRAMA EXEMPLO
@@ -86,6 +84,13 @@ int main()
     * hlt
     */
 
+   
+    Z808Machine machine(&memory);
+
+    machine.run();
+
+    /*
+
     int choice;
     std::vector<Z808Word> registradores;
     int incremento = 0;
@@ -115,7 +120,7 @@ int main()
             incremento = processor.execute(memory);
         //std::cout << "Instrucao executada: " << std::hex << (int)memory[i] << std::endl;
         //std::cout << "Deslocamento para somar com i: " << std::dec << incremento << std::endl;
-        //std::cout << "Deu erro? " << processor.instructionError() ? "true" : "false" << std::endl;
+        //std::cout << "Deu erro? " << procesros.instructionError() ? "true" : "false" << std::endl;
         
         i += incremento;
         
@@ -165,6 +170,8 @@ int main()
         //if (!choice)
         //    break;
     }
+
+    */
 
     return 0;
 }
