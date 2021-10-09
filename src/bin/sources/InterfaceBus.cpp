@@ -115,6 +115,20 @@ void InterfaceBus::setUpdating(bool updating) {
     mutex.unlock();
 }
 
+bool InterfaceBus::isInputing() {
+    bool inputing;
+    mutex.lock();
+    inputing = this->inputing;
+    mutex.unlock();
+    return inputing;
+}
+
+void InterfaceBus::setInputing(bool inputing) {
+    mutex.lock();
+    this->inputing = inputing;
+    mutex.unlock();
+}
+
 void InterfaceBus::runExpandMacros() {
     std::vector<Semantic *> * semantics = recognitionManager->analyze(inputReport.code, false);
     assembler = new Assembler(semantics);
@@ -302,7 +316,9 @@ void InterfaceBus::serviceNextStep() {
  * @param frequencia em int
  */
 void InterfaceBus::serviceClockChange(V8Var clock) {
-
+    mutex.lock();
+    inputReport.clock = castV8toInt(clock);
+    mutex.unlock();
 }
 
 /**
@@ -346,7 +362,7 @@ std::string InterfaceBus::castV8toString(V8Var jsString) {
 }
 
 int InterfaceBus::castV8toInt(V8Var jsNumber) {
-    return (int) jsNumber->NumberValue(getV8Context()).FromJust();
+    return (int) jsNumber->NumberValue(info->GetIsolate()->GetCurrentContext()).FromJust();
 }
 
 char * InterfaceBus::castV8toByteArray(V8Var jsNumberArray) {
@@ -370,5 +386,8 @@ double InterfaceBus::getMilliseconds() {
 }
 
 milliseconds InterfaceBus::getClock() {
-    return milliseconds(1000/inputReport.clock);
+    mutex.lock();
+    milliseconds clock(1000/inputReport.clock);
+    mutex.unlock();
+    return clock;
 }

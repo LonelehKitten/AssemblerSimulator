@@ -9,6 +9,7 @@
 #include <mutex>
 #include <string>
 #include <queue>
+#include <cstdlib>
 
 #include "analyzer/RecognitionManager.h"
 #include "assembler/Assembler.h"
@@ -69,7 +70,7 @@ class InterfaceBus {
          std::thread * producerThread, * serviceThread;
          std::mutex mutex;
 
-         bool running, waiting, updating;
+         bool running, waiting, updating, inputing;
          Service service;
 
          InputReport inputReport;
@@ -87,14 +88,17 @@ class InterfaceBus {
          EventEmitter getEventEmitter();
          V8Context getV8Context();
 
-         bool isRunning();
          void setRunning(bool running);
-         bool isWaiting();
          void setWaiting(bool waiting);
-         bool isUpdating();
          void setUpdating(bool updating);
+         void setInputing(bool inputing);
 
     public:
+
+         bool isRunning();
+         bool isWaiting();
+         bool isUpdating();
+         bool isInputing();
 
          InterfaceBus(InterfaceBus const&) = delete;
          void operator=(InterfaceBus const&) = delete;
