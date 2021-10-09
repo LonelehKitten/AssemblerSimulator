@@ -11,6 +11,7 @@ import { IconButton } from '@material-ui/core';
 
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import { useContext } from '../../utils/context';
 
 
 const rows = [{}, {}, {}, {}, {}];
@@ -46,10 +47,19 @@ const useStyles = makeStyles((theme) => ({
             color:'#f1f1f1',
             outline: "none !important",
             textAlign: 'center',
-            flexGrow: 1
+            marginTop: 12
         },
         "& .MuiIconButton-root":{
             color:"#fff",
+        },
+        "& .buttonRight":{
+            textAlign:"right"
+        },
+        "& .center":{
+            textAlign:'center'
+        },
+        "&>div":{
+
             flexGrow: 1
         }
     }
@@ -59,23 +69,14 @@ const { ipcRenderer } = window.electron;
 
 const Memory = () => {
     const classes = useStyles();
-
-    const [memory, setMemory] = useState([]);
+    const {memory,setMemory} = useContext();
     const [page, setPage] = useState(1);
 
     useEffect(() => {
-        const memoryChanges = [];
-        let a = 0;
-        for(let b=0; b< 128; b++){
-            for (let i = 0; i < 32; i++) {
-                for (let j = 0; j < 16; j++) {
-                    memoryChanges.push(Math.floor(Math.random() * 100));
-                }
-            }
-        }
-        setMemory(memoryChanges);
+        //setMemory(memoryChanges);
         ipcRenderer.on("cycle_memory", (evt, data) => {
-            setMemory(data);
+            if(typeof data.address == undefined || typeof data.newValue == undefined) return;
+            setMemory((old) => old.map((value,key) => key == data.address ? data.newValue : value));
         });
     }, []);
 
@@ -99,7 +100,6 @@ const Memory = () => {
     }
 
     const handlePageChange = (current) => () => {
-        console.log(current);
         if(current < 1) current = 1;
         if(current > 127) current = 127;
         setPage(current);
@@ -108,9 +108,16 @@ const Memory = () => {
     return (
         <div className={classes.root}>
             <div className={classes.form}>
-                <IconButton onClick={handlePageChange(page-1)}><ChevronLeftIcon/></IconButton>
-                <input type='number' value={page} onChange={handleKeyDown}/>
-                <IconButton onClick={handlePageChange(page+1)}><ChevronRightIcon/></IconButton>
+                <div>
+                    <IconButton onClick={handlePageChange(page-1)}><ChevronLeftIcon/></IconButton>
+                </div>
+                <div className='center'>
+                    <input type='number' value={page} onChange={handleKeyDown}/>
+                </div>
+                <div className='buttonRight'>
+                    <IconButton onClick={handlePageChange(page+1)}><ChevronRightIcon/></IconButton>
+
+                </div>
             </div>
             <TableContainer component={Paper} style={{ backgroundColor: '#313241',height:'calc(100% - 50px)' }}>
                 <Table className={classes.table} aria-label='resgistry operation table'>

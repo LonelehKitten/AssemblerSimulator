@@ -92,14 +92,6 @@ ipcMain.on("play", (event, type, params) => {
 
 // Simulação
 const simulate = () => {
-    const memoryChanges = [];
-    let a =0;
-    for(let i=0;i<32;i++){
-        const t = [];
-        for(let j=0;j<16;j++){
-            memoryChanges.push({address: a++,newValue: Math.floor(Math.random() * 1000)});
-        }
-    }
     const json = {
         registers: {
             AX: Math.random() * 50,
@@ -117,7 +109,10 @@ const simulate = () => {
         },
         stdout: Math.random() % 5 == 0 ? "Teste "+Date.now() : "",
         stdin: Math.random() % 2 == 0,
-        memoryChanges:{}
+        memoryChanges:{
+            address: 10,
+            newValue: Math.floor(Math.random() * 1000)
+        }
     }
     return JSON.stringify(json);
 }
