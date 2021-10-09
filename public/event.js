@@ -12,8 +12,7 @@ const isAsmr = asmr != null;
 if(isAsmr) asmr.init();
 const emitter = new EventEmitter();
 let playing = false;
-
-// qnd requestExpandMacros for chamado
+let MacroExpandedEventObserver = null, CycleEventObserver = null, LogEventObserver = null;
 
 const getCurrentBrowser = () => BrowserWindow.getAllWindows()[0];
 
@@ -21,6 +20,7 @@ const getCurrentBrowser = () => BrowserWindow.getAllWindows()[0];
 emitter.on('macroExpanded', (data) => {
     getCurrentBrowser()?.webContents.send("macroExpanded",data);
     clearInterval(MacroExpandedEventObserver)
+    playing = false;
 });
 emitter.on('cycle', (data) => {
     if(data == "halt"){
@@ -39,9 +39,7 @@ emitter.on('log', (data) => {
 
 const getEmitter = () => emitter.emit.bind(emitter);
 
-let MacroExpandedEventObserver = null, CycleEventObserver = null;
-
-let LogEventObserver = setInterval(() => asmr?.observeLogFiring(getEmitter()), 10);
+LogEventObserver = setInterval(() => asmr?.observeLogFiring(getEmitter()), 10);
 
 // Requisições
 const requests = [

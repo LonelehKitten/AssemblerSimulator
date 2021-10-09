@@ -6,6 +6,7 @@
 #include <chrono>
 #include <iostream>
 #include <thread>
+#include <mutex>
 #include <string>
 #include <queue>
 
@@ -66,6 +67,7 @@ class InterfaceBus {
          Z808Machine * machine;
 
          std::thread * producerThread, * serviceThread;
+         std::mutex mutex;
 
          bool running, waiting, updating;
          Service service;
@@ -84,6 +86,13 @@ class InterfaceBus {
 
          EventEmitter getEventEmitter();
          V8Context getV8Context();
+
+         bool isRunning();
+         void setRunning(bool running);
+         bool isWaiting();
+         void setWaiting(bool waiting);
+         bool isUpdating();
+         void setUpdating(bool updating);
 
     public:
 
@@ -200,7 +209,6 @@ class InterfaceBus {
 
          double getMilliseconds();
          milliseconds getClock();
-
 };
 
 void startProducer();

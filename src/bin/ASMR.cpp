@@ -126,6 +126,12 @@ void moduleExports(v8::Local<v8::Object> exports) {
                    .ToLocalChecked());
 
   exports->Set(context,
+               Nan::New("finish").ToLocalChecked(),
+               Nan::New<v8::FunctionTemplate>(finish)
+                   ->GetFunction(context)
+                   .ToLocalChecked());
+
+  exports->Set(context,
                Nan::New("requestExpandMacros").ToLocalChecked(),
                Nan::New<v8::FunctionTemplate>(requestExpandMacros)
                    ->GetFunction(context)
@@ -178,7 +184,7 @@ void moduleExports(v8::Local<v8::Object> exports) {
                Nan::New<v8::FunctionTemplate>(requestKillProcess)
                    ->GetFunction(context)
                    .ToLocalChecked());
-  //==
+
   exports->Set(context,
                Nan::New("observeExpandedMacrosFiring").ToLocalChecked(),
                Nan::New<v8::FunctionTemplate>(observeExpandedMacrosFiring)

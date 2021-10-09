@@ -25,8 +25,8 @@ void InterfaceBus::finish() {
     if(service != Service::NONE) {
 
     }
-    running = false;
-    waiting = false;
+    setRunning(false);
+    setWaiting(false);
     producerThread->join();
     delete producerThread;
 }
@@ -38,7 +38,7 @@ void startProducer() {
 void InterfaceBus::producer() {
     while(running) {
         std::this_thread::sleep_for(1s);
-        waiting = true;
+        setWaiting(true);
         switch(service) {
             case Service::EXPAND_MACROS:
                 serviceThread = new std::thread(ServiceBus::startExpandMacros);
@@ -59,17 +59,60 @@ void InterfaceBus::producer() {
                 serviceThread = new std::thread(ServiceBus::startTest);
                 break;
             default:
-                waiting = false;
+                setWaiting(false);
         }
 
-        if(!waiting) continue;
+        if(!isWaiting()) continue;
 
-        while(waiting && running);
+        service = Service::NONE;
+        while(isWaiting() && isRunning());
         std::this_thread::sleep_for(250ms);
-
+        dispatchLog("thread primaria liberada", LogStatus::INFO);
         serviceThread->join();
         delete serviceThread;
     }
+}
+
+bool InterfaceBus::isRunning() {
+    bool running;
+    mutex.lock();
+    running = this->running;
+    mutex.unlock();
+    return running;
+}
+
+void InterfaceBus::setRunning(bool running) {
+    mutex.lock();
+    this->running = running;
+    mutex.unlock();
+}
+
+bool InterfaceBus::isWaiting() {
+    bool waiting;
+    mutex.lock();
+    waiting = this->waiting;
+    mutex.unlock();
+    return waiting;
+}
+
+void InterfaceBus::setWaiting(bool waiting) {
+    mutex.lock();
+    this->waiting = waiting;
+    mutex.unlock();
+}
+
+bool InterfaceBus::isUpdating() {
+    bool updating;
+    mutex.lock();
+    updating = this->updating;
+    mutex.unlock();
+    return updating;
+}
+
+void InterfaceBus::setUpdating(bool updating) {
+    mutex.lock();
+    this->updating = updating;
+    mutex.unlock();
 }
 
 void InterfaceBus::runExpandMacros() {
@@ -81,26 +124,26 @@ void InterfaceBus::runExpandMacros() {
 
 void InterfaceBus::runAssembleAndRun() {
 
-    while(updating);
-    waiting = false;
+    while(isUpdating());
+    setWaiting(false);
 }
 
 void InterfaceBus::runAssembleAndRunBySteps() {
 
-    while(updating);
-    waiting = false;
+    while(isUpdating());
+    setWaiting(false);
 }
 
 void InterfaceBus::runRun() {
 
-    while(updating);
-    waiting = false;
+    while(isUpdating());
+    setWaiting(false);
 }
 
 void InterfaceBus::runRunBySteps() {
 
-    while(updating);
-    waiting = false;
+    while(isUpdating());
+    setWaiting(false);
 }
 
 void InterfaceBus::runTest() {
@@ -111,8 +154,8 @@ void InterfaceBus::runTest() {
         dispatchLog("teste success", LogStatus::SUCCESS);
         std::this_thread::sleep_for(1s);
     }
-    service = Service::NONE;
-    waiting = false;
+    //service = Service::NONE;
+    setWaiting(false);
 }
 
 EventEmitter InterfaceBus::getEventEmitter() {
@@ -159,9 +202,8 @@ void InterfaceBus::checkMacroExpanded(NodeInfo * info) {
     this->info = info;
     if(!outputReport.ready) return;
     trigger("macroExpanded", outputReport.code);
-    service = Service::NONE;
     outputReport.ready = false;
-    waiting = false;
+    setWaiting(false);
 }
 
 void InterfaceBus::checkCycle(NodeInfo * info) {
@@ -169,7 +211,7 @@ void InterfaceBus::checkCycle(NodeInfo * info) {
     if(!outputReport.ready) return;
     trigger("cycle", outputReport.response);
     outputReport.ready = false;
-    updating = false;
+    setUpdating(false);
 }
 
 void InterfaceBus::checkLog(NodeInfo * info) {
