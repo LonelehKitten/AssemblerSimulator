@@ -83,7 +83,6 @@ ipcMain.on("play", (event, type, params) => {
     // Para simulações das memorias e registradores
     if(type == "simulate"){
         const array = JSON.parse(simulate());
-        console.log(array);
         getCurrentBrowser()?.webContents.send("cycle_memory",array.memoryChanges);
         getCurrentBrowser()?.webContents.send("cycle_registers",array.registers);
         getCurrentBrowser()?.webContents.send("cycle_stdin",array.stdin);
@@ -93,6 +92,14 @@ ipcMain.on("play", (event, type, params) => {
 
 // Simulação
 const simulate = () => {
+    const memoryChanges = [];
+    let a =0;
+    for(let i=0;i<32;i++){
+        const t = [];
+        for(let j=0;j<16;j++){
+            memoryChanges.push({address: a++,newValue: Math.floor(Math.random() * 1000)});
+        }
+    }
     const json = {
         registers: {
             AX: Math.random() * 50,
@@ -110,7 +117,7 @@ const simulate = () => {
         },
         stdout: Math.random() % 5 == 0 ? "Teste "+Date.now() : "",
         stdin: Math.random() % 2 == 0,
-        memoryChanges: []
+        memoryChanges
     }
     return JSON.stringify(json);
 }

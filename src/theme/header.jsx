@@ -89,10 +89,10 @@ const Header = () => {
 
   const handlePlay = (type) => () => {
     // play_expandMacros
-    if (!isEmpty(currentFile?.code)) {
+    if (!isEmpty(currentFile?.code) || type == "simulate") {
       if (type == "requestEndTest" || type == "requestTest" || type == "requestKillProcess") setPlaying(false);
       else setPlaying(true);
-      event("play", [type, [currentFile.code]], () => {
+      event("play", [type, [currentFile?.code]], () => {
         setPlaying(false);
       });
     }
