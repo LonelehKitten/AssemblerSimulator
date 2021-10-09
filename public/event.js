@@ -117,7 +117,7 @@ const simulate = () => {
         },
         stdout: Math.random() % 5 == 0 ? "Teste "+Date.now() : "",
         stdin: Math.random() % 2 == 0,
-        memoryChanges
+        memoryChanges:{}
     }
     return JSON.stringify(json);
 }

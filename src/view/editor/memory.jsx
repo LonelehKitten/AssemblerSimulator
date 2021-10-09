@@ -33,6 +33,9 @@ const useStyles = makeStyles((theme) => ({
             color: "#fff"
         }
     },
+    form: {
+        display:"block"
+    }
 }));
 
 const { ipcRenderer } = window.electron;
@@ -41,14 +44,16 @@ const Memory = () => {
     const classes = useStyles();
 
     const [memory, setMemory] = useState([]);
+    const [page, setPage] = useState(1);
 
     useEffect(() => {
         const memoryChanges = [];
         let a = 0;
-        for (let i = 0; i < 32; i++) {
-            const t = [];
-            for (let j = 0; j < 16; j++) {
-                memoryChanges.push({ address: a++, newValue: Math.floor(Math.random() * 100) });
+        for(let b=0; b< 128; b++){
+            for (let i = 0; i < 32; i++) {
+                for (let j = 0; j < 16; j++) {
+                    memoryChanges.push(Math.floor(Math.random() * 100));
+                }
             }
         }
         setMemory(memoryChanges);
@@ -59,25 +64,30 @@ const Memory = () => {
 
     const rows = useMemo(() => {
         const row = [];
-        for (let i = 0; i < 32; i++) {
-            row.push([]);
-        }
-        memory.map((item) => {
-            const key = Math.floor(item.address / 16);
-            row[key].push(<TableCell align='center'>{item.newValue.toString("16")}</TableCell>);
+        for(let i=0; i<32; i++) row.push([]);
+        memory.slice(512 * (page-1),512 * page).map((item,key) => {
+            const id = Math.floor(key / 16);
+            if(row[id] == undefined) row[id] = [];
+            row[id].push(<TableCell align='center'>{item.toString("16")}</TableCell>);
         });
         return row;
-    }, [memory]);
+    }, [memory,page]);
 
+    const handleKeyDown = (e) => {
+        if(e.keyCode == 13) setPage(e.target.value);
+    }
     return (
         <div className={classes.root}>
+            <div className={classes.form}>
+                <input type='number' defaultValue={page} onKeyDown={handleKeyDown}/>
+            </div>
             <TableContainer component={Paper} style={{ backgroundColor: '#313241' }}>
                 <Table className={classes.table} aria-label='resgistry operation table'>
                     <TableBody>
                         {rows.map((row, key) => (
                             <TableRow key={key}>
                                 <TableCell align='center'>
-                                    {parseInt(key * 22).toString("16").padStart(5, 0)}
+                                    {String(parseInt(key * 16 + (page-1)*512)).padStart(5, 0)}
                                 </TableCell>
                                 {row}
                             </TableRow>
