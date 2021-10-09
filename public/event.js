@@ -6,7 +6,12 @@ const { BrowserWindow, ipcMain, dialog, webContents } = require('electron');
 
 //const isAsmr = typeof asmr != "undefined"; // Para não dar pau no windows
 // require('bindings')('ASMR')
-const asmr = bindings('ASMR') ?? null; // Pega o ASMR se ele estiver compilado
+let asmr;
+try{
+    asmr = bindings('ASMR') ?? null; // Pega o ASMR se ele estiver compilado
+}catch(e){
+    asmr = null;
+}
 console.log(asmr);
 const isAsmr = asmr != null; 
 if(isAsmr) asmr.init();
@@ -31,6 +36,8 @@ emitter.on('cycle', (data) => {
         console.log(array);
         getCurrentBrowser()?.webContents.send("cycle_memory",array.memoryChanges);
         getCurrentBrowser()?.webContents.send("cycle_registers",array.registers);
+        getCurrentBrowser()?.webContents.send("cycle_stdin",array.stdin);
+        if(stdout != "") getCurrentBrowser()?.webContents.send("console",{message: array.stdout,type:0});
     }
 });
 emitter.on('log', (data) => {
@@ -55,38 +62,32 @@ const requests = [
     'requestSendInput'
 ];
 ipcMain.on("play", (event, type, params) => {
-    console.log("Play INIT")
     // Executa as requisições após o evento do front
     if(requests.includes(type) && isAsmr){
-        console.log("Request",type,params);
         asmr[type].apply(asmr,params);
-        console.log("Passou do Apply");
         playing = true;
 
         // Adicionar os observações
         switch(type){
             case "requestExpandMacros":
-                console.log("Observer Macro");
                 MacroExpandedEventObserver = setInterval(() => asmr.observeExpandedMacrosFiring(getEmitter()), 10);
-                console.log("Passou");
                 break;
             case "requestAssembleAndRun":
             case "requestAssembleAndRunBySteps":
             case "requestRun":
             case "requestRunBySteps":
-                console.log("Observer Run");
                 CycleEventObserver = setInterval(() => asmr.observeCycleFiring(getEmitter()), 10);
-                console.log("Passou");
                 break;
         }
     }
-
-    console.log("End");
     // Para simulações das memorias e registradores
     if(type == "simulate"){
         const array = JSON.parse(simulate());
+        console.log(array);
         getCurrentBrowser()?.webContents.send("cycle_memory",array.memoryChanges);
         getCurrentBrowser()?.webContents.send("cycle_registers",array.registers);
+        getCurrentBrowser()?.webContents.send("cycle_stdin",array.stdin);
+        if(array.stdout != '') getCurrentBrowser()?.webContents.send("console",{message: array.stdout,type:0});
     }
 })
 
@@ -104,7 +105,7 @@ const simulate = () => {
             PC: Math.random() * 50,
             SR: {
                 asLiteral: Math.random() * 50,
-                asFlags: [true,false,true,true,false,true,true,false]
+                asFlags: [randomBool(),false,false,false,false,false,randomBool(),randomBool(),randomBool(),randomBool(),false,false,randomBool()]
             }
         },
         stdout: Math.random() % 5 == 0 ? "Teste "+Date.now() : "",
@@ -112,6 +113,10 @@ const simulate = () => {
         memoryChanges: []
     }
     return JSON.stringify(json);
+}
+
+const randomBool = (n = 2) => {
+    return Math.floor(Math.random() * n);
 }
 
 // Salvar Arquivo

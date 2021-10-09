@@ -68,7 +68,8 @@ const requests = [
   'requestNextStep',
   'requestKillProcess',
   'requestClockChange',
-  'requestSendInput'
+  'requestSendInput',
+  'simulate'
 ];
 
 const Header = () => {
@@ -163,7 +164,7 @@ const Header = () => {
       </Drawer>
       <Menu
         anchorEl={anchorEl}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        //anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         id="debug"
         keepMounted
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
