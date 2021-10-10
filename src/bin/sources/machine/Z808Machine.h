@@ -12,13 +12,13 @@ private:
     std::vector<Z808Byte> *memory;
 public:
     Z808Machine();
+    //Será editado quando voltarmos a trabalhar com Assembler
     void memoryUpdate(std::vector<unsigned char> *memory, std::vector<unsigned char> *programBytes = nullptr);
     bool isEnd();
-    void setEnd();
+    void forceStop();
 
     /*
         - isBySteps - executa instruções qnd nextStepRequested for true
     */
-    
     int run(bool isBySteps);
 };

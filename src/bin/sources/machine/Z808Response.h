@@ -12,8 +12,8 @@ class Z808Response {
     private:
         USint ax, dx, si, ss, ds, cs, sp, pc;
         std::bitset<16> * sr;
-        std::string stdout;
-        bool stdin;
+        std::string standardOutput;
+        bool standardInput;
         std::pair<USint, USint> * memoryWrite;
 
         std::string i(USint n);
@@ -33,8 +33,8 @@ class Z808Response {
         void setSp(USint newSp);
         void setPc(USint newPc);
         void setSr(std::bitset<16> * sr);
-        void setStdout(const std::string newStdout);
-        void setStdin(bool newStdin);
+        void setStandardOutput(const std::string newStdout);
+        void setStandardInput(bool newStdin);
         void setMemoryWrite(std::pair<USint, USint> * memoryWrite);
 };
 

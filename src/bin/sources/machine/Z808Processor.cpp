@@ -7,7 +7,7 @@ Z808Processor::Z808Processor()
     clearError();
 }
 
-std::vector<Z808Word> Z808Processor::getRegisters()
+std::vector<Z808Word>& Z808Processor::getRegisters()
 {
     return Z808Registers;
 }

@@ -1,6 +1,6 @@
 #include "Z808Machine.h"
 #include "Z808Response.h"
-#include "../InterfaceBus.h"
+//#include "../InterfaceBus.h"
 #include <iostream>
 #include <cstdlib>
 
@@ -14,11 +14,30 @@ Z808Machine::Z808Machine()
 void Z808Machine::memoryUpdate(std::vector<Z808Byte> *memory, std::vector<unsigned char> *programBytes)
 {
     delete this->memory;
-    //this->memory = memory;        //Será editado quando voltarmos a trabalhar com Assembler
-    this->memory = programBytes;
-    this->memory.insert(this->memory.end(), memory.begin(), memory.end());
+    //this->memory = memory;
+    //this->memory = programBytes;
+    //this->memory->insert(this->memory->end(), memory->begin(), memory->end());
+    this->memory = memory;
+    //InterfaceBus::getInstance().dispatchProgramToMemory(memory);
 }
 
+bool Z808Machine::isEnd()
+{
+    //InterfaceBus::getInstance().getMutex().lock();
+    //bool programEnd = this->programEnd;
+    //InterfaceBus::getInstance().getMutex().unlock();
+    return programEnd;
+}
+
+void Z808Machine::forceStop()
+{
+    //InterfaceBus::getInstance().getMutex().lock();
+    programEnd = true;
+    //InterfaceBus::getInstance().getMutex().unlock();
+}
+
+
+//TERMINAR TUDO O QUE ESTÁ ENTRE /* */ PARA ESSA PRÓXIMA ENTREGA
 int Z808Machine::run(bool isBySteps)
 {
     std::string ioInput;
@@ -34,12 +53,13 @@ int Z808Machine::run(bool isBySteps)
     bool ioMode = false;
     unsigned short ioAddr = 0;
 
-    InterfaceBus * interfaceBus = &InterfaceBus::getInstance();
+    //InterfaceBus * interfaceBus = &InterfaceBus::getInstance();
 
+    programEnd = false;
+    
     while(!isEnd())
     {
-
-        if(!isBySteps) std::this_thread::sleep_for(interfaceBus->getClock());
+        //if(!isBySteps) std::this_thread::sleep_for(interfaceBus->getClock());
 
         increment = processor->execute(*memory);
 
@@ -59,7 +79,7 @@ int Z808Machine::run(bool isBySteps)
             
             programEnd = true;
             /* dispatchHalt */
-            
+
             break;
         }
 
@@ -77,13 +97,13 @@ int Z808Machine::run(bool isBySteps)
         //Verificacao de interrupcao
         if (processor->isInterrupt())
         {
-            ioMode = process->getInterruptionKind();
-            ioAddr = process->getAX().to_ulong();
+            ioMode = processor->getInterruptionMode();
+            ioAddr = processor->getAX().to_ulong();
             if (ioMode) //modo write
-                process->resetInterruption();
+                processor->resetInterruption();
         }
 
-        registradores = process->getRegisters();
+        registradores = processor->getRegisters();
 
         //************Setters do Z808Response
         Format->setAx(registradores[0].to_ulong());
@@ -91,34 +111,35 @@ int Z808Machine::run(bool isBySteps)
         Format->setSp(registradores[2].to_ulong());        //sp
         Format->setSi(registradores[3].to_ulong());
         Format->setPc(registradores[4].to_ulong());        //ip
-        Format->setSr(&process->getRegisters()[5]);
+        Format->setSr(&(processor->getRegisters()[5]));
 
         if (ioMode)
         {
-            Format->setStdout(/*pegar string da memoria*/);
-            Format->setStdin(false);
+            Format->setStandardOutput(std::string("")/*pegar string da memoria*/);
+            Format->setStandardInput(false);
         }
         else
-            Format->setStdin(true);
+            Format->setStandardInput(true);
         
 
         //************End_Setters do Z808Response
 
-
+        //TERMINAR AS LINHAS SEGUINTES PARA ESSA PRÓXIMA ENTREGA
+        
         /* dispatchCycle ioMode e o resto */
         //Mandar processor->getRegisters(); pro Response
-        interfaceBus->dispatchCycle(processor->get, !ioMode);
-
-        while(interfaceBus->isUpdating());
-
-        if(interfaceBus->isInputing())
-        {
-            while(interfaceBus->isInputing());
-            /* colocaOInputNaMemoria(); */
-            interfaceBus->isNextStepRequested(true);
-        }
-
-        while(isBySteps && !interfaceBus->isNextStepRequested());
+        //interfaceBus->dispatchCycle(processor->get, !ioMode);
+        //
+        //while(interfaceBus->isUpdating());
+        //
+        //if(interfaceBus->isInputing())
+        //{
+        //    while(interfaceBus->isInputing());
+        //    /* colocaOInputNaMemoria(); */
+        //    interfaceBus->isNextStepRequested(true);
+        //}
+        //
+        //while(isBySteps && !interfaceBus->isNextStepRequested());
 
         //Exemplo de como pegar o valor numerico do registrador AX (checar indices no Z808Processor.h)
         std::cout << "\nAX: " << std::hex << registradores[0].to_ulong();

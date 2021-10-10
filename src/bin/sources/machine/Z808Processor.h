@@ -85,7 +85,7 @@ public:
     Z808Processor();
 
     //Pega os registradores
-    std::vector<Z808Word> getRegisters();
+    std::vector<Z808Word> &getRegisters();
     //Pega o registrador AX - acumulador
     Z808Word getAX();
     //Pega o registrador IP - contador de programa
