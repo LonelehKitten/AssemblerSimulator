@@ -105,6 +105,7 @@ class InterfaceBus {
          bool isUpdating();
          bool isInputing();
          bool isNextStepRequested();
+         std::mutex& getMutex();
 
          InterfaceBus(InterfaceBus const&) = delete;
          void operator=(InterfaceBus const&) = delete;

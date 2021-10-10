@@ -145,6 +145,10 @@ void InterfaceBus::setNextStepRequested(bool nextStepRequested) {
     mutex.unlock();
 }
 
+std::mutex& InterfaceBus::getMutex() {
+    std::mutex& mutex = this->mutex;
+    return mutex;
+}
 
 void InterfaceBus::runExpandMacros() {
     std::vector<Semantic *> * semantics = recognitionManager->analyze(inputReport.code, false);
@@ -343,7 +347,7 @@ void InterfaceBus::serviceTest() {
  * Utilizado junto dos serviços AssembleAndRunBySteps e RunBySteps.
  */
 void InterfaceBus::serviceNextStep() {
-    setNextInstruction(true);
+    setNextStepRequested(true);
 }
 
 /**
