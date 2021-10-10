@@ -31,7 +31,6 @@ emitter.on('macroExpanded', (data) => {
     playing = false;
 });
 emitter.on("programToMemory",(data) => {
-   // const total = data.length/2;
     const text= [];
     for(let i=0;i<data.length;i += 2){
         text.push(data[i].toString(16)+data[i+1].toString(16));
@@ -75,6 +74,7 @@ const requests = [
 ];
 ipcMain.on("play", (event, type, params) => {
     // Executa as requisições após o evento do front
+    console.log(type,params);
     if(requests.includes(type) && isAsmr){
         asmr[type].apply(asmr,params);
         playing = true;
