@@ -166,11 +166,11 @@ end VALEUSEGMENT
     <div id='console' {...props}>
       <List className={classes.root}>
         {history.map((item, key) => (
-          <ListItem key={key} className={classes.inputedTexts + " " + messagesType[key]}>
+          <ListItem key={key} className={classes.inputedTexts + " " + messagesType[item.type]}>
             <ListItemIcon>
-              {messagesIcon[key]}
+              {messagesIcon[item.type]}
             </ListItemIcon>
-            <ListItemText fontFamily='VT323' primary={item?.message} />
+            <ListItemText fontFamily='VT323' primary={item.message} />
           </ListItem>
         ))}
         <div ref={consoleEndRef}></div>
