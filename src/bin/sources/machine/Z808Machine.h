@@ -20,5 +20,5 @@ public:
         - isBySteps - executa instruções qnd nextStepRequested for true
     */
     
-    int run(/* vector<byte|Z808Byte> bytecode */);
+    int run(bool isBySteps);
 };

@@ -84,10 +84,9 @@ int main()
     * hlt
     */
 
-   
     Z808Machine machine;
     machine.memoryUpdate(&memory);
-    machine.run();
+    machine.run(false);
 
     /*
 

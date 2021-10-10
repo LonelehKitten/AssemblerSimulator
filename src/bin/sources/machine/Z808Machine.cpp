@@ -19,8 +19,10 @@ void Z808Machine::memoryUpdate(std::vector<Z808Byte> *memory, std::vector<unsign
     this->memory.insert(this->memory.end(), memory.begin(), memory.end());
 }
 
-int Z808Machine::run()
+int Z808Machine::run(bool isBySteps)
 {
+    std::string ioInput;
+
     std::vector<Z808Word> registradores;
 
     Z808Response *Format = new Z808Response();
@@ -36,13 +38,16 @@ int Z808Machine::run()
 
     while(!isEnd())
     {
+
+        if(!isBySteps) std::this_thread::sleep_for(interfaceBus->getClock());
+
         increment = processor->execute(*memory);
 
         if (processor->instructionError())
         {
             std::cout << "\nERRO NA INSTRUCAO " << processor->getIP() << "\n\n\n";
 
-            //dispatchLog Error
+            /* dispatchLog Error */
             programEnd = true;
             
             break;
@@ -53,7 +58,7 @@ int Z808Machine::run()
             std::cout << "\nFIM DE PROGRAMA\n\n\n";
             
             programEnd = true;
-            //dispatchHalt
+            /* dispatchHalt */
             
             break;
         }
@@ -64,7 +69,7 @@ int Z808Machine::run()
             std::cout << "\nERRO DE OVERFLOW NA PILHA\n\n\n";
 
             programEnd = true;
-            //dispatchLog Error
+            /* dispatchLog Error */
 
             break;
         }
@@ -78,23 +83,42 @@ int Z808Machine::run()
                 process->resetInterruption();
         }
 
-        //************Setters do Z808Response
+        registradores = process->getRegisters();
 
         //************Setters do Z808Response
+        Format->setAx(registradores[0].to_ulong());
+        Format->setDx(registradores[1].to_ulong());
+        Format->setSp(registradores[2].to_ulong());        //sp
+        Format->setSi(registradores[3].to_ulong());
+        Format->setPc(registradores[4].to_ulong());        //ip
+        Format->setSr(&process->getRegisters()[5]);
 
-        //dispatchCycle ioMode e o resto
-        interfaceBus->dispatchCycle(processor->get, !ioMode);
+        if (ioMode)
+        {
+            Format->setStdout(/*pegar string da memoria*/);
+            Format->setStdin(false);
+        }
+        else
+            Format->setStdin(true);
+        
+
+        //************End_Setters do Z808Response
+
+
+        /* dispatchCycle ioMode e o resto */
         //Mandar processor->getRegisters(); pro Response
+        interfaceBus->dispatchCycle(processor->get, !ioMode);
 
         while(interfaceBus->isUpdating());
 
         if(interfaceBus->isInputing())
         {
             while(interfaceBus->isInputing());
-            //colocaOInputNaMemoria();
+            /* colocaOInputNaMemoria(); */
+            interfaceBus->isNextStepRequested(true);
         }
 
-        registradores = processor->getRegisters();
+        while(isBySteps && !interfaceBus->isNextStepRequested());
 
         //Exemplo de como pegar o valor numerico do registrador AX (checar indices no Z808Processor.h)
         std::cout << "\nAX: " << std::hex << registradores[0].to_ulong();
