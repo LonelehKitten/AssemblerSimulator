@@ -7,14 +7,18 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
+import { IconButton } from '@material-ui/core';
 
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import { useContext } from '../../utils/context';
 
 
 const rows = [{}, {}, {}, {}, {}];
 
 const useStyles = makeStyles((theme) => ({
     root: {
-        display: 'flex',
+        display: 'block',
         marginTop: '0',
         padding: '10px',
         overflow: 'auto',
@@ -33,51 +37,87 @@ const useStyles = makeStyles((theme) => ({
             color: "#fff"
         }
     },
+    form: {
+        display:"flex",
+        flex:1,
+        "& input":{
+
+            background:'transparent',
+            border:'none',
+            color:'#f1f1f1',
+            outline: "none !important",
+            textAlign: 'center',
+            marginTop: 12
+        },
+        "& .MuiIconButton-root":{
+            color:"#fff",
+        },
+        "& .buttonRight":{
+            textAlign:"right"
+        },
+        "& .center":{
+            textAlign:'center'
+        },
+        "&>div":{
+
+            flexGrow: 1
+        }
+    }
 }));
 
 const { ipcRenderer } = window.electron;
 
 const Memory = () => {
     const classes = useStyles();
-
-    const [memory, setMemory] = useState([]);
-
-    useEffect(() => {
-        const memoryChanges = [];
-        let a = 0;
-        for (let i = 0; i < 32; i++) {
-            const t = [];
-            for (let j = 0; j < 16; j++) {
-                memoryChanges.push({ address: a++, newValue: Math.floor(Math.random() * 100) });
-            }
-        }
-        setMemory(memoryChanges);
-        ipcRenderer.on("cycle_memory", (evt, data) => {
-            setMemory(data);
-        });
-    }, []);
+    const {memory} = useContext();
+    const [page, setPage] = useState(1);
 
     const rows = useMemo(() => {
         const row = [];
-        for (let i = 0; i < 32; i++) {
-            row.push([]);
-        }
-        memory.map((item) => {
-            const key = Math.floor(item.address / 16);
-            row[key].push(<TableCell align='center'>{item.newValue.toString("16")}</TableCell>);
+        for(let i=0; i<32; i++) row.push([]);
+        memory.slice(512 * (page-1),512 * page).map((item,key) => {
+            const id = Math.floor(key / 16);
+            if(row[id] == undefined) row[id] = [];
+            row[id].push(<TableCell align='center'>{item}</TableCell>);
         });
         return row;
-    }, [memory]);
+    }, [memory,page]);
+
+    const handleKeyDown = (e) => {
+        if(e.target.value == ""){
+            setPage("");
+        }else{
+            handlePageChange(parseInt(e.target.value))();
+        }
+    }
+
+    const handlePageChange = (current) => () => {
+        if(current < 1) current = 1;
+        if(current > 127) current = 127;
+        setPage(current);
+    }
 
     return (
         <div className={classes.root}>
-            <TableContainer component={Paper} style={{ backgroundColor: '#313241' }}>
+            <div className={classes.form}>
+                <div>
+                    <IconButton onClick={handlePageChange(page-1)}><ChevronLeftIcon/></IconButton>
+                </div>
+                <div className='center'>
+                    <input type='number' value={page} onChange={handleKeyDown}/>
+                </div>
+                <div className='buttonRight'>
+                    <IconButton onClick={handlePageChange(page+1)}><ChevronRightIcon/></IconButton>
+
+                </div>
+            </div>
+            <TableContainer component={Paper} style={{ backgroundColor: '#313241',height:'calc(100% - 50px)' }}>
                 <Table className={classes.table} aria-label='resgistry operation table'>
                     <TableBody>
                         {rows.map((row, key) => (
                             <TableRow key={key}>
                                 <TableCell align='center'>
-                                    {parseInt(key * 22).toString("16").padStart(5, 0)}
+                                    {parseInt(key * 16 + (page-1)*512).toString("16").padStart(5, 0)}
                                 </TableCell>
                                 {row}
                             </TableRow>
