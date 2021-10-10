@@ -1,39 +1,97 @@
 #include "Z808Machine.h"
+#include "Z808Response.h"
+#include "../InterfaceBus.h"
 #include <iostream>
 #include <cstdlib>
 
-Z808Machine::Z808Machine(std::vector<Z808Byte> *memory)
+Z808Machine::Z808Machine()
 {
     this->processor = new Z808Processor();
-    this->memory = memory;
+    this->memory = nullptr;
+    this->programEnd = false;
 }
 
-void Z808Machine::memoryUpdate(std::vector<Z808Byte> *memory)
+void Z808Machine::memoryUpdate(std::vector<Z808Byte> *memory, std::vector<unsigned char> *programBytes)
 {
     delete this->memory;
-    this->memory = memory;
+    //this->memory = memory;        //Será editado quando voltarmos a trabalhar com Assembler
+    this->memory = programBytes;
+    this->memory.insert(this->memory.end(), memory.begin(), memory.end());
 }
 
 int Z808Machine::run()
 {
     std::vector<Z808Word> registradores;
 
+    Z808Response *Format = new Z808Response();
+
     int increment = 0;
 
-    while(WAIT_INPUT)
+    //"false" para read
+    //"true" para write
+    bool ioMode = false;
+    unsigned short ioAddr = 0;
+
+    InterfaceBus * interfaceBus = &InterfaceBus::getInstance();
+
+    while(!isEnd())
     {
         increment = processor->execute(*memory);
 
         if (processor->instructionError())
         {
-            std::cout << "\nERRO NA INSTRUCAO " << processor->getRegisters()[4] << "\n\n\n";
+            std::cout << "\nERRO NA INSTRUCAO " << processor->getIP() << "\n\n\n";
+
+            //dispatchLog Error
+            programEnd = true;
+            
             break;
         }
 
-        if (increment == 0 && !processor->instructionError())
+        if (increment == 0 && !processor->instructionError())       //Programa chegou em HALT
         {
             std::cout << "\nFIM DE PROGRAMA\n\n\n";
+            
+            programEnd = true;
+            //dispatchHalt
+            
             break;
+        }
+
+        //Verificacao de stack overflow
+        if (processor->stackOverflowError())
+        {
+            std::cout << "\nERRO DE OVERFLOW NA PILHA\n\n\n";
+
+            programEnd = true;
+            //dispatchLog Error
+
+            break;
+        }
+
+        //Verificacao de interrupcao
+        if (processor->isInterrupt())
+        {
+            ioMode = process->getInterruptionKind();
+            ioAddr = process->getAX().to_ulong();
+            if (ioMode) //modo write
+                process->resetInterruption();
+        }
+
+        //************Setters do Z808Response
+
+        //************Setters do Z808Response
+
+        //dispatchCycle ioMode e o resto
+        interfaceBus->dispatchCycle(processor->get, !ioMode);
+        //Mandar processor->getRegisters(); pro Response
+
+        while(interfaceBus->isUpdating());
+
+        if(interfaceBus->isInputing())
+        {
+            while(interfaceBus->isInputing());
+            //colocaOInputNaMemoria();
         }
 
         registradores = processor->getRegisters();

@@ -85,8 +85,8 @@ int main()
     */
 
    
-    Z808Machine machine(&memory);
-
+    Z808Machine machine;
+    machine.memoryUpdate(&memory);
     machine.run();
 
     /*
