@@ -34,7 +34,7 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: '#21222c',
     fontSize: 24,
     outline: 0,
-    borderRadius: '3px',
+    borderRadius: '3px'
   },
   root: {
     overflow: 'auto',
@@ -177,6 +177,7 @@ end VALEUSEGMENT
       </List>
       <input
         disabled={!stdIn}
+        style={{display: stdIn ? 'inline-block' : 'none'}}
         onKeyDown={handleSubmit}
         placeholder='Digite um comando . . .'
         className={classes.textField}

@@ -37,6 +37,7 @@ emitter.on("programToMemory",(data) => {
         text.push(data[i].toString(16)+data[i+1].toString(16));
     }
     getCurrentBrowser()?.webContents.send("init_memory",text);
+    clearInterval(ProgramToMemoryEventObserver)
 });
 emitter.on('cycle', (data) => {
     if(data == "halt"){
@@ -88,6 +89,7 @@ ipcMain.on("play", (event, type, params) => {
             case "requestRun":
             case "requestRunBySteps":
                 CycleEventObserver = setInterval(() => asmr.observeCycleFiring(getEmitter()), 10);
+                ProgramToMemoryEventObserver = setInterval(() => asmr.observeProgramToMemoryFiring(getEmitter()), 10);
                 break;
         }
     }
