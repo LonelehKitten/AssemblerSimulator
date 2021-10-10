@@ -17,7 +17,10 @@ const isAsmr = asmr != null;
 if(isAsmr) asmr.init();
 const emitter = new EventEmitter();
 let playing = false;
-let MacroExpandedEventObserver = null, CycleEventObserver = null, LogEventObserver = null;
+let MacroExpandedEventObserver = null;
+let CycleEventObserver = null;
+let LogEventObserver = null;
+let ProgramToMemoryEventObserver = null;
 
 const getCurrentBrowser = () => BrowserWindow.getAllWindows()[0];
 

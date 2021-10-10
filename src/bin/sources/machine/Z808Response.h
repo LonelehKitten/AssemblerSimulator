@@ -6,6 +6,7 @@
 #include <utility>
 
 typedef unsigned short int USint;
+typedef std::string JSON;
 
 class Z808Response {
     private:
@@ -13,7 +14,7 @@ class Z808Response {
         std::bitset<16> * sr;
         std::string stdout;
         bool stdin;
-        std::pair<USint, std::string> * memoryWrite;
+        std::pair<USint, USint> * memoryWrite;
 
         std::string i(USint n);
         std::string bits();
@@ -21,7 +22,7 @@ class Z808Response {
     public:
         Z808Response();
 
-        std::string toJSON();
+        JSON toJSON();
 
         void setAx(USint newAx);
         void setDx(USint newDx);
@@ -34,7 +35,7 @@ class Z808Response {
         void setSr(std::bitset<16> * sr);
         void setStdout(const std::string newStdout);
         void setStdin(bool newStdin);
-        void setMemoryWrite(std::pair<USint, std::string> * memoryWrite);
+        void setMemoryWrite(std::pair<USint, USint> * memoryWrite);
 };
 
 #endif // Z808RESPONSE_H

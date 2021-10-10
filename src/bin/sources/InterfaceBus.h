@@ -9,6 +9,7 @@
 #include <mutex>
 #include <string>
 #include <queue>
+#include <vector>
 #include <cstdlib>
 
 #include "analyzer/RecognitionManager.h"
@@ -24,6 +25,8 @@ typedef v8::Local<v8::Function> EventEmitter;
 typedef Nan::FunctionCallbackInfo<v8::Value> NodeInfo;
 typedef v8::Local<v8::Value> V8Var;
 typedef v8::Local<v8::Context> V8Context;
+
+typedef unsigned char byte;
 
 enum LogStatus {
     INFO = 0,
@@ -44,17 +47,17 @@ enum Service {
 typedef struct InputReport {
     bool ready;
     std::string code;
-    char * bytecode;
-    char * memory;
+    std::vector<byte> bytecode;
+    std::vector<byte> memory;
     std::string input;
     int clock;
 } InputReport;
 
 typedef struct OutputReport {
     bool ready;
-    std::string response;
-    std::string logMessage;
+    JSON  response;
     std::string code;
+    JSON  memory;
 } OutputReport;
 
 class InterfaceBus {
@@ -70,12 +73,12 @@ class InterfaceBus {
          std::thread * producerThread, * serviceThread;
          std::mutex mutex;
 
-         bool running, waiting, updating, inputing;
+         bool running, waiting, updating, inputing, nextStepRequested;
          Service service;
 
          InputReport inputReport;
          OutputReport outputReport;
-         std::queue<std::string> logMessages;
+         std::queue<JSON> logMessages;
 
          InterfaceBus();
 
@@ -83,7 +86,8 @@ class InterfaceBus {
 
          std::string castV8toString(V8Var jsString);
          int castV8toInt(V8Var jsNumber);
-         char * castV8toByteArray(V8Var jsNumberArray);
+         std::vector<byte> castV8toByteArray(V8Var jsNumberArray);
+         JSON castByteArraytoJSON(std::vector<byte> * array);
 
          EventEmitter getEventEmitter();
          V8Context getV8Context();
@@ -92,6 +96,7 @@ class InterfaceBus {
          void setWaiting(bool waiting);
          void setUpdating(bool updating);
          void setInputing(bool inputing);
+         void setNextStepRequested(bool nextStepRequested);
 
     public:
 
@@ -99,6 +104,7 @@ class InterfaceBus {
          bool isWaiting();
          bool isUpdating();
          bool isInputing();
+         bool isNextStepRequested();
 
          InterfaceBus(InterfaceBus const&) = delete;
          void operator=(InterfaceBus const&) = delete;
@@ -117,12 +123,14 @@ class InterfaceBus {
             Deve ser chamado pelo Assembler em caso de sucesso
          */
          void dispatchMacroExpanded(std::string code); // pra expansão de macro
+
+         void dispatchProgramToMemory(std::vector<byte> * memory);
          /*
             Retorna o estado dos registradores no ciclo corrente bem como
             comandos de entrada e saída de dados, e mudanças na memória.
             Deve ser executado pelo Z808Machine caso a instrução seja válida.
          */
-         void dispatchCycle(Z808Response& response);         // pra cada ciclo do processador
+         void dispatchCycle(Z808Response& response, bool waitingForInput);         // pra cada ciclo do processador
          void dispatchHalt(); // sinaliza fim de execução do processador
          /*
             Retorna uma mensagem no console da interface.
@@ -135,6 +143,7 @@ class InterfaceBus {
          //          VERIFICADORES DE EVENTOS DESPACHADOS
          // =======================================================
          void checkMacroExpanded(NodeInfo * info);
+         void checkProgramToMemory(NodeInfo * info);
          void checkCycle(NodeInfo * info);
          void checkLog(NodeInfo * info);
 
