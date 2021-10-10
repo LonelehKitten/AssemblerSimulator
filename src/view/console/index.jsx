@@ -34,7 +34,7 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: '#21222c',
     fontSize: 24,
     outline: 0,
-    borderRadius: '3px',
+    borderRadius: '3px'
   },
   root: {
     overflow: 'auto',
@@ -166,17 +166,18 @@ end VALEUSEGMENT
     <div id='console' {...props}>
       <List className={classes.root}>
         {history.map((item, key) => (
-          <ListItem key={key} className={classes.inputedTexts + " " + messagesType[key]}>
+          <ListItem key={key} className={classes.inputedTexts + " " + messagesType[item.type]}>
             <ListItemIcon>
-              {messagesIcon[key]}
+              {messagesIcon[item.type]}
             </ListItemIcon>
-            <ListItemText fontFamily='VT323' primary={item?.message} />
+            <ListItemText fontFamily='VT323' primary={item.message} />
           </ListItem>
         ))}
         <div ref={consoleEndRef}></div>
       </List>
       <input
         disabled={!stdIn}
+        style={{display: stdIn ? 'inline-block' : 'none'}}
         onKeyDown={handleSubmit}
         placeholder='Digite um comando . . .'
         className={classes.textField}

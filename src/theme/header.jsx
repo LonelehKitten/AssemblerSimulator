@@ -74,7 +74,7 @@ const requests = [
 ];
 
 const Header = () => {
-  const {currentFile,playing,setPlaying} = useContext();
+  const { memory, currentFile, playing, setPlaying } = useContext();
   const [anchorEl, setAnchorEl] = useState(null);
   const classes = useStyles();
 
@@ -89,13 +89,21 @@ const Header = () => {
   };
 
   const handlePlay = (type) => () => {
+    const encoder = new TextEncoder()
+    console.log(encoder.encode(memory.join("")).length); // Aqui Converte para um array de bits
+    const test = memory.map((item) => parseInt(item,16)) // Aqui apenas converter hexa (string) para decimal (number)
+    console.log(test.length);
     // play_expandMacros
     if (!isEmpty(currentFile?.code) || type == "simulate") {
+      // Habilita ou não o "Playing"
       if (type == "requestEndTest" || type == "requestTest" || type == "requestKillProcess") setPlaying(false);
       else setPlaying(true);
-      event("play", [type, [currentFile?.code]], () => {
-        setPlaying(false);
-      });
+      //[currentFile?.code]
+      const params = [];
+      // Adicionar as instruções
+      if (["requestExpandMacros", "requestAssembleAndRun", "requestAssembleAndRunBySteps","requestRun","requestRunBySteps"].includes(type)) params.push(currentFile?.code);
+      if (["requestAssembleAndRun", "requestAssembleAndRunBySteps","requestRun","requestRunBySteps"].includes(type)) params.push(memory);
+      event("play", [type, params],() => {});
     }
   };
 
@@ -117,26 +125,23 @@ const Header = () => {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant='h6' className={classes.title}>
-            Assembler Simulator
-          </Typography>
-          <UpdateIcon  />
-          <Slider 
-            className={classes.slider} 
-            defaultValue={8} 
+          <UpdateIcon />
+          <Slider
+            className={classes.slider}
+            defaultValue={16}
             valueLabelDisplay="auto"
             step={1}
             marks
             min={1}
-            max={10}
-            style={{ color: "#fff", width: 200, marginLeft: "1em", marginRight: "2em"}} 
+            max={20}
+            style={{ color: "#fff", width: 200, marginLeft: "1em", marginRight: "2em" }}
           />
           <Tooltip title="Expandir Macro (requestExpandMacros)">
             <Button color='inherit' onClick={handlePlay("requestExpandMacros")} disabled={playing} className={classes.button}>
               <AllOutIcon />
             </Button>
           </Tooltip>
-          <Tooltip title="Rodar (requestRun)">
+          <Tooltip title="Executar (requestRun)">
             <Button color='inherit' onClick={handlePlay("requestRun")} disabled={playing} className={classes.button}>
               <PlayArrowIcon />
             </Button>

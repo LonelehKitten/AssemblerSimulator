@@ -43,14 +43,30 @@ const useStyles = makeStyles((theme) => ({
     },
   },
 }));
-
+/*
 const Bit = ({ value }) => (
   <Brightness1Icon
     style={{
       fontSize: 10,
-      color: value == 1 ? '#1956c5' : 'rgba(25,86,197,0.20)',
+      color: value == 1 ? '#1956c500' : '#1956c5',
+      border: '1px solid #1956c5'
     }}
   />
+);
+*/
+const Bit = ({ value }) => (
+  <div
+    style={{
+      fontSize: 10,
+      backgroundColor: value == 1 ? '#1b6cff' : '#1b6cff00',
+      border: '1px solid #1b6cff',
+      width: ".7em",
+      height: ".7em",
+      display: 'inline-block',
+      borderRadius: "50%",
+      margin: "0 .1em"
+    }}
+  ></div>
 );
 
 const LowerMenu = ({ register }) => {
