@@ -4,6 +4,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { makeStyles } from '@material-ui/core/styles';
 import TabContainer from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
+import Tooltip from '@material-ui/core/Tooltip';
 
 import AddIcon from '@material-ui/icons/Add';
 
@@ -104,7 +105,13 @@ const Tabs = ({ value, onChange, listFiles }) => {
           className={classes.plus}
         />
         {Object.entries(listFiles).map(([id, file], key) => (
-          <Item key={key} isSave={file.isSave} value={id} label={file.name} />
+          <Item
+            key={key}
+            isSave={file.isSave}
+            value={id}
+            label={file.name.split('/')[file.name.split('/').length - 1]}
+            fileName={file.path}
+          />
         ))}
       </TabContainer>
       <Menu

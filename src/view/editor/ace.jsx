@@ -59,7 +59,7 @@ const Ace = ({ onChange }) => {
           boxShadow:
             'inset  0 -3px 6px rgba(0,0,0,0.16), 0 -3px 6px rgba(0,0,0,0.23)',
           width: '100%',
-          height: 'calc(100% - 2rem)',
+          height: 'calc(100% - 2rem - 32px)',
           fontFamily: 'Share Tech Mono',
         }}
         editorProps={{ $blockScrolling: true }}

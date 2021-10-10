@@ -5,7 +5,11 @@
  * @param handler de eventos
  */
 void init(const Nan::FunctionCallbackInfo<v8::Value> & info) {
-    InterfaceBus::getInstance().init(info);
+    InterfaceBus::getInstance().init();
+}
+
+void finish(const Nan::FunctionCallbackInfo<v8::Value> & info) {
+    InterfaceBus::getInstance().finish();
 }
 
 // =======================================================
@@ -17,7 +21,9 @@ void init(const Nan::FunctionCallbackInfo<v8::Value> & info) {
  * @param instruções em string
  */
 void requestExpandMacros(const Nan::FunctionCallbackInfo<v8::Value> & info) {
-    InterfaceBus::getInstance().serviceExpandMacros(info[0]);
+    std::cout << "cpp: begin" << std::endl;
+    InterfaceBus::getInstance().serviceExpandMacros((NodeInfo *) &info, info[0]);
+    std::cout << "cpp: end" << std::endl;
 }
 /**
  * Requisita montagem e execução direta
@@ -25,7 +31,7 @@ void requestExpandMacros(const Nan::FunctionCallbackInfo<v8::Value> & info) {
  * @param 128Kb de memória em um array de int
  */
 void requestAssembleAndRun(const Nan::FunctionCallbackInfo<v8::Value> & info) {
-    InterfaceBus::getInstance().serviceAssembleAndRun(info[0], info[1]);
+    InterfaceBus::getInstance().serviceAssembleAndRun((NodeInfo *) &info, info[0], info[1]);
 }
 /**
  * Requisita montagem e execução passo a passo
@@ -33,7 +39,7 @@ void requestAssembleAndRun(const Nan::FunctionCallbackInfo<v8::Value> & info) {
  * @param 128Kb de memória em um array de int
  */
 void requestAssembleAndRunBySteps(const Nan::FunctionCallbackInfo<v8::Value> & info) {
-    InterfaceBus::getInstance().serviceAssembleAndRunBySteps(info[0], info[1]);
+    InterfaceBus::getInstance().serviceAssembleAndRunBySteps((NodeInfo *) &info, info[0], info[1]);
 }
 /**
  * Requisita execução direta
@@ -41,7 +47,7 @@ void requestAssembleAndRunBySteps(const Nan::FunctionCallbackInfo<v8::Value> & i
  * @param 128Kb de memória em um array de int
  */
 void requestRun(const Nan::FunctionCallbackInfo<v8::Value> & info) {
-    InterfaceBus::getInstance().serviceRun(info[0], info[1]);
+    InterfaceBus::getInstance().serviceRun((NodeInfo *) &info, info[0], info[1]);
 }
 /**
  * Requisita execução passo a passo
@@ -49,7 +55,7 @@ void requestRun(const Nan::FunctionCallbackInfo<v8::Value> & info) {
  * @param 128Kb de memória em um array de int
  */
 void requestRunBySteps(const Nan::FunctionCallbackInfo<v8::Value> & info) {
-    InterfaceBus::getInstance().serviceRunBySteps(info[0], info[1]);
+    InterfaceBus::getInstance().serviceRunBySteps((NodeInfo *) &info, info[0], info[1]);
 }
 
 
@@ -80,6 +86,34 @@ void requestKillProcess(const Nan::FunctionCallbackInfo<v8::Value> & info) {
     InterfaceBus::getInstance().serviceKillProcess();
 }
 
+/**
+ * Requisita envio de input para o Z808.
+ * @param texto em string
+ */
+void requestSendInput(const Nan::FunctionCallbackInfo<v8::Value> & info) {
+    InterfaceBus::getInstance().serviceSendInput(info[0]);
+}
+
+// =======================================================
+//            OBSERVADORES DE DISPARO DE EVENTOS
+// =======================================================
+
+void observeExpandedMacrosFiring(const Nan::FunctionCallbackInfo<v8::Value> & info) {
+    InterfaceBus::getInstance().checkMacroExpanded((NodeInfo *) &info);
+}
+
+void observeCycleFiring(const Nan::FunctionCallbackInfo<v8::Value> & info) {
+    InterfaceBus::getInstance().checkCycle((NodeInfo *) &info);
+}
+
+void observeLogFiring(const Nan::FunctionCallbackInfo<v8::Value> & info) {
+    InterfaceBus::getInstance().checkLog((NodeInfo *) &info);
+}
+
+// TEST
+void requestTest(const Nan::FunctionCallbackInfo<v8::Value> & info) {
+    InterfaceBus::getInstance().serviceTest();
+}
 
 // Init
 void moduleExports(v8::Local<v8::Object> exports) {
@@ -88,6 +122,12 @@ void moduleExports(v8::Local<v8::Object> exports) {
   exports->Set(context,
                Nan::New("init").ToLocalChecked(),
                Nan::New<v8::FunctionTemplate>(init)
+                   ->GetFunction(context)
+                   .ToLocalChecked());
+
+  exports->Set(context,
+               Nan::New("finish").ToLocalChecked(),
+               Nan::New<v8::FunctionTemplate>(finish)
                    ->GetFunction(context)
                    .ToLocalChecked());
 
@@ -122,6 +162,12 @@ void moduleExports(v8::Local<v8::Object> exports) {
                    .ToLocalChecked());
 
   exports->Set(context,
+               Nan::New("requestTest").ToLocalChecked(),
+               Nan::New<v8::FunctionTemplate>(requestTest)
+                   ->GetFunction(context)
+                   .ToLocalChecked());
+
+  exports->Set(context,
                Nan::New("requestNextStep").ToLocalChecked(),
                Nan::New<v8::FunctionTemplate>(requestNextStep)
                    ->GetFunction(context)
@@ -136,6 +182,24 @@ void moduleExports(v8::Local<v8::Object> exports) {
   exports->Set(context,
                Nan::New("requestKillProcess").ToLocalChecked(),
                Nan::New<v8::FunctionTemplate>(requestKillProcess)
+                   ->GetFunction(context)
+                   .ToLocalChecked());
+
+  exports->Set(context,
+               Nan::New("observeExpandedMacrosFiring").ToLocalChecked(),
+               Nan::New<v8::FunctionTemplate>(observeExpandedMacrosFiring)
+                   ->GetFunction(context)
+                   .ToLocalChecked());
+
+  exports->Set(context,
+               Nan::New("observeCycleFiring").ToLocalChecked(),
+               Nan::New<v8::FunctionTemplate>(observeCycleFiring)
+                   ->GetFunction(context)
+                   .ToLocalChecked());
+
+  exports->Set(context,
+               Nan::New("observeLogFiring").ToLocalChecked(),
+               Nan::New<v8::FunctionTemplate>(observeLogFiring)
                    ->GetFunction(context)
                    .ToLocalChecked());
 

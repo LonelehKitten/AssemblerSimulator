@@ -1,32 +1,7 @@
+import {useMemo} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 
-/*
- root: {
-    display: 'flex',
-    width: '100%',
-    height: '7rem',
-    margin: '1rem',
-    padding: '10px',
-  },
-  sector: {
-    display: 'block',
-    width: 'calc(50vw - 10px)',
-    height: '5rem',
-    backgroundColor: '#313241',
-    padding: '1rem',
-    borderRadius: '3px',
-  },
-  firstSector: {
-    marginRight: '10px',
-    display: 'block',
-    width: '48vw',
-    height: '5rem',
-    backgroundColor: '#313241',
-    padding: '1rem',
-    borderRadius: '3px',
-  },
-*/
 const useStyles = makeStyles((theme, props) => ({
   root: {
     position: "relative",
@@ -58,7 +33,7 @@ const useStyles = makeStyles((theme, props) => ({
     display: 'flex',
   },
   bits: {
-    flexGrow:1,
+    flexGrow: 1,
     backgroundColor: "initial",
     display: "block"
   },
@@ -72,15 +47,15 @@ const useStyles = makeStyles((theme, props) => ({
       flexDirection: 'column',
       flexBasis: '50%',
       flex: 1,
-      "&>span":{
-        backgroundColor:"rgba(25,86,197,0.20)",
-        margin:5,
-        
+      "&>span": {
+        backgroundColor: "rgba(25,86,197,0.20)",
+        margin: 5,
+
         justifyContent: 'center',
         alignItems: 'center',
         display: 'flex',
 
-        "&.active":{
+        "&.active": {
           backgroundColor: '#1956c5'
         }
       }
@@ -91,24 +66,35 @@ const useStyles = makeStyles((theme, props) => ({
 const listBits = ["OF", "SF", "ZF", "IF", "PF", "CF"]
 const sr = "11100";
 const pc = "1001111";
-const UpperMenu = (props) => {
+// (0, cf), (6, pf), (7, if), (8, zf), (9, sf), (12, of)
+
+const UpperMenu = ({ register }) => {
   const classes = useStyles();
+
+  const flags = useMemo(() => [
+    register.SR.asFlags[12],
+    register.SR.asFlags[9],
+    register.SR.asFlags[8],
+    register.SR.asFlags[7],
+    register.SR.asFlags[6],
+    register.SR.asFlags[0]
+  ], [register]);
 
   return (
     <>
       <section style={{ margin: 10, display: "flex" }}>
         <Paper className={classes.root}>
           <span className={classes.name}>PC</span>
-          <span className={classes.value}>{parseInt(pc,2).toString("16").toUpperCase()}</span>
+          <span className={classes.value}>{parseInt(register.PC).toString("16").toUpperCase()}</span>
         </Paper>
         <Paper className={classes.root}>
           <span className={classes.name}>SR</span>
-          <span className={classes.value}>{parseInt(sr,2).toString("16").toUpperCase()}</span>
+          <span className={classes.value}>{parseInt(register.SR.asLiteral).toString("16").toUpperCase()}</span>
         </Paper>
         <Paper className={classes.root + " " + classes.bits}>
           <div className={classes.row}>
-            {listBits.map((name,key) =>
-              <div><span className={key % 3 == 1 ? "active" : ""}>{name}</span></div>
+            {listBits.map((name, key) =>
+              <div><span className={flags[key] ? "active" : ""}>{name}</span></div>
             )}
           </div>
         </Paper>

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -10,6 +10,8 @@ import TreeView from '@material-ui/lab/TreeView';
 import TreeItem from '@material-ui/lab/TreeItem';
 import Tooltip from '@material-ui/core/Tooltip';
 import Slider from '@material-ui/core/Slider';
+import MenuItem from '@material-ui/core/MenuItem';
+import Menu from '@material-ui/core/Menu';
 
 import PlayArrowIcon from '@material-ui/icons/PlayArrow';
 import StopIcon from '@material-ui/icons/Stop';
@@ -18,6 +20,8 @@ import MenuIcon from '@material-ui/icons/Menu';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import AllOutIcon from '@material-ui/icons/AllOut';
+import BugReportIcon from '@material-ui/icons/BugReport';
+import UpdateIcon from '@material-ui/icons/Update';
 
 import { useContext } from '../utils/context';
 import event from '../utils/event';
@@ -44,26 +48,37 @@ const useStyles = makeStyles((theme) => ({
     "& .MuiSlider-valueLabel": {
       top: "inherit",
       bottom: -51,
-      "&>span":{
+      "&>span": {
         transform: "rotate(135deg)",
         "& >span": {
           transform: "rotate(-135deg)",
-          color:"#333"
+          color: "#333"
         }
       }
     }
   }
 }));
 
+const requests = [
+  'requestExpandMacros',
+  'requestTest',
+  'requestAssembleAndRun',
+  'requestAssembleAndRunBySteps',
+  'requestRun',
+  'requestRunBySteps',
+  'requestNextStep',
+  'requestKillProcess',
+  'requestClockChange',
+  'requestSendInput',
+  'simulate'
+];
+
 const Header = () => {
-  const {
-    currentFile,
-    playing,
-    setPlaying,
-  } = useContext();
+  const {currentFile,playing,setPlaying} = useContext();
+  const [anchorEl, setAnchorEl] = useState(null);
   const classes = useStyles();
 
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -74,15 +89,20 @@ const Header = () => {
   };
 
   const handlePlay = (type) => () => {
-    if (type == "stop") return setPlaying(false);
     // play_expandMacros
-    if (!isEmpty(currentFile?.code)) {
-      setPlaying(true);
-      event("play", [type, currentFile.code], () => {
-        //   setPlaying(false);
+    if (!isEmpty(currentFile?.code) || type == "simulate") {
+      if (type == "requestEndTest" || type == "requestTest" || type == "requestKillProcess") setPlaying(false);
+      else setPlaying(true);
+      event("play", [type, [currentFile?.code]], () => {
+        setPlaying(false);
       });
     }
   };
+
+  const handleClickDebug = (type) => () => {
+    handlePlay(type)();
+    setAnchorEl(null);
+  }
 
   return (
     <div className={classes.root}>
@@ -100,25 +120,40 @@ const Header = () => {
           <Typography variant='h6' className={classes.title}>
             Assembler Simulator
           </Typography>
-          <Slider className={classes.slider} defaultValue={20} style={{ color: "#fff", width: 200 }} />
-          <Tooltip title="Expandir Macro">
-            <Button color='inherit' onClick={handlePlay("expandMacros")} disabled={playing} className={classes.button}>
+          <UpdateIcon  />
+          <Slider 
+            className={classes.slider} 
+            defaultValue={8} 
+            valueLabelDisplay="auto"
+            step={1}
+            marks
+            min={1}
+            max={10}
+            style={{ color: "#fff", width: 200, marginLeft: "1em", marginRight: "2em"}} 
+          />
+          <Tooltip title="Expandir Macro (requestExpandMacros)">
+            <Button color='inherit' onClick={handlePlay("requestExpandMacros")} disabled={playing} className={classes.button}>
               <AllOutIcon />
             </Button>
           </Tooltip>
-          <Tooltip title="Rodar">
-            <Button color='inherit' onClick={handlePlay("program")} disabled={playing} className={classes.button}>
+          <Tooltip title="Rodar (requestRun)">
+            <Button color='inherit' onClick={handlePlay("requestRun")} disabled={playing} className={classes.button}>
               <PlayArrowIcon />
             </Button>
           </Tooltip>
-          <Tooltip title="Avançar">
-            <Button color='inherit' onClick={handlePlay("next")} disabled={playing} className={classes.button}>
+          <Tooltip title="Avançar (requestNextStep)">
+            <Button color='inherit' onClick={handlePlay("requestNextStep")} disabled={playing} className={classes.button}>
               <SkipNextIcon />
             </Button>
           </Tooltip>
-          <Tooltip title="Parar">
-            <Button color='inherit' onClick={handlePlay("stop")} disabled={!playing} className={classes.button}>
+          <Tooltip title="Parar (requestKillProcess)">
+            <Button color='inherit' onClick={handlePlay("requestKillProcess")} disabled={!playing} className={classes.button}>
               <StopIcon />
+            </Button>
+          </Tooltip>
+          <Tooltip title="Debugar">
+            <Button color='inherit' onClick={(event) => setAnchorEl(event.currentTarget)} className={classes.button}>
+              <BugReportIcon />
             </Button>
           </Tooltip>
         </Toolbar>
@@ -138,6 +173,17 @@ const Header = () => {
           </TreeItem>
         </TreeView>
       </Drawer>
+      <Menu
+        anchorEl={anchorEl}
+        //anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        id="debug"
+        keepMounted
+        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        open={Boolean(anchorEl)}
+        onClose={() => setAnchorEl(null)}
+      >
+        {requests.map((name) => <MenuItem onClick={handleClickDebug(name)}>{name}</MenuItem>)}
+      </Menu>
     </div>
   );
 };

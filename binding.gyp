@@ -1,9 +1,11 @@
 {
   "targets": [
     {
-      "target_name": "addon",
+      "target_name": "ASMR",
       "sources": [ 
-        "src/bin/addon.cc",
+        "src/bin/ASMR.cpp",
+        "src/bin/sources/InterfaceBus.cpp",
+        "src/bin/sources/ServiceBus.cpp",
         "src/bin/sources/analyzer/LexiconAutomatons.cpp",
         "src/bin/sources/analyzer/LexiconScanner.cpp",
         "src/bin/sources/analyzer/LexiconScannerStatus.cpp",
@@ -13,7 +15,9 @@
         "src/bin/sources/analyzer/SyntaxAutomatons.cpp",
         "src/bin/sources/analyzer/Token.cpp",
         "src/bin/sources/assembler/Assembler.cpp",
-        "src/bin/sources/assembler/macroDef.cpp"
+        "src/bin/sources/assembler/macroDef.cpp",
+        "src/bin/sources/machine/Z808Machine.cpp",
+        "src/bin/sources/machine/Z808Response.cpp"
       ],
       "include_dirs": [
         "<!(node -e \"require('nan')\")"

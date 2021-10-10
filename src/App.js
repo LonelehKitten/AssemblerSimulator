@@ -44,8 +44,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const { ipcRenderer } = window.electron;
 /*
-const {ipcRenderer} = window.electron;
 ipcRenderer.once(event, callback); // Para receber o evento Electron -> React
 ipcRenderer.send(event, data?); // Para enviar o evento React -> Electron
 
@@ -56,13 +56,22 @@ ipcRenderer.send(event, data?); // Para enviar o evento React -> Electron
 function App2() {
   const classes = useStyles();
 
+  const [memory, setMemory] = useState(() => {
+    const memoryChanges = [];
+    for (let b = 0; b < 128; b++) {
+      for (let i = 0; i < 32; i++) {
+        for (let j = 0; j < 16; j++) {
+          memoryChanges.push(parseInt(0).toString("16"));
+        }
+      }
+    }
+    return memoryChanges;
+  });
   const [listFiles, setListFiles] = useState(() => {
     const list = JSON.parse(window.localStorage.getItem('_listFiles'));
 
     return list || {};
   });
-
-  const [consoleFlag, setConsoleFlag] = useState(false);
 
   const [playing, setPlaying] = useState(false);
   const [currentID, setCurrentID] = useState('');
@@ -105,7 +114,7 @@ function App2() {
     newValue[id] = {name,path,code};*/
     let idExists = null;
     Object.entries(listFiles).forEach(([k, item]) => {
-      if (item.path === path) idExists = k;
+      if (item.path === path && item.path != "") idExists = k;
     });
     if (idExists !== null) {
       setCurrentID(idExists);
@@ -148,6 +157,16 @@ function App2() {
     window.localStorage.setItem('_listFiles', JSON.stringify(listFiles));
   }, [listFiles]);
 
+  useEffect(() => {
+    ipcRenderer.on("cycle_memory", (evt, data) => {
+      if (typeof data.address == undefined || typeof data.newValue == undefined) return;
+      setMemory((old) => old.map((value, key) => key == data.address ? data.newValue : value));
+    });
+    ipcRenderer.on("init_memory",(evt,data) => {
+      setMemory(data);
+    });
+  }, []);
+
   return (
     <Context.Provider
       value={{
@@ -161,8 +180,7 @@ function App2() {
         setCode,
         changeFile,
         alertShow,
-        consoleFlag,
-        setConsoleFlag,
+        memory
       }}
     >
       <Alert onClose={setAlertMessage} message={alertMessage} />

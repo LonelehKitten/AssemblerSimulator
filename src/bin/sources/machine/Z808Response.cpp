@@ -55,7 +55,7 @@ void Z808Response::setStdin(bool newStdin)
     stdin = newStdin;
 }
 
-void Z808Response::setMemoryWrite(std::pair<USint, std::string> * memoryWrite)
+void Z808Response::setMemoryWrite(std::pair<USint, USint> * memoryWrite)
 {
     this->memoryWrite = memoryWrite;
 }
@@ -78,32 +78,32 @@ std::string Z808Response::bits() {
     return bits;
 }
 
-std::string Z808Response::toJSON() {
+JSON Z808Response::toJSON() {
 
     std::string JSON = "";
 
     JSON += std::string();
     JSON += std::string("{\n");
-    JSON += std::string("    registers: {\n");
-    JSON += std::string("        AX: ") + i(ax) + std::string(",\n");
-    JSON += std::string("        DX: ") + i(dx) + std::string(",\n");
-    JSON += std::string("        SI: ") + i(si) + std::string(",\n");
-    JSON += std::string("        SS: ") + i(ss) + std::string(",\n");
-    JSON += std::string("        DS: ") + i(ds) + std::string(",\n");
-    JSON += std::string("        CS: ") + i(cs) + std::string(",\n");
-    JSON += std::string("        SP: ") + i(sp) + std::string(",\n");
-    JSON += std::string("        PC: ") + i(pc) + std::string(",\n");
-    JSON += std::string("        SR: {\n") +
-    JSON += std::string("            asLiteral: ") + i((USint) sr->to_ulong()) + std::string(",\n");
-    JSON += std::string("            asFlags: ") + bits() + std::string(",\n");
+    JSON += std::string("    \"registers\": {\n");
+    JSON += std::string("        \"AX\": ") + i(ax) + std::string(",\n");
+    JSON += std::string("        \"DX\": ") + i(dx) + std::string(",\n");
+    JSON += std::string("        \"SI\": ") + i(si) + std::string(",\n");
+    JSON += std::string("        \"SS\": ") + i(ss) + std::string(",\n");
+    JSON += std::string("        \"DS\": ") + i(ds) + std::string(",\n");
+    JSON += std::string("        \"CS\": ") + i(cs) + std::string(",\n");
+    JSON += std::string("        \"SP\": ") + i(sp) + std::string(",\n");
+    JSON += std::string("        \"PC\": ") + i(pc) + std::string(",\n");
+    JSON += std::string("        \"SR\": {\n") +
+    JSON += std::string("            \"asLiteral\": ") + i((USint) sr->to_ulong()) + std::string(",\n");
+    JSON += std::string("            \"asFlags\": ") + bits() + std::string(",\n");
     JSON += std::string("        }\n") +
     JSON += std::string("    },\n") +
-    JSON += std::string("    stdout: \"") + stdout + std::string("\",\n");
-    JSON += std::string("    stdin: ") + (stdin ? "true" : "false") + std::string(",\n");
-    JSON += std::string("    memoryChange: {\n");
+    JSON += std::string("    \"stdout\": \"") + stdout + std::string("\",\n");
+    JSON += std::string("    \"stdin\": ") + (stdin ? "true" : "false") + std::string(",\n");
+    JSON += std::string("    \"memoryChange\": {\n");
     if(memoryWrite == nullptr) {
-        JSON += std::string("        address: ") + i(memoryWrite->first) + std::string(", \n");
-        JSON += std::string("        newValue: ") + memoryWrite->second + std::string(", \n");
+        JSON += std::string("        \"address\": ") + i(memoryWrite->first) + std::string(", \n");
+        JSON += std::string("        \"newValue\": ") + i(memoryWrite->second) + std::string(", \n");
     }
     JSON += std::string("    }\n");
     JSON += std::string("}");

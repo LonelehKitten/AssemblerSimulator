@@ -17,7 +17,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 const Item = (
-  { label, onChange, isSave, onClick, indicator, value, selected },
+  { label, onChange, isSave, onClick, indicator, value, selected, fileName },
   ref
 ) => {
   const { listFiles, setListFiles, currentID, changeFile } = useContext();
@@ -37,24 +37,28 @@ const Item = (
   };
 
   return (
-    <button
-      className={
-        'MuiButtonBase-root MuiTab-root MuiTab-textColorInherit' +
-        (selected ? ' Mui-selected' : '')
-      }
-      ref={ref}
-      onClick={handleClick}
-      role='tab'
-      aria-selected={selected}
-      tabIndex={selected ? 0 : -1}
-    >
-      {isSave && <FiberManualRecordIcon className={classes.isSave} />}
-      <span className='MuiTab-wrapper'>{label}</span>
-      <Tooltip title='Fechar' placement='bottom'>
-        <CloseIcon onClick={handleClose} className={classes.deleted} />
-      </Tooltip>
-      {indicator}
-    </button>
+    <Tooltip title={fileName} placement='bottom'>
+      <button
+        className={
+          'MuiButtonBase-root MuiTab-root MuiTab-textColorInherit' +
+          (selected ? ' Mui-selected' : '')
+        }
+        ref={ref}
+        onClick={handleClick}
+        role='tab'
+        aria-selected={selected}
+        tabIndex={selected ? 0 : -1}
+      >
+        {isSave && <FiberManualRecordIcon className={classes.isSave} />}
+
+        <span className='MuiTab-wrapper'>{label}</span>
+
+        <Tooltip title='Fechar' placement='bottom'>
+          <CloseIcon onClick={handleClose} className={classes.deleted} />
+        </Tooltip>
+        {indicator}
+      </button>
+    </Tooltip>
   );
 };
 export default React.forwardRef(Item);
