@@ -171,11 +171,17 @@ void InterfaceBus::runAssembleAndRunBySteps() {
 
 void InterfaceBus::runRun() {
 
+    machine->memoryUpdate(&inputReport.memory, &inputReport.bytecode);
+    machine->run(false);
+
     while(isUpdating());
     setWaiting(false);
 }
 
 void InterfaceBus::runRunBySteps() {
+
+    machine->memoryUpdate(&inputReport.memory, &inputReport.bytecode);
+    machine->run(true);
 
     while(isUpdating());
     setWaiting(false);
@@ -364,7 +370,7 @@ void InterfaceBus::serviceClockChange(V8Var clock) {
  * Requisita parada forçada da execução
  */
 void InterfaceBus::serviceKillProcess() {
-
+    machine->forceStop();
 }
 
 /**
@@ -372,6 +378,7 @@ void InterfaceBus::serviceKillProcess() {
  * @param texto em string
  */
 void InterfaceBus::serviceSendInput(V8Var input) {
+    //machine->setInput(castV8toString(input))
     setInputing(false);
 }
 

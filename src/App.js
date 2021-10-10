@@ -8,6 +8,7 @@ import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 import Header from './theme/header';
+import Footer from './theme/footer';
 import Editor from './view/editor';
 import Console from './view/console';
 import Register from './view/register';
@@ -34,13 +35,13 @@ const useStyles = makeStyles((theme) => ({
     position: 'relative',
     float: 'left',
     backgroundColor: theme.palette.secondary.main,
-    height: 'calc(100vh - 48px)',
+    height: 'calc(100vh - 48px - 1.5em)',
   },
   sidebar: {
     position: 'relative',
     float: 'left',
     backgroundColor: '#21222c',
-    height: 'calc(100vh - 48px)',
+    height: 'calc(100vh - 48px - 1.5em)',
   },
 }));
 
@@ -185,25 +186,30 @@ function App2() {
     >
       <Alert onClose={setAlertMessage} message={alertMessage} />
       <Header />
-      <main
-        className={classes.main}
-        style={{ width: `calc(100% - ${EtoR}px)` }}
-      >
-        <Editor style={{ height: `calc(100vh - 48px - ${EtoC}px)` }} />
-        <Dragger orientation='horizontal' onMouse={handleHorizontal} />
-        <Console
-          style={{ height: `calc(${EtoC}px - 8px)`, marginLeft: '3px' }}
-          width={EtoR}
-        />
-      </main>
-      <aside className={classes.sidebar} style={{ width: EtoR + 'px' }}>
-        <Dragger onMouse={handleVertical} />
-        <Register
-          style={{ minWidth: '15vw' }}
-          width={EtoR}
-          height={`calc(100vh)`}
-        />
-      </aside>
+      <div className="container" style={{display: 'flex', width: '100%'}}>
+        <main
+          className={classes.main}
+          style={{ width: `calc(100% - ${EtoR}px)` }}
+        >
+          <Editor style={{ height: `calc(100vh - 48px - ${EtoC}px - 1.5em)` }} />
+          <Dragger orientation='horizontal' onMouse={handleHorizontal} />
+          <Console
+            style={{ height: `calc(${EtoC}px - 8px)`, marginLeft: '3px' }}
+            width={EtoR}
+          />
+        </main>
+        <aside className={classes.sidebar} style={{ width: EtoR + 'px' }}>
+          <Dragger onMouse={handleVertical} />
+          <Register
+            style={{ minWidth: '15vw' }}
+            width={EtoR}
+            height={`calc(100vh)`}
+          />
+        </aside>
+      </div>
+      <footer>
+        <Footer  />
+      </footer>
     </Context.Provider>
   );
 }
