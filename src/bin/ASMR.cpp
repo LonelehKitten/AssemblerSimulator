@@ -110,6 +110,10 @@ void observeLogFiring(const Nan::FunctionCallbackInfo<v8::Value> & info) {
     InterfaceBus::getInstance().checkLog((NodeInfo *) &info);
 }
 
+void observeProgramToMemoryFiring(const Nan::FunctionCallbackInfo<v8::Value> & info) {
+    InterfaceBus::getInstance().checkProgramToMemory((NodeInfo *) &info);
+}
+
 // TEST
 void requestTest(const Nan::FunctionCallbackInfo<v8::Value> & info) {
     InterfaceBus::getInstance().serviceTest();
@@ -200,6 +204,12 @@ void moduleExports(v8::Local<v8::Object> exports) {
   exports->Set(context,
                Nan::New("observeLogFiring").ToLocalChecked(),
                Nan::New<v8::FunctionTemplate>(observeLogFiring)
+                   ->GetFunction(context)
+                   .ToLocalChecked());
+
+  exports->Set(context,
+               Nan::New("observeProgramToMemoryFiring").ToLocalChecked(),
+               Nan::New<v8::FunctionTemplate>(observeProgramToMemoryFiring)
                    ->GetFunction(context)
                    .ToLocalChecked());
 
