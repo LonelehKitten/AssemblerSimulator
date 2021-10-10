@@ -1,8 +1,10 @@
 #include "Z808Machine.h"
 #include "Z808Response.h"
-//#include "../InterfaceBus.h"
+#include "../InterfaceBus.h"
 #include <iostream>
 #include <cstdlib>
+
+#define IO_T unsigned short int
 
 Z808Machine::Z808Machine()
 {
@@ -14,33 +16,35 @@ Z808Machine::Z808Machine()
 void Z808Machine::memoryUpdate(std::vector<Z808Byte> *memory, std::vector<unsigned char> *programBytes)
 {
     delete this->memory;
-    //this->memory = memory;
     //this->memory = programBytes;
+    /*  Concatenar memory logo depois de programBytes
+    *   Ou atribuir memory pra this->memory e escrever programBytes dentro de this->memory num for loop a partir da posição?
+    */
     //this->memory->insert(this->memory->end(), memory->begin(), memory->end());
     this->memory = memory;
-    //InterfaceBus::getInstance().dispatchProgramToMemory(memory);
+    InterfaceBus::getInstance().dispatchProgramToMemory(memory);
 }
 
 bool Z808Machine::isEnd()
 {
-    //InterfaceBus::getInstance().getMutex().lock();
-    //bool programEnd = this->programEnd;
-    //InterfaceBus::getInstance().getMutex().unlock();
+    InterfaceBus::getInstance().getMutex().lock();
+    bool programEnd = this->programEnd;
+    InterfaceBus::getInstance().getMutex().unlock();
     return programEnd;
 }
 
 void Z808Machine::forceStop()
 {
-    //InterfaceBus::getInstance().getMutex().lock();
+    InterfaceBus::getInstance().getMutex().lock();
     programEnd = true;
-    //InterfaceBus::getInstance().getMutex().unlock();
+    InterfaceBus::getInstance().getMutex().unlock();
 }
 
 
 //TERMINAR TUDO O QUE ESTÁ ENTRE /* */ PARA ESSA PRÓXIMA ENTREGA
 int Z808Machine::run(bool isBySteps)
 {
-    std::string ioInput;
+    IO_T ioData;
 
     std::vector<Z808Word> registradores;
 
@@ -53,13 +57,13 @@ int Z808Machine::run(bool isBySteps)
     bool ioMode = false;
     unsigned short ioAddr = 0;
 
-    //InterfaceBus * interfaceBus = &InterfaceBus::getInstance();
+    InterfaceBus * interfaceBus = &InterfaceBus::getInstance();
 
     programEnd = false;
     
     while(!isEnd())
     {
-        //if(!isBySteps) std::this_thread::sleep_for(interfaceBus->getClock());
+        if(!isBySteps) std::this_thread::sleep_for(interfaceBus->getClock());
 
         increment = processor->execute(*memory);
 
@@ -67,7 +71,7 @@ int Z808Machine::run(bool isBySteps)
         {
             std::cout << "\nERRO NA INSTRUCAO " << processor->getIP() << "\n\n\n";
 
-            /* dispatchLog Error */
+            interfaceBus->dispatchLog(std::string("Erro na instrução ") + std::to_string(processor->getIP().to_ulong()), InterfaceBus::ERROR);
             programEnd = true;
             
             break;
@@ -77,9 +81,10 @@ int Z808Machine::run(bool isBySteps)
         {
             std::cout << "\nFIM DE PROGRAMA\n\n\n";
             
+            interfaceBus->dispatchLog(std::string("Fim do programa."), InterfaceBus::SUCCESS);
+            interfaceBus->dispatchHalt();
             programEnd = true;
-            /* dispatchHalt */
-
+            
             break;
         }
 
@@ -88,8 +93,8 @@ int Z808Machine::run(bool isBySteps)
         {
             std::cout << "\nERRO DE OVERFLOW NA PILHA\n\n\n";
 
+            interfaceBus->dispatchLog(std::string("Erro de stack overflow durante a instrução ") + std::to_string(processor->getIP().to_ulong()), InterfaceBus::ERROR);
             programEnd = true;
-            /* dispatchLog Error */
 
             break;
         }
@@ -99,8 +104,6 @@ int Z808Machine::run(bool isBySteps)
         {
             ioMode = processor->getInterruptionMode();
             ioAddr = processor->getAX().to_ulong();
-            if (ioMode) //modo write
-                processor->resetInterruption();
         }
 
         registradores = processor->getRegisters();
@@ -113,33 +116,44 @@ int Z808Machine::run(bool isBySteps)
         Format->setPc(registradores[4].to_ulong());        //ip
         Format->setSr(&(processor->getRegisters()[5]));
 
-        if (ioMode)
-        {
-            Format->setStandardOutput(std::string("")/*pegar string da memoria*/);
-            Format->setStandardInput(false);
-        }
+        if (processor->isInterrupt())
+            if (ioMode)
+            {
+                ioData = 0;
+                ioData |= memory[2*ioAddr+1];
+                ioData <<= 8;
+                ioData |= memory[2*ioAddr];
+                Format->setStandardOutput(std::to_string(ioData));
+                Format->setStandardInput(false);
+                processor->resetInterruption();
+            }
+            else
+                Format->setStandardInput(true);
         else
-            Format->setStandardInput(true);
-        
+            Format->setStandardInput(false);
 
+        
+        
         //************End_Setters do Z808Response
 
         //TERMINAR AS LINHAS SEGUINTES PARA ESSA PRÓXIMA ENTREGA
         
-        /* dispatchCycle ioMode e o resto */
-        //Mandar processor->getRegisters(); pro Response
-        //interfaceBus->dispatchCycle(processor->get, !ioMode);
-        //
-        //while(interfaceBus->isUpdating());
-        //
-        //if(interfaceBus->isInputing())
-        //{
-        //    while(interfaceBus->isInputing());
-        //    /* colocaOInputNaMemoria(); */
-        //    interfaceBus->isNextStepRequested(true);
-        //}
-        //
-        //while(isBySteps && !interfaceBus->isNextStepRequested());
+        interfaceBus->dispatchCycle(*Format,!ioMode));
+        
+        while(interfaceBus->isUpdating());
+        
+        if(interfaceBus->isInputing())
+        {
+            while(interfaceBus->isInputing());
+
+            ioData = 0;
+            
+            /* colocaOInputNaMemoria(); */
+
+            interfaceBus->isNextStepRequested(true);
+        }
+        
+        while(isBySteps && !interfaceBus->isNextStepRequested());
 
         //Exemplo de como pegar o valor numerico do registrador AX (checar indices no Z808Processor.h)
         std::cout << "\nAX: " << std::hex << registradores[0].to_ulong();
@@ -155,8 +169,6 @@ int Z808Machine::run(bool isBySteps)
         std::cout << "\nSR->sf: " << registradores[5].test(9);
         std::cout << "\nSR->of: " << registradores[5].test(12);
         std::cout << std::endl;
-
-        system("pause");    //Desculpa mas nao eh pra rodar no linux
     }
 
     return 0;
