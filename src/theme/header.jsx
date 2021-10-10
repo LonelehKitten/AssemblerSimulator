@@ -117,18 +117,15 @@ const Header = () => {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant='h6' className={classes.title}>
-            Assembler Simulator
-          </Typography>
           <UpdateIcon  />
           <Slider 
             className={classes.slider} 
-            defaultValue={8} 
+            defaultValue={16} 
             valueLabelDisplay="auto"
             step={1}
             marks
             min={1}
-            max={10}
+            max={20}
             style={{ color: "#fff", width: 200, marginLeft: "1em", marginRight: "2em"}} 
           />
           <Tooltip title="Expandir Macro (requestExpandMacros)">
@@ -136,7 +133,7 @@ const Header = () => {
               <AllOutIcon />
             </Button>
           </Tooltip>
-          <Tooltip title="Rodar (requestRun)">
+          <Tooltip title="Executar (requestRun)">
             <Button color='inherit' onClick={handlePlay("requestRun")} disabled={playing} className={classes.button}>
               <PlayArrowIcon />
             </Button>
