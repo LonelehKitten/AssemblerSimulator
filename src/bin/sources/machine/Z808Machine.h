@@ -2,16 +2,23 @@
 #include <bitset>
 #include "Z808Processor.h"
 
-#define WAIT_INPUT 1
+#define END_PROGRAM 1
 
 class Z808Machine
 {
 private:
+    bool programEnd;
     Z808Processor *processor;
     std::vector<Z808Byte> *memory;
 public:
-    Z808Machine(std::vector<Z808Byte> *memory);
-    void memoryUpdate(std::vector<Z808Byte> *memory);
-    int run();
-    //something something
+    Z808Machine();
+    //Será editado quando voltarmos a trabalhar com Assembler
+    void memoryUpdate(std::vector<unsigned char> *memory, std::vector<unsigned char> *programBytes = nullptr);
+    bool isEnd();
+    void forceStop();
+
+    /*
+        - isBySteps - executa instruções qnd nextStepRequested for true
+    */
+    int run(bool isBySteps);
 };

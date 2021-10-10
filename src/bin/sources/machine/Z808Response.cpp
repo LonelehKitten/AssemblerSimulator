@@ -45,14 +45,14 @@ void Z808Response::setSr(std::bitset<16> * sr)
     this->sr = sr;
 }
 
-void Z808Response::setStdout(const std::string newStdout)
+void Z808Response::setStandardOutput(const std::string newStdout)
 {
-    stdout = newStdout;
+    standardOutput = newStdout;
 }
 
-void Z808Response::setStdin(bool newStdin)
+void Z808Response::setStandardInput(bool newStdin)
 {
-    stdin = newStdin;
+    standardInput = newStdin;
 }
 
 void Z808Response::setMemoryWrite(std::pair<USint, USint> * memoryWrite)
@@ -98,8 +98,8 @@ JSON Z808Response::toJSON() {
     JSON += std::string("            \"asFlags\": ") + bits() + std::string(",\n");
     JSON += std::string("        }\n") +
     JSON += std::string("    },\n") +
-    JSON += std::string("    \"stdout\": \"") + stdout + std::string("\",\n");
-    JSON += std::string("    \"stdin\": ") + (stdin ? "true" : "false") + std::string(",\n");
+    JSON += std::string("    \"stdout\": \"") + standardOutput + std::string("\",\n");
+    JSON += std::string("    \"stdin\": ") + (standardInput ? "true" : "false") + std::string(",\n");
     JSON += std::string("    \"memoryChange\": {\n");
     if(memoryWrite == nullptr) {
         JSON += std::string("        \"address\": ") + i(memoryWrite->first) + std::string(", \n");
@@ -108,8 +108,8 @@ JSON Z808Response::toJSON() {
     JSON += std::string("    }\n");
     JSON += std::string("}");
 
-    stdout = "";
-    stdin = false;
+    standardOutput = "";
+    standardInput = false;
     delete memoryWrite;
     memoryWrite = nullptr;
 
