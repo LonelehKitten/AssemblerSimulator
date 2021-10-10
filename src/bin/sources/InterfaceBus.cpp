@@ -9,6 +9,8 @@ InterfaceBus::InterfaceBus() :
     running(false),
     waiting(false),
     updating(false),
+    inputing(false),
+    nextStepRequested(false),
     service(Service::NONE)
 {
     inputReport.ready = false;
@@ -129,6 +131,21 @@ void InterfaceBus::setInputing(bool inputing) {
     mutex.unlock();
 }
 
+bool InterfaceBus::isNextStepRequested() {
+    bool nextStepRequested;
+    mutex.lock();
+    nextStepRequested = this->nextStepRequested;
+    mutex.unlock();
+    return nextStepRequested;
+}
+
+void InterfaceBus::setNextStepRequested(bool nextStepRequested) {
+    mutex.lock();
+    this->nextStepRequested = nextStepRequested;
+    mutex.unlock();
+}
+
+
 void InterfaceBus::runExpandMacros() {
     std::vector<Semantic *> * semantics = recognitionManager->analyze(inputReport.code, false);
     assembler = new Assembler(semantics);
@@ -190,20 +207,30 @@ void InterfaceBus::dispatchMacroExpanded(std::string code) {
 }
 
 // pra cada ciclo do processador
-void InterfaceBus::dispatchCycle(Z808Response& response) {
+void InterfaceBus::dispatchProgramToMemory(std::vector<byte> * memory) {
+    outputReport.memory = castByteArraytoJSON(memory);
+    outputReport.ready = true;
+    setUpdating(true);
+}
+
+// pra cada ciclo do processador
+void InterfaceBus::dispatchCycle(Z808Response& response, bool waitingForInput) {
     outputReport.response = response.toJSON();
     outputReport.ready = true;
+    setUpdating(true);
+    setInputing(waitingForInput);
 }
 
 // para sinalizar fim de execução
 void InterfaceBus::dispatchHalt() {
     outputReport.response = "halt";
     outputReport.ready = true;
+    setUpdating(true);
 }
 
 // quando houver alguma mensagem a ser printada no console
 void InterfaceBus::dispatchLog(std::string message, LogStatus status) {
-    std::string logMessage = std::string("{\"message\": \"") + message +
+    JSON logMessage = std::string("{\"message\": \"") + message +
                             std::string("\", \"status\": ") + std::to_string((int) status) +
                             std::string("}");
     logMessages.push(logMessage);
@@ -218,6 +245,14 @@ void InterfaceBus::checkMacroExpanded(NodeInfo * info) {
     trigger("macroExpanded", outputReport.code);
     outputReport.ready = false;
     setWaiting(false);
+}
+
+void InterfaceBus::checkProgramToMemory(NodeInfo * info) {
+    this->info = info;
+    if(!outputReport.ready) return;
+    trigger("programToMemory", outputReport.memory);
+    outputReport.ready = false;
+    setUpdating(false);
 }
 
 void InterfaceBus::checkCycle(NodeInfo * info) {
@@ -308,7 +343,7 @@ void InterfaceBus::serviceTest() {
  * Utilizado junto dos serviços AssembleAndRunBySteps e RunBySteps.
  */
 void InterfaceBus::serviceNextStep() {
-
+    setNextInstruction(true);
 }
 
 /**
@@ -333,7 +368,7 @@ void InterfaceBus::serviceKillProcess() {
  * @param texto em string
  */
 void InterfaceBus::serviceSendInput(V8Var input) {
-
+    setInputing(false);
 }
 
 
@@ -365,14 +400,25 @@ int InterfaceBus::castV8toInt(V8Var jsNumber) {
     return (int) jsNumber->NumberValue(info->GetIsolate()->GetCurrentContext()).FromJust();
 }
 
-char * InterfaceBus::castV8toByteArray(V8Var jsNumberArray) {
+std::vector<byte> InterfaceBus::castV8toByteArray(V8Var jsNumberArray) {
     v8::Local<v8::Array> jsArray = v8::Local<v8::Array>::Cast(jsNumberArray);
     unsigned int length = (unsigned int) jsArray->Length();
-    char * array = (char *) malloc(sizeof(char)*length);
+    byte * array = (byte *) malloc(sizeof(byte)*length);
     for(unsigned int i = 0; i < length; i++) {
-        array[i] = (char) castV8toInt(Nan::Get(jsArray, i).ToLocalChecked());
+        array[i] = (byte) castV8toInt(Nan::Get(jsArray, i).ToLocalChecked());
     }
-    return array;
+    return std::vector<byte>(array, array+length);
+}
+
+JSON InterfaceBus::castByteArraytoJSON(std::vector<byte> * array) {
+    JSON str = "{\"bytes\": [";
+    for(int i = 0; i < (int) array->size(); i++) {
+        str += std::to_string(array->at(i));
+        if(i+1 < (int) array->size()) {
+            str += ", ";
+        }
+    }
+    return str + "]}";
 }
 
 InterfaceBus& InterfaceBus::getInstance() {

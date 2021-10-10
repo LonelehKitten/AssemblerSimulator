@@ -55,7 +55,7 @@ void Z808Response::setStdin(bool newStdin)
     stdin = newStdin;
 }
 
-void Z808Response::setMemoryWrite(std::pair<USint, std::string> * memoryWrite)
+void Z808Response::setMemoryWrite(std::pair<USint, USint> * memoryWrite)
 {
     this->memoryWrite = memoryWrite;
 }
@@ -78,7 +78,7 @@ std::string Z808Response::bits() {
     return bits;
 }
 
-std::string Z808Response::toJSON() {
+JSON Z808Response::toJSON() {
 
     std::string JSON = "";
 
@@ -103,7 +103,7 @@ std::string Z808Response::toJSON() {
     JSON += std::string("    \"memoryChange\": {\n");
     if(memoryWrite == nullptr) {
         JSON += std::string("        \"address\": ") + i(memoryWrite->first) + std::string(", \n");
-        JSON += std::string("        \"newValue\": ") + memoryWrite->second + std::string(", \n");
+        JSON += std::string("        \"newValue\": ") + i(memoryWrite->second) + std::string(", \n");
     }
     JSON += std::string("    }\n");
     JSON += std::string("}");
