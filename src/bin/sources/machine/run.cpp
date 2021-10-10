@@ -5,7 +5,7 @@ cd bin
 cd sources
 cd machine
 
-g++ Z808Processor.cpp Z808Machine.cpp run.cpp -o run 
+g++ Z808Processor.cpp Z808Response.cpp Z808Machine.cpp run.cpp -o run 
 run.exe
 */
 
@@ -16,20 +16,13 @@ int main()
 {
     std::vector<Z808Byte> memory;
 
-    //INSERIR DENTRO DO VETOR DE MEMORIA TODAS AS INSTRUCOES DE UM PROGRAMA EXEMPLO
-    //FAZER DA FORMA QUE ACHAR MELHOR
-
-    /** Programa exemplo (criado por mim, nao faz nada demais, apenas testa umas contas, uns jumps e dps para):
-     * ADD AX, 1022
-     * ADD AX, AX
-     * SUB AX, 511
-     * SUB AX, 511
-     * JZ 17
-     * SUB AX, 511
-     * JMP 2
-     * HLT
-     */
-    
+    /*
+    * XOR AX, 3840
+    * NOT AX
+    * OR AX, AX
+    * AND AX, AX
+    * hlt
+    *
     memory = std::vector<Z808Byte>(10,0);
 
     memory[0] = 0x35; //opcode do xor ax, opd com opd = 3840, 0x0F00
@@ -42,7 +35,18 @@ int main()
     memory[7] = 0x23; // AND AX, AX
     memory[8] = 0xC0;
     memory[9] = 0xEE; // hlt
-
+    */
+    
+    /** Programa exemplo (criado por mim, nao faz nada demais, apenas testa umas contas, uns jumps e dps para):
+     * ADD AX, 1022
+     * ADD AX, AX
+     * SUB AX, 511
+     * SUB AX, 511
+     * JZ 17
+     * SUB AX, 511
+     * JMP 2
+     * HLT
+     */
     
     //Exemplo da instrucao ADD AX, opd com opd = 1022, 0x03FE
     memory.push_back(0x05);     //Opcode da instrucao ADD AX, opd
@@ -75,19 +79,10 @@ int main()
     memory.push_back(0x00);
     //Exemplo da instrucao hlt
     memory.push_back(0xEE);     //Opcode da instrucao hlt
-
-    /*
-    * XOR AX, 3840
-    * NOT AX
-    * OR AX, AX
-    * AND AX, AX
-    * hlt
-    */
-
    
-    Z808Machine machine(&memory);
-
-    machine.run();
+    Z808Machine machine;
+    machine.memoryUpdate(&memory);
+    machine.run(false);
 
     /*
 

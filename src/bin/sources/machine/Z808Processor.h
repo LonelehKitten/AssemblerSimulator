@@ -12,8 +12,8 @@ typedef std::bitset<16> Z808Word;   //Registradores
 typedef unsigned char Z808Byte;     //Leitura da memória de instruções
 typedef long int Z808Operation;     //Operaçoes dentro da VM
 
-#define SP_MAXADDR 0x0000               //Definição do limite da pilha
-#define SP_BASEADDR 0x0000               //Definição do início da pilha
+#define SP_MAXADDR 0xFFFF               //Definição do limite da pilha
+#define SP_BASEADDR 0xFE00               //Definição do início da pilha
 
 class Z808Processor
 {
@@ -64,6 +64,11 @@ private:
     //Tabela de registradores
     std::vector<Z808Word> Z808Registers;
 
+    //Indica o tipo de interrupção
+    //"false" para read
+    //"true" para write
+    bool interruptionMode;
+
     //Flag para caso alguma instrução esteja errada
     bool errorInstruction;
 
@@ -80,7 +85,17 @@ public:
     Z808Processor();
 
     //Pega os registradores
-    std::vector<Z808Word> getRegisters();
+    std::vector<Z808Word> &getRegisters();
+    //Pega o registrador AX - acumulador
+    Z808Word getAX();
+    //Pega o registrador IP - contador de programa
+    Z808Word getIP();
+    //Verifica se houve interrupção
+    bool isInterrupt(); //Z808Registers[SR][IF];
+    //Pega o tipo de interrupção
+    bool getInterruptionMode();
+    //Reseta a flag de interrupção
+    void resetInterruption();
     //Limpa todas as flags de erro
     void clearError();
     //Checagem se a última leitura de instrução deu erro

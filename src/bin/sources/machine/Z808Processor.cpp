@@ -7,9 +7,34 @@ Z808Processor::Z808Processor()
     clearError();
 }
 
-std::vector<Z808Word> Z808Processor::getRegisters()
+std::vector<Z808Word>& Z808Processor::getRegisters()
 {
     return Z808Registers;
+}
+
+Z808Word Z808Processor::getAX()
+{
+    return Z808Registers[AX];
+}
+
+Z808Word Z808Processor::getIP()
+{
+    return Z808Registers[IP];
+}
+
+bool Z808Processor::isInterrupt()
+{
+    return Z808Registers[SR].test(IF);
+}
+
+bool Z808Processor::getInterruptionMode() 
+{
+    return interruptionMode;
+}
+
+void Z808Processor::resetInterruption()
+{
+    Z808Registers[SR].reset(IF);
 }
 
 bool Z808Processor::instructionError()
@@ -734,7 +759,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
         operator1 <<= 8;
         operator1 |= memory[i+1];
 
-        if (Z808Registers[SR][ZF] == 1)
+        if (Z808Registers[SR].test(ZF) == 1)
             opbytes = operator1;    //Novo deslocamento
 
         Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
@@ -755,7 +780,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
         operator1 <<= 8;
         operator1 |= memory[i+1];
 
-        if (Z808Registers[SR][ZF] != 1)
+        if (Z808Registers[SR].test(ZF) != 1)
             opbytes = operator1;        //Novo deslocamento
 
         Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
@@ -776,7 +801,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
         operator1 <<= 8;
         operator1 |= memory[i+1];
 
-        if (Z808Registers[SR][SF] == 0)
+        if (Z808Registers[SR].test(SF) == 0)
             opbytes = operator1;    //Novo deslocamento
 
         Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
@@ -1088,15 +1113,52 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
     }
     break;
 
-    case 0x12 :         //read opd
+    case 0xCD:         //int opd
     {
+        opbytes = 3;
 
-    }
-    break;
+        if (i+opbytes > memory.size())      //Se a instrucao nao possui bytes suficientes antes do fim da memoria
+        {
+            errorInstruction = true;
+            break;
+        }
 
-    case 0x08 :         //write opd
-    {
+        operator1 |= memory[i+2];           //pegando opd
+        operator1 <<= 8;
+        operator1 |= memory[i+1];
 
+        switch(operator1)
+        {
+            case 1:                         //read opd - int 1
+                interruptionMode = false;
+                Z808Registers[SR].set(IF);    //Seta o bit para interrupcao
+                Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
+            break;
+
+            case 2:                         //write opd - int 2
+                interruptionMode = true;
+                Z808Registers[SR].set(IF);    //Seta o bit para interrupcao
+                Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
+            break;
+            
+            default:
+                errorInstruction = true;
+            break;
+        }
+
+        //fazer a leitura do input stream
+        //operator2
+
+        //result = registers[AX];
+        //registers[SR][IF].set();
+        //EM MACHINE, NAO AQUI: memory[result] = input;
+
+        //memory[operator1] = (Z808Byte) operator2;
+        //operator2 >>= 8;
+        //memory[operator1+1] = (Z808Byte) operator2;
+
+
+        Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
     }
     break;
 
