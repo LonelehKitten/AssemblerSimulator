@@ -63,11 +63,18 @@ private:
 
     //Tabela de registradores
     std::vector<Z808Word> Z808Registers;
+    //Guarda o endereço da posição de memória em uma operação de escrita
+    Z808Word storeAddr;
+    //Guarda o valor da memória em uma operação de escrita
+    Z808Word storeValue;
 
     //Indica o tipo de interrupção
     //"false" para read
     //"true" para write
     bool interruptionMode;
+
+    //Indica se houve uma escrita na memória
+    bool opStore;
 
     //Flag para caso alguma instrução esteja errada
     bool errorInstruction;
@@ -92,6 +99,12 @@ public:
     Z808Word getIP();
     //Verifica se houve interrupção
     bool isInterrupt(); //Z808Registers[SR][IF];
+    //Verifica se a última instrução foi de escrita na memória
+    bool isStore();
+    //Pega a posição de memória da última instrução de escrita
+    Z808Word getStoreAddr();
+    //Pega o valor da memória da última instrução de escrita
+    Z808Word getStoreValue();
     //Pega o tipo de interrupção
     bool getInterruptionMode();
     //Reseta a flag de interrupção

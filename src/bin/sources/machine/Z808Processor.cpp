@@ -4,6 +4,9 @@ Z808Processor::Z808Processor()
 {
     Z808Registers = std::vector<Z808Word>(6,0);
     Z808Registers[SP] = SP_BASEADDR;
+    interruptionMode = false;
+    storeAddr = 0;
+    opStore = false;
     clearError();
 }
 
@@ -30,6 +33,21 @@ bool Z808Processor::isInterrupt()
 bool Z808Processor::getInterruptionMode() 
 {
     return interruptionMode;
+}
+
+bool Z808Processor::isStore()
+{
+    return opStore;
+}
+
+Z808Word Z808Processor::getStoreAddr()
+{
+    return storeAddr;
+}
+
+Z808Word Z808Processor::getStoreValue()
+{
+    return storeValue;
 }
 
 void Z808Processor::resetInterruption()
@@ -185,6 +203,8 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
 {
     int opbytes = 0;                                        //Inicializacao
     errorInstruction = false;
+    opStore = false;
+
     Z808Operation operator1 = 0, operator2 = 0, result = 0;
 
     if (i == -1)                                            //Caso decida seguir a execucao do programa
@@ -835,6 +855,9 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
             stackOverflow = true;
         }
 
+        storeAddr = Z808Registers[SP];                  //Preparando para escrita na memória
+        opStore = true;
+
         Z808Registers[IP] = (Z808Word) operator1;       //Jump para a posicao da chamada
     }
     break;
@@ -1024,6 +1047,9 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
                     stackOverflow = true;
                 }
 
+                storeAddr = Z808Registers[SP];                  //Preparando para escrita na memória
+                opStore = true;
+
                 Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
             break;
 
@@ -1042,6 +1068,9 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
                 {
                     stackOverflow = true;
                 }
+
+                storeAddr = Z808Registers[SP];                  //Preparando para escrita na memória
+                opStore = true;
 
                 Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
             break;
@@ -1074,6 +1103,9 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
             stackOverflow = true;
         }
 
+        storeAddr = Z808Registers[SP];                  //Preparando para escrita na memória
+        opStore = true;
+
         Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
 
     }
@@ -1095,11 +1127,13 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
         operator1 *= 2;
 
         operator2 = (Z808Operation) Z808Registers[AX].to_ulong();   //Pegando o registrador
-        operator2 *= 2;
 
         memory[operator1] = (Z808Byte) operator2;
         operator2 >>= 8;
         memory[operator1+1] = (Z808Byte) operator2;
+        
+        storeAddr = (Z808Word) (operator1/2);                  //Preparando para escrita na memória
+        opStore = true;
 
         Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
     }
@@ -1151,13 +1185,13 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
 
         switch(operator1)
         {
-            case 1:                         //read opd - int 1
+            case 1:                         //int 1 - read opd
                 interruptionMode = false;
                 Z808Registers[SR].set(IF);    //Seta o bit para interrupcao
                 Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
             break;
 
-            case 2:                         //write opd - int 2
+            case 2:                         //int 2 - write opd
                 interruptionMode = true;
                 Z808Registers[SR].set(IF);    //Seta o bit para interrupcao
                 Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
@@ -1167,18 +1201,6 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
                 errorInstruction = true;
             break;
         }
-
-        //fazer a leitura do input stream
-        //operator2
-
-        //result = registers[AX];
-        //registers[SR][IF].set();
-        //EM MACHINE, NAO AQUI: memory[result] = input;
-
-        //memory[operator1] = (Z808Byte) operator2;
-        //operator2 >>= 8;
-        //memory[operator1+1] = (Z808Byte) operator2;
-
 
         Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
     }

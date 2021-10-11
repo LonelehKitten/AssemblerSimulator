@@ -3,25 +3,29 @@
 #include "../InterfaceBus.h"
 #include <iostream>
 #include <cstdlib>
-
-#define IO_T unsigned short int
+#include <thread>
+#include <utility>
 
 Z808Machine::Z808Machine()
 {
     this->processor = new Z808Processor();
     this->memory = nullptr;
+
     this->programEnd = false;
+
+    this->ioAddr = 0;
+    this->ioData = 0;
+    this->ioMode = false;
 }
 
 void Z808Machine::memoryUpdate(std::vector<Z808Byte> *memory, std::vector<unsigned char> *programBytes)
 {
     delete this->memory;
-    //this->memory = programBytes;
-    /*  Concatenar memory logo depois de programBytes
-    *   Ou atribuir memory pra this->memory e escrever programBytes dentro de this->memory num for loop a partir da posição?
-    */
-    //this->memory->insert(this->memory->end(), memory->begin(), memory->end());
     this->memory = memory;
+
+    for (int i = PROGRAM_BEGIN; programBytes != nullptr && i < programBytes->size(); i++)
+        this->memory->at(i) = programBytes->at(i);
+
     InterfaceBus::getInstance().dispatchProgramToMemory(memory);
 }
 
@@ -40,22 +44,27 @@ void Z808Machine::forceStop()
     InterfaceBus::getInstance().getMutex().unlock();
 }
 
+void Z808Machine::setInput(std::string input)
+{
+    ioData = std::stoi(input);
+
+    memory->at(ioAddr) = ioData;
+    ioData >>= 8;
+    memory->at(ioAddr+1) = ioData;
+}
+
 
 //TERMINAR TUDO O QUE ESTÁ ENTRE /* */ PARA ESSA PRÓXIMA ENTREGA
 int Z808Machine::run(bool isBySteps)
 {
-    IO_T ioData;
 
     std::vector<Z808Word> registradores;
 
     Z808Response *Format = new Z808Response();
 
-    int increment = 0;
+    std::pair<USint, USint> * memoryStore = new std::pair<USint, USint>;
 
-    //"false" para read
-    //"true" para write
-    bool ioMode = false;
-    unsigned short ioAddr = 0;
+    int increment = 0;
 
     InterfaceBus * interfaceBus = &InterfaceBus::getInstance();
 
@@ -116,19 +125,29 @@ int Z808Machine::run(bool isBySteps)
         Format->setPc(registradores[4].to_ulong());        //ip
         Format->setSr(&(processor->getRegisters()[5]));
 
+        if (processor->isStore())
+        {
+            *memoryStore = std::make_pair<USint, USint>((USint)processor->getStoreAddr().to_ulong(), (USint)processor->getStoreValue().to_ulong());
+            Format->setMemoryWrite(memoryStore);
+        }
+
         if (processor->isInterrupt())
+        {
             if (ioMode)
             {
                 ioData = 0;
-                ioData |= memory[2*ioAddr+1];
+                ioData |= memory->at(2*ioAddr+1);
                 ioData <<= 8;
-                ioData |= memory[2*ioAddr];
+                ioData |= memory->at(2*ioAddr);
                 Format->setStandardOutput(std::to_string(ioData));
                 Format->setStandardInput(false);
                 processor->resetInterruption();
             }
             else
+            {
                 Format->setStandardInput(true);
+            }
+        }
         else
             Format->setStandardInput(false);
 
@@ -138,7 +157,7 @@ int Z808Machine::run(bool isBySteps)
 
         //TERMINAR AS LINHAS SEGUINTES PARA ESSA PRÓXIMA ENTREGA
         
-        interfaceBus->dispatchCycle(*Format,!ioMode));
+        interfaceBus->dispatchCycle(*Format,!ioMode);
         
         while(interfaceBus->isUpdating());
         
@@ -146,9 +165,7 @@ int Z808Machine::run(bool isBySteps)
         {
             while(interfaceBus->isInputing());
 
-            ioData = 0;
-            
-            /* colocaOInputNaMemoria(); */
+            processor->resetInterruption();
 
             interfaceBus->isNextStepRequested(true);
         }
