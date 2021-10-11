@@ -117,6 +117,7 @@ const Console = (props) => {
       console.log(data);
       setHistory((oldValue) => [...oldValue, ...data]);
       e.target.value = '';
+      ipcRenderer.send("play","requestSendInput",message);
     }
   };
 

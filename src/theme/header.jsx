@@ -90,9 +90,18 @@ const Header = () => {
 
   const handlePlay = (type) => () => {
     const encoder = new TextEncoder()
+    
+    /*
     console.log(encoder.encode(memory.join("")).length); // Aqui Converte para um array de bits
-    const test = memory.map((item) => parseInt(item,16)) // Aqui apenas converter hexa (string) para decimal (number)
-    console.log(test.length);
+    const test = memory.map((item) => parseInt(item, 16)) // Aqui apenas converter hexa (string) para decimal (number)
+    console.log(test.length);*/
+    let memoryToBytes = []
+    for(let i = 0; i < memory.length; i++) {
+      let string = String(memory[i]).padStart(4,0);
+      memoryToBytes.push(parseInt(string.substr(0, 2),16))
+      memoryToBytes.push(parseInt(string.substr(2, 2),16))
+    }
+    console.log(memoryToBytes);
     // play_expandMacros
     if (!isEmpty(currentFile?.code) || type == "simulate") {
       // Habilita ou não o "Playing"
@@ -101,9 +110,9 @@ const Header = () => {
       //[currentFile?.code]
       const params = [];
       // Adicionar as instruções
-      if (["requestExpandMacros", "requestAssembleAndRun", "requestAssembleAndRunBySteps","requestRun","requestRunBySteps"].includes(type)) params.push(currentFile?.code);
-      if (["requestAssembleAndRun", "requestAssembleAndRunBySteps","requestRun","requestRunBySteps"].includes(type)) params.push(memory);
-      event("play", [type, params],() => {});
+      if (["requestExpandMacros", "requestAssembleAndRun", "requestAssembleAndRunBySteps", "requestRun", "requestRunBySteps"].includes(type)) params.push(currentFile?.code);
+      if (["requestAssembleAndRun", "requestAssembleAndRunBySteps", "requestRun", "requestRunBySteps"].includes(type)) params.push(memoryToBytes);
+      event("play", [type, params]);
     }
   };
 

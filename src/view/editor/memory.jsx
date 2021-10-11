@@ -62,6 +62,12 @@ const useStyles = makeStyles((theme) => ({
 
             flexGrow: 1
         }
+    },
+    input:{
+        backgroundColor: "transparent",
+        border: "none",
+        outline:"none !important",
+        color:"#f1f1f1"
     }
 }));
 
@@ -69,16 +75,33 @@ const { ipcRenderer } = window.electron;
 
 const Memory = () => {
     const classes = useStyles();
-    const {memory} = useContext();
+    const {memory,setMemory} = useContext();
     const [page, setPage] = useState(1);
 
+
+    const handleMemorChange = (e) => {
+        if("0123456789abcdef".split("").includes(e.nativeEvent.data)){
+            const {name,value} = e.target;
+            changeMemory(name,value.substr(0,4));
+        }
+    }
+
+    const handleBlur = (e) => {
+        const {name,value} = e.target;
+        changeMemory(name,value.substr(0,4).padStart(4,0));
+    }
+    
+    const changeMemory = (name,value) => {
+        setMemory((old) => old.map((item,key) => key == name ? value : item));
+    }
+    
     const rows = useMemo(() => {
         const row = [];
         for(let i=0; i<32; i++) row.push([]);
         memory.slice(512 * (page-1),512 * page).map((item,key) => {
             const id = Math.floor(key / 16);
             if(row[id] == undefined) row[id] = [];
-            row[id].push(<TableCell align='center'>{item}</TableCell>);
+            row[id].push(<TableCell align='center'><input onBlur={handleBlur} onChange={handleMemorChange} name={key} className={classes.input} value={item}/></TableCell>);
         });
         return row;
     }, [memory,page]);
@@ -93,7 +116,7 @@ const Memory = () => {
 
     const handlePageChange = (current) => () => {
         if(current < 1) current = 1;
-        if(current > 127) current = 127;
+        if(current > 128) current = 128;
         setPage(current);
     }
 

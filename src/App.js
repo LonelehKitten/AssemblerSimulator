@@ -62,7 +62,7 @@ function App2() {
     for (let b = 0; b < 128; b++) {
       for (let i = 0; i < 32; i++) {
         for (let j = 0; j < 16; j++) {
-          memoryChanges.push(parseInt(0).toString("16"));
+          memoryChanges.push(parseInt(0).toString("16").padStart(4,0));
         }
       }
     }
@@ -181,7 +181,8 @@ function App2() {
         setCode,
         changeFile,
         alertShow,
-        memory
+        memory,
+        setMemory
       }}
     >
       <Alert onClose={setAlertMessage} message={alertMessage} />
