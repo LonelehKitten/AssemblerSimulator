@@ -1,7 +1,7 @@
 const { ipcRenderer } = window.electron
 
-const event = (name, params, callback) => {
+const event = (name, params, callback = null) => {
     ipcRenderer.send.apply(this, [name, ...params]);
-    ipcRenderer.once(name, callback);
+    if(callback != null) ipcRenderer.once(name, callback);
 }
 export default event;
