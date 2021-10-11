@@ -67,7 +67,7 @@ int main()
     memory.push_back(numero_instruction);   //passando 8 bits, byte que antes estavam mais a esquerda
     //Exemplo da instrucao JZ 0x0011
     memory.push_back(0x74);     //Opcode da instrucao jz opd
-    memory.push_back(0x14);     //Byte da direita do numero 11
+    memory.push_back(0x09);     //Byte da direita do numero 11
     memory.push_back(0x00);     //Byte da esquerda do numero 11
     //Repetindo SUB AX, opd com opd = 511
     memory.push_back(0x2D);
@@ -75,11 +75,11 @@ int main()
     memory.push_back(0x01);
     //Exemplo da instrucao JMP 03, pula para o indice 03
     memory.push_back(0xEB);     //Opcode da instrucao jmp opd
-    memory.push_back(0x03);
-    memory.push_back(0x00);
+    memory.push_back(0xF2);
+    memory.push_back(0xFF);
     //Exemplo da instrucao hlt
     memory.push_back(0xEE);     //Opcode da instrucao hlt
-   
+
     Z808Machine machine;
     machine.memoryUpdate(&memory);
     machine.run(false);
