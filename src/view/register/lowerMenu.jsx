@@ -24,17 +24,18 @@ const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
     marginTop: '0',
-    padding: '10px',
+    //padding: '10px',
     height: 'calc(70vh - 3rem)',
     maxHeight: '31rem',
   },
   table: {
+    margin: '10px',
     alignContent: 'center',
     alignItems: 'center',
     justifyContent: 'center',
     color: 'inherit',
     backgroundColor: '#313241',
-    minWidth: '25rem',
+    //minWidth: '25rem',
     overflow: 'auto',
     overflowY: 'scroll',
     '& .MuiTableCell-root': {
@@ -74,7 +75,7 @@ const LowerMenu = ({ register }) => {
 
   return (
     <section className={classes.root}>
-      <TableContainer component={Paper} style={{ backgroundColor: '#313241' }}>
+      <TableContainer component={Paper} style={{ margin: '10px', backgroundColor: '#313241' }}>
         <Table className={classes.table} aria-label='resgistry operation table'>
           <TableHead>
             <TableRow>

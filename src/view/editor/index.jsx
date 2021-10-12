@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useContext } from '../../utils/context';
 import TabContainer from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';import { makeStyles } from '@material-ui/core/styles';
@@ -27,9 +27,15 @@ const useStyles = makeStyles((theme) => ({
 
 const Editor = (props) => {
   const classes = useStyles();
-  const { listFiles, changeFile } = useContext();
+  const { listFiles, changeFile, EtoC } = useContext();
   const [menu,setMenu] = useState("editor");
   const [value, setValue] = useState('');
+
+  const aceRef = useRef()
+
+  useEffect(() => {
+    aceRef.current.updateRef()
+  }, [EtoC]);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -65,7 +71,7 @@ const Editor = (props) => {
       <>
         <Tabs value={value} onChange={handleChange} listFiles={listFiles} />
         
-        <Ace onChange={() => console.log('aa')} />
+        <Ace ref={aceRef} onChange={() => console.log('aa')} />
       </>}
       {menu == "memory" && <Memory />}
     </div>

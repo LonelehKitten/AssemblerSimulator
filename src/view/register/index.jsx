@@ -10,6 +10,8 @@ import { ClassNames } from '@emotion/react';
 const useStyles = makeStyles((theme) => ({
   root: {
     backgroundColor: '#21222c',
+    width: '100%',
+    height: '100%',
   },
 }));
 /*
