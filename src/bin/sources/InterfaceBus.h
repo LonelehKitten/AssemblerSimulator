@@ -96,7 +96,6 @@ class InterfaceBus {
          void setWaiting(bool waiting);
          void setUpdating(bool updating);
          void setInputing(bool inputing);
-         void setNextStepRequested(bool nextStepRequested);
 
     public:
 
@@ -105,6 +104,7 @@ class InterfaceBus {
          bool isUpdating();
          bool isInputing();
          bool isNextStepRequested();
+         void setNextStepRequested(bool nextStepRequested);
          std::mutex& getMutex();
 
          InterfaceBus(InterfaceBus const&) = delete;
@@ -196,13 +196,13 @@ class InterfaceBus {
           * Mudança no clock do processador
           * @param frequencia em int
           */
-         void serviceClockChange(V8Var clock);
+         void serviceClockChange(NodeInfo * info, V8Var clock);
 
          /**
           * Envio de input para o Z808.
           * @param texto em string
           */
-         void serviceSendInput(V8Var input);
+         void serviceSendInput(NodeInfo * info, V8Var input);
 
          // test
          void serviceTest();
