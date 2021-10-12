@@ -1,3 +1,4 @@
+import React, {forwardRef} from 'react'
 import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/mode-assembly_x86';
 import 'ace-builds/src-noconflict/theme-dracula';
@@ -7,7 +8,7 @@ import { useContext } from '../../utils/context';
 
 const { ipcRenderer } = window.electron;
 
-const Ace = ({ onChange }) => {
+const Ace = ({ onChange }, ref) => {
   const {
     listFiles,
     currentID,
@@ -44,10 +45,11 @@ const Ace = ({ onChange }) => {
   };
 
   return (
-    <div onKeyUp={handleSave} style={{ width: '100%', height: '100%' }}>
+    <div onKeyUp={handleSave} style={{ width: '100%', height: 'calc(100% - 4rem)' }}>
       {/** Gambiarra [ tem que ver isso aqui ] */}
 
       <AceEditor
+        ref={ref}
         readOnly={currentFile === null}
         mode='assembly_x86'
         theme='dracula'
@@ -59,7 +61,7 @@ const Ace = ({ onChange }) => {
           boxShadow:
             'inset  0 -3px 6px rgba(0,0,0,0.16), 0 -3px 6px rgba(0,0,0,0.23)',
           width: '100%',
-          height: 'calc(100% - 2rem - 32px)',
+          height: '100%',
           fontFamily: 'Share Tech Mono',
         }}
         editorProps={{ $blockScrolling: true }}
@@ -80,4 +82,4 @@ const Ace = ({ onChange }) => {
   );
 };
 
-export default Ace;
+export default forwardRef(Ace);

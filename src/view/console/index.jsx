@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, memo } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -98,7 +98,7 @@ const { ipcRenderer } = window.electron;
 1 = Error
 2 = Sucess
 */
-const Console = (props) => {
+const Console = ({dragger, ...props}) => {
   const {
     addFile,
     alertShow
@@ -163,8 +163,11 @@ end VALEUSEGMENT
     });
   }, []);
 
+  
+
   return (
-    <div id='console' {...props}>
+    <div id='console' {...props} >
+      {/* {dragger} */}
       <List className={classes.root}>
         {history.map((item, key) => (
           <ListItem key={key} className={classes.inputedTexts + " " + messagesType[item.type]}>
@@ -187,7 +190,7 @@ end VALEUSEGMENT
   );
 };
 
-export default Console;
+export default memo(Console);
 
 /*
          sx={{

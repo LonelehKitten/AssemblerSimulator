@@ -252,7 +252,7 @@ void InterfaceBus::dispatchLog(std::string message, LogStatus status) {
 void InterfaceBus::checkMacroExpanded(NodeInfo * info) {
     this->info = info;
     if(!outputReport.ready) return;
-    trigger("macroExpanded", outputReport.code);
+    trigger("macroExpanded", outputReport.code.c_str());
     outputReport.ready = false;
     setWaiting(false);
 }
@@ -360,7 +360,8 @@ void InterfaceBus::serviceNextStep() {
  * Requisita mudança no clock do processador
  * @param frequencia em int
  */
-void InterfaceBus::serviceClockChange(V8Var clock) {
+void InterfaceBus::serviceClockChange(NodeInfo * info, V8Var clock) {
+    this->info = info;
     mutex.lock();
     inputReport.clock = castV8toInt(clock);
     mutex.unlock();
@@ -377,8 +378,9 @@ void InterfaceBus::serviceKillProcess() {
  * Envio de input para o Z808.
  * @param texto em string
  */
-void InterfaceBus::serviceSendInput(V8Var input) {
-    //machine->setInput(castV8toString(input))
+void InterfaceBus::serviceSendInput(NodeInfo * info, V8Var input) {
+    this->info = info;
+    machine->setInput(castV8toString(input));
     setInputing(false);
 }
 

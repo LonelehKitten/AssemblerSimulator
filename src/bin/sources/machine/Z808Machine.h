@@ -1,3 +1,6 @@
+#ifndef Z808MACHINE_H
+#define Z808MACHINE_H
+
 #include <vector>
 #include <bitset>
 #include "Z808Processor.h"
@@ -34,3 +37,5 @@ public:
     */
     int run(bool isBySteps);
 };
+
+#endif // Z808MACHINE_H

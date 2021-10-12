@@ -17,6 +17,7 @@
         "src/bin/sources/assembler/Assembler.cpp",
         "src/bin/sources/assembler/macroDef.cpp",
         "src/bin/sources/machine/Z808Machine.cpp",
+        "src/bin/sources/machine/Z808Processor.cpp",
         "src/bin/sources/machine/Z808Response.cpp"
       ],
       "include_dirs": [

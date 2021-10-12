@@ -14,6 +14,7 @@ import Console from './view/console';
 import Register from './view/register';
 
 import Dragger from './utils/dragger';
+import Container from './utils/container';
 import { Context } from './utils/context';
 import Alert from './utils/alert';
 
@@ -32,14 +33,14 @@ const theme = createTheme({
 
 const useStyles = makeStyles((theme) => ({
   main: {
-    position: 'relative',
-    float: 'left',
+    //position: 'relative',
+    //float: 'left',
     backgroundColor: theme.palette.secondary.main,
     height: 'calc(100vh - 48px - 1.5em)',
   },
   sidebar: {
-    position: 'relative',
-    float: 'left',
+    //position: 'relative',
+    //float: 'left',
     backgroundColor: '#21222c',
     height: 'calc(100vh - 48px - 1.5em)',
   },
@@ -68,6 +69,9 @@ function App2() {
     }
     return memoryChanges;
   });
+
+  const [consoleOpen, setConsoleOpen] = useState(true)
+
   const [listFiles, setListFiles] = useState(() => {
     const list = JSON.parse(window.localStorage.getItem('_listFiles'));
 
@@ -182,23 +186,82 @@ function App2() {
         changeFile,
         alertShow,
         memory,
-        setMemory
+        setMemory,
+        consoleOpen,
+        setConsoleOpen,
+        EtoC
       }}
     >
       <Alert onClose={setAlertMessage} message={alertMessage} />
       <Header />
-      <div className="container" style={{display: 'flex', width: '100%'}}>
+      <div 
+        className="container" 
+        style={{
+            display: 'flex', 
+            width: '100%',
+            height: `calc(100vh - 48px - 1.5em)`
+          }}
+        >
+        <Container value={EtoR} >
+          <Container orientation='horizontal' value={consoleOpen ? EtoC : 0} >
+            <Editor style={{ 
+                width: '100%',
+                height: `100%` 
+              }} 
+            />
+          </Container>
+          <Container 
+          draggable 
+          orientation='horizontal' 
+          onResize={handleHorizontal} 
+          value={consoleOpen ? EtoC : 0}
+          > 
+            <Console
+              style={{ 
+                width: '100%',
+                height: `100%`, 
+              }}
+            />
+          </Container>
+        </Container>
+        <Container draggable onResize={handleVertical} value={EtoR} style={{backgroundColor: '#21222c'}}> 
+          <Register
+              style={{ minWidth: '15vw' }}
+              width={'100%'}
+              height={`calc(100vh)`}
+          />
+        </Container>
+      </div>
+      <footer>
+        <Footer  />
+      </footer>
+    </Context.Provider>
+  );
+}
+
+/*
         <main
           className={classes.main}
           style={{ width: `calc(100% - ${EtoR}px)` }}
         >
-          <Editor style={{ height: `calc(100vh - 48px - ${EtoC}px - 1.5em)` }} />
+          <Editor style={{ 
+            overflow: 'hidden', 
+            border: '1px solid green',
+            height: `calc(100vh - 48px - ${consoleOpen ? EtoC : 0}px - 1.5em)` 
+            }} 
+            />
           <Dragger orientation='horizontal' onMouse={handleHorizontal} />
           <Console
-            style={{ height: `calc(${EtoC}px - 8px)`, marginLeft: '3px' }}
+            style={{ 
+              height: `calc(${consoleOpen ? EtoC : 0}px - 8px)`, 
+              border: '1px solid red',
+              marginLeft: '3px' 
+            }}
             width={EtoR}
+            show={consoleOpen}
           />
         </main>
+        
         <aside className={classes.sidebar} style={{ width: EtoR + 'px' }}>
           <Dragger onMouse={handleVertical} />
           <Register
@@ -207,13 +270,7 @@ function App2() {
             height={`calc(100vh)`}
           />
         </aside>
-      </div>
-      <footer>
-        <Footer  />
-      </footer>
-    </Context.Provider>
-  );
-}
+*/
 
 const Loading = () => (
   <Backdrop style={{ color: '#fff' }} open={true}>

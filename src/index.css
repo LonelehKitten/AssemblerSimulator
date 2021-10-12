@@ -9,6 +9,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #f1f1f1;
+  background-color: #282a36;
 }
 #root {
   width: 100vw;
@@ -21,7 +22,6 @@ code {
 }
 
 #console {
-  margin-top: 3px;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;

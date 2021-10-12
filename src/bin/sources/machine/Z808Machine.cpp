@@ -80,7 +80,7 @@ int Z808Machine::run(bool isBySteps)
         {
             std::cout << "\nERRO NA INSTRUCAO " << processor->getIP() << "\n\n\n";
 
-            interfaceBus->dispatchLog(std::string("Erro na instrução ") + std::to_string(processor->getIP().to_ulong()), InterfaceBus::ERROR);
+            interfaceBus->dispatchLog(std::string("Erro na instrução ") + std::to_string(processor->getIP().to_ulong()), LogStatus::ERROR);
             programEnd = true;
             
             break;
@@ -90,7 +90,7 @@ int Z808Machine::run(bool isBySteps)
         {
             std::cout << "\nFIM DE PROGRAMA\n\n\n";
             
-            interfaceBus->dispatchLog(std::string("Fim do programa."), InterfaceBus::SUCCESS);
+            interfaceBus->dispatchLog(std::string("Fim do programa."), LogStatus::SUCCESS);
             interfaceBus->dispatchHalt();
             programEnd = true;
             
@@ -102,7 +102,7 @@ int Z808Machine::run(bool isBySteps)
         {
             std::cout << "\nERRO DE OVERFLOW NA PILHA\n\n\n";
 
-            interfaceBus->dispatchLog(std::string("Erro de stack overflow durante a instrução ") + std::to_string(processor->getIP().to_ulong()), InterfaceBus::ERROR);
+            interfaceBus->dispatchLog(std::string("Erro de stack overflow durante a instrução ") + std::to_string(processor->getIP().to_ulong()), LogStatus::ERROR);
             programEnd = true;
 
             break;
@@ -167,7 +167,7 @@ int Z808Machine::run(bool isBySteps)
 
             processor->resetInterruption();
 
-            interfaceBus->isNextStepRequested(true);
+            interfaceBus->setNextStepRequested(true);
         }
         
         while(isBySteps && !interfaceBus->isNextStepRequested());

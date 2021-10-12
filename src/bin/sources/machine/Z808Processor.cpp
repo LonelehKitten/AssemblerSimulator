@@ -1161,6 +1161,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
         break;
 
         case 0xC4:              //mov AX, SP
+            break;
         //Bastante coisa pra implementar...
         }
     }
