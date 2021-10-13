@@ -22,6 +22,9 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import AllOutIcon from '@material-ui/icons/AllOut';
 import BugReportIcon from '@material-ui/icons/BugReport';
 import UpdateIcon from '@material-ui/icons/Update';
+import DescriptionIcon from '@material-ui/icons/Description';
+import FolderOpenIcon from '@material-ui/icons/FolderOpen';
+import InfoIcon from '@material-ui/icons/Info';
 
 import { useContext } from '../utils/context';
 import event from '../utils/event';
@@ -55,6 +58,32 @@ const useStyles = makeStyles((theme) => ({
           color: "#333"
         }
       }
+    }
+  },
+  menu: {
+    '& .MuiPaper-root': {
+      backgroundColor: '#63668a !important',
+      width: '15em',
+    },
+    '& ul': {
+      listStyleType: 'none',
+      padding: 0
+    }
+  },
+  menuOption: {
+    fontSize: ".8em",
+    fontWeight: 'bold',
+    backgroundColor: "#fff0",
+    color: 'white',
+    padding: '1em',
+    display: 'flex',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    cursor: 'pointer',
+    transition: 'all .1s',
+    '&:hover': {
+      backgroundColor: "#fff8",
+      color: 'black'
     }
   }
 }));
@@ -147,12 +176,12 @@ const Header = () => {
           />
           <Tooltip title="Expandir Macro (requestExpandMacros)">
             <Button color='inherit' onClick={handlePlay("requestExpandMacros")} disabled={playing} className={classes.button}>
-              <AllOutIcon />
+              <AllOutIcon style={{color: !playing ? '#169dff' : '#169dff55'}} />
             </Button>
           </Tooltip>
           <Tooltip title="Executar (requestRun)">
             <Button color='inherit' onClick={handlePlay("requestRun")} disabled={playing} className={classes.button}>
-              <PlayArrowIcon />
+              <PlayArrowIcon style={{color: !playing ? '#3dff3d' : '#3dff3d55'}} />
             </Button>
           </Tooltip>
           <Tooltip title="Avançar (requestNextStep)">
@@ -162,7 +191,7 @@ const Header = () => {
           </Tooltip>
           <Tooltip title="Parar (requestKillProcess)">
             <Button color='inherit' onClick={handlePlay("requestKillProcess")} disabled={!playing} className={classes.button}>
-              <StopIcon />
+              <StopIcon style={{color: playing ? '#ff6535' : '#ff653555'}} />
             </Button>
           </Tooltip>
           <Tooltip title="Debugar">
@@ -172,8 +201,62 @@ const Header = () => {
           </Tooltip>
         </Toolbar>
       </AppBar>
-      <Drawer anchor={'left'} open={open} onClose={handleDrawerClose}>
-        <TreeView
+      <Drawer className={classes.menu} anchor={'left'} open={open} onClose={handleDrawerClose}>
+        <ul>
+          <li>
+            <div
+              className={classes.menuOption}
+              aria-label='novo arquivo'
+              onClick={handleDrawerOpen}
+            >
+              <DescriptionIcon style={{fontSize: '1.5em', margin: '0 1em 0 .25em'}} /> 
+              Novo arquivo
+            </div>
+          </li>
+          <li>
+            <div
+              
+              className={classes.menuOption}
+              aria-label='menu'
+              onClick={handleDrawerOpen}
+            >
+              <FolderOpenIcon style={{fontSize: '1.5em', margin: '0 1em 0 .25em'}} /> 
+              Abrir arquivo
+            </div>
+          </li>
+          <li>
+            <div
+              
+              className={classes.menuOption}
+              aria-label='menu'
+              onClick={handleDrawerOpen}
+            >
+              <InfoIcon style={{fontSize: '1.5em', margin: '0 1em 0 .25em'}} /> 
+              Sobre
+            </div>
+          </li>
+        </ul>
+        
+        
+      </Drawer>
+      <Menu
+        anchorEl={anchorEl}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        id="debug"
+        keepMounted
+        //transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+        open={Boolean(anchorEl)}
+        onClose={() => setAnchorEl(null)}
+      >
+        {requests.map((name) => <MenuItem onClick={handleClickDebug(name)}>{name}</MenuItem>)}
+      </Menu>
+    </div>
+  );
+};
+
+/*
+
+<TreeView
           color='primary'
           className={classes.root}
           defaultCollapseIcon={<ExpandMoreIcon />}
@@ -186,21 +269,8 @@ const Header = () => {
             <TreeItem nodeId='4' label='Webstorm' />
           </TreeItem>
         </TreeView>
-      </Drawer>
-      <Menu
-        anchorEl={anchorEl}
-        //anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        id="debug"
-        keepMounted
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-        open={Boolean(anchorEl)}
-        onClose={() => setAnchorEl(null)}
-      >
-        {requests.map((name) => <MenuItem onClick={handleClickDebug(name)}>{name}</MenuItem>)}
-      </Menu>
-    </div>
-  );
-};
+
+*/
 
 export default Header;
 /*

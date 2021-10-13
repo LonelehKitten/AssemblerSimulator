@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, memo} from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import Dragger from './dragger';
@@ -15,6 +15,10 @@ const useStyles = makeStyles((theme) => ({
         height: '100%',
     },
 }));
+
+const ContainerChildren = memo(({children}) => {
+    return <>{children}</>;
+})
 
 const Container = ({orientation='vertical', draggable=false, onResize=null, value, className='', style={}, children}) => {
     const classes = useStyles();
@@ -34,7 +38,12 @@ const Container = ({orientation='vertical', draggable=false, onResize=null, valu
     
     return (
         <div className={className + ' ' + classes.container + ' ' + orientationClass} style={fix}>
-            {draggable && <Dragger orientation={orientation} onMouse={onResize} />}
+            {draggable && 
+            <Dragger 
+                orientation={orientation} 
+                onMouse={onResize} 
+                style={{display: value === 0 ? 'none' : 'inline-block'}} 
+            />}
             <div 
             style={{
                 width: draggable && orientation === 'vertical' ? 'calc(100% - 5px) ' : '100%',
@@ -43,7 +52,7 @@ const Container = ({orientation='vertical', draggable=false, onResize=null, valu
                 flexWrap: 'wrap',
             }}
             >
-                {children}
+                <ContainerChildren children={children} />
             </div>
         </div>
     );

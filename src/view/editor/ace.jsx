@@ -23,6 +23,8 @@ const Ace = ({ onChange }, ref) => {
     setCode(value);
   };
 
+  //AceEditor.
+
   const handleSave = (e) => {
     if (e.keyCode == 83 && e.ctrlKey) {
       if (currentFile.isSave) {
