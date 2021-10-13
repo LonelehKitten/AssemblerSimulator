@@ -24,18 +24,15 @@ const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
     marginTop: '0',
-    //padding: '10px',
     height: 'calc(70vh - 3rem)',
-    maxHeight: '31rem',
+    maxHeight: '31.5rem',
   },
   table: {
-    margin: '10px',
     alignContent: 'center',
     alignItems: 'center',
     justifyContent: 'center',
     color: 'inherit',
     backgroundColor: '#313241',
-    //minWidth: '25rem',
     overflow: 'auto',
     overflowY: 'scroll',
     '& .MuiTableCell-root': {
