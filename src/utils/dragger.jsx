@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Dragger = ({ onMouse, orientation = 'vertical' }) => {
+const Dragger = ({ onMouse, orientation = 'vertical', style={} }) => {
   const classes = useStyles();
   const orientationClasse =
     orientation == 'horizontal' ? classes.horizontal : classes.vertical;
@@ -45,6 +45,7 @@ const Dragger = ({ onMouse, orientation = 'vertical' }) => {
     <div
       onMouseDown={handleMouseDown}
       className={classes.dragger + ' ' + orientationClasse}
+      style={style}
     />
   );
 };

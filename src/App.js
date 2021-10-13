@@ -86,6 +86,7 @@ function App2() {
   const [EtoR, setEtoR] = useState(460); // EtoR = Editor to Register
 
   const handleVertical = (e) => {
+    e.preventDefault();
     const newWidth = Math.abs(
       e.clientX - document.body.offsetLeft - document.body.offsetWidth
     );
@@ -95,6 +96,7 @@ function App2() {
   };
 
   const handleHorizontal = (e) => {
+    e.preventDefault();
     const newHeight = Math.abs(
       e.clientY - document.body.offsetHeight - document.body.offsetTop
     );
