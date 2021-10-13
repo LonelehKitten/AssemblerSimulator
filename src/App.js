@@ -63,14 +63,14 @@ function App2() {
     for (let b = 0; b < 128; b++) {
       for (let i = 0; i < 32; i++) {
         for (let j = 0; j < 16; j++) {
-          memoryChanges.push(parseInt(0).toString("16").padStart(4,0));
+          memoryChanges.push(parseInt(0).toString('16').padStart(4, 0));
         }
       }
     }
     return memoryChanges;
   });
 
-  const [consoleOpen, setConsoleOpen] = useState(true)
+  const [consoleOpen, setConsoleOpen] = useState(true);
 
   const [listFiles, setListFiles] = useState(() => {
     const list = JSON.parse(window.localStorage.getItem('_listFiles'));
@@ -78,6 +78,21 @@ function App2() {
     return list || {};
   });
 
+  const [stdin, setStdin] = useState(false);
+  const [registers, setRegisters] = useState({
+    AX: Math.random() * 50,
+    DX: Math.random() * 50,
+    SI: Math.random() * 50,
+    SS: Math.random() * 50,
+    DS: Math.random() * 50,
+    CS: Math.random() * 50,
+    SP: Math.random() * 50,
+    PC: Math.random() * 50,
+    SR: {
+      asLiteral: Math.random() * 50,
+      asFlags: [true, false, true, true, false, true, true, false],
+    },
+  });
   const [playing, setPlaying] = useState(false);
   const [currentID, setCurrentID] = useState('');
   const [currentFile, setCurrentFile] = useState(null);
@@ -121,7 +136,7 @@ function App2() {
     newValue[id] = {name,path,code};*/
     let idExists = null;
     Object.entries(listFiles).forEach(([k, item]) => {
-      if (item.path === path && item.path != "") idExists = k;
+      if (item.path === path && item.path != '') idExists = k;
     });
     if (idExists !== null) {
       setCurrentID(idExists);
@@ -129,7 +144,7 @@ function App2() {
       alertShow('info', 'Esse arquivo já está aberto.');
       return;
     }
-    if (name == null) name = path.replace("/", "\\").split('\\').slice(-1)[0];
+    if (name == null) name = path.replace('/', '\\').split('\\').slice(-1)[0];
     const id = Math.random()
       .toString(36)
       .replace(/[^a-z]+/g, '')
@@ -165,77 +180,90 @@ function App2() {
   }, [listFiles]);
 
   useEffect(() => {
-    ipcRenderer.on("cycle_memory", (evt, data) => {
-      if (typeof data.address == undefined || typeof data.newValue == undefined) return;
-      setMemory((old) => old.map((value, key) => key == data.address ? data.newValue : value));
+    ipcRenderer.on('cycle_memory', (evt, data) => {
+      if (typeof data.address == undefined || typeof data.newValue == undefined)
+        return;
+      setMemory((old) =>
+        old.map((value, key) => (key == data.address ? data.newValue : value))
+      );
     });
-    ipcRenderer.on("init_memory",(evt,data) => {
+    ipcRenderer.on('init_memory', (evt, data) => {
       setMemory(data);
     });
   }, []);
 
+  const context = {
+    playing,
+    setPlaying,
+    registers,
+    setRegisters,
+    currentFile,
+    changeFile,
+    currentID,
+    listFiles,
+    setListFiles,
+    addFile,
+    setCode,
+    alertShow,
+    memory,
+    setMemory,
+    consoleOpen,
+    setConsoleOpen,
+    EtoC,
+    stdin,
+    setStdin,
+  };
+
   return (
-    <Context.Provider
-      value={{
-        playing,
-        setPlaying,
-        currentFile,
-        listFiles,
-        currentID,
-        setListFiles,
-        addFile,
-        setCode,
-        changeFile,
-        alertShow,
-        memory,
-        setMemory,
-        consoleOpen,
-        setConsoleOpen,
-        EtoC
-      }}
-    >
+    <Context.Provider value={context}>
       <Alert onClose={setAlertMessage} message={alertMessage} />
       <Header />
-      <div 
-        className="container" 
+      <div
+        className='container'
         style={{
-            display: 'flex', 
-            width: '100%',
-            height: `calc(100vh - 48px - 1.5em)`
-          }}
-        >
-        <Container value={EtoR} >
-          <Container orientation='horizontal' value={consoleOpen ? EtoC : 0} >
-            <Editor style={{ 
+          display: 'flex',
+          width: '100%',
+          height: `calc(100vh - 48px - 1.5em)`,
+        }}
+      >
+        <Container value={EtoR}>
+          <Container orientation='horizontal' value={consoleOpen ? EtoC : 0}>
+            <Editor
+              style={{
                 width: '100%',
-                height: `100%` 
-              }} 
+                height: `100%`,
+              }}
             />
           </Container>
-          <Container 
-          draggable 
-          orientation='horizontal' 
-          onResize={handleHorizontal} 
-          value={consoleOpen ? EtoC : 0}
-          > 
+          <Container
+            draggable
+            orientation='horizontal'
+            onResize={handleHorizontal}
+            value={consoleOpen ? EtoC : 0}
+          >
             <Console
-              style={{ 
+              style={{
                 width: '100%',
-                height: `100%`, 
+                height: `100%`,
               }}
             />
           </Container>
         </Container>
-        <Container draggable onResize={handleVertical} value={EtoR} style={{backgroundColor: '#21222c'}}> 
+        <Container
+          draggable
+          onResize={handleVertical}
+          value={EtoR}
+          style={{ backgroundColor: '#21222c' }}
+        >
           <Register
-              style={{ minWidth: '15vw' }}
-              width={'100%'}
-              height={`calc(100vh)`}
+            style={{ minWidth: '15vw' }}
+            width={'100%'}
+            height={`calc(100vh)`}
           />
         </Container>
       </div>
       <footer>
-        <Footer  />
+        <Footer />
       </footer>
     </Context.Provider>
   );
