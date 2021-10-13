@@ -103,7 +103,8 @@ const requests = [
 ];
 
 const Header = () => {
-  const { memory, currentFile, playing, setPlaying } = useContext();
+  const { memory, currentFile, addFile, alertShow, playing, setPlaying } = useContext();
+  //const { addFile, currentID, alertShow } = useContext();
   const [anchorEl, setAnchorEl] = useState(null);
   const classes = useStyles();
 
@@ -116,6 +117,10 @@ const Header = () => {
   const handleDrawerClose = () => {
     setOpen(false);
   };
+
+  const getBytecodeFromEditor = () => {
+    //currentFile?.code
+  }
 
   const handlePlay = (type) => () => {
     const encoder = new TextEncoder()
@@ -139,8 +144,27 @@ const Header = () => {
       //[currentFile?.code]
       const params = [];
       // Adicionar as instruções
-      if (["requestExpandMacros", "requestAssembleAndRun", "requestAssembleAndRunBySteps", "requestRun", "requestRunBySteps"].includes(type)) params.push(currentFile?.code);
-      if (["requestAssembleAndRun", "requestAssembleAndRunBySteps", "requestRun", "requestRunBySteps"].includes(type)) params.push(memoryToBytes);
+      if ([
+        "requestRun", 
+        "requestRunBySteps"
+      ].includes(type)) {
+        params.push(getBytecodeFromEditor());
+      }
+      if ([
+        "requestExpandMacros", 
+        "requestAssembleAndRun", 
+        "requestAssembleAndRunBySteps"
+      ].includes(type)) {
+        params.push(currentFile?.code);
+      }
+      if ([
+        "requestAssembleAndRun", 
+        "requestAssembleAndRunBySteps", 
+        "requestRun", 
+        "requestRunBySteps"
+      ].includes(type)) {
+        params.push(memoryToBytes);
+      }
       event("play", [type, params]);
     }
   };
@@ -148,6 +172,30 @@ const Header = () => {
   const handleClickDebug = (type) => () => {
     handlePlay(type)();
     setAnchorEl(null);
+  }
+
+  const handleAdd = () => {
+    addFile('', '', 'Novo Arquivo');
+    setOpen(false);
+  }
+
+  const handleUpload = () => {
+    ipcRenderer.send('invoke_open_file');
+    ipcRenderer.once('open_file', (e, path, code = '') => {
+      if (path === false) {
+        if (code != '') {
+          alertShow('error', code);
+        }
+      } else {
+        alertShow('success', 'Arquivo aberto');
+        addFile(path, code);
+      }
+    });
+    setOpen(false);
+  }
+
+  const handleAbout = () => {
+    
   }
 
   return (
@@ -207,7 +255,7 @@ const Header = () => {
             <div
               className={classes.menuOption}
               aria-label='novo arquivo'
-              onClick={handleDrawerOpen}
+              onClick={handleAdd}
             >
               <DescriptionIcon style={{fontSize: '1.5em', margin: '0 1em 0 .25em'}} /> 
               Novo arquivo
@@ -215,10 +263,9 @@ const Header = () => {
           </li>
           <li>
             <div
-              
               className={classes.menuOption}
               aria-label='menu'
-              onClick={handleDrawerOpen}
+              onClick={handleUpload}
             >
               <FolderOpenIcon style={{fontSize: '1.5em', margin: '0 1em 0 .25em'}} /> 
               Abrir arquivo
@@ -226,10 +273,9 @@ const Header = () => {
           </li>
           <li>
             <div
-              
               className={classes.menuOption}
               aria-label='menu'
-              onClick={handleDrawerOpen}
+              onClick={handleAbout}
             >
               <InfoIcon style={{fontSize: '1.5em', margin: '0 1em 0 .25em'}} /> 
               Sobre

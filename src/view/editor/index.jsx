@@ -34,10 +34,6 @@ const Editor = (props) => {
 
   const aceRef = useRef()
 
-  useEffect(() => {
-    aceRef.current.updateRef()
-  }, [EtoC]);
-
   const handleChange = (event, newValue) => {
     setValue(newValue);
     changeFile(newValue);
