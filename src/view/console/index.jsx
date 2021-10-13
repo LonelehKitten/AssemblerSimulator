@@ -108,12 +108,12 @@ const Console = ({ dragger, ...props }) => {
 
   const handleSubmit = (e) => {
     if (e.keyCode == 13) {
-      const newMemory = memory;
-      let input = e.target.value.toString().padStart(4, '0');
+      let input = e.target.value.toString('16').padStart(4, '0');
       if (input.length > 4) input = input.substring(0, 4);
-      if (registers?.AX) newMemory[parseInt(registers.AX)] = input;
-      ipcRenderer.send('cycle_stdin', input);
-      setMemory(newMemory);
+      setMemory((memory) => {
+        if (registers?.AX) memory[parseInt(registers.AX)] = input;
+        return memory;
+      });
       const message = e.target.value;
       if (message === '') return;
       const data = [{ message, type: 0 }];
