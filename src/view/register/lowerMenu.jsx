@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -8,6 +8,8 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import Brightness1Icon from '@material-ui/icons/Brightness1';
+
+import { useContext } from '../../utils/context';
 
 function createData(register, bits, value = null) {
   if (value == null) value = parseInt(bits, 2);
@@ -58,21 +60,23 @@ const Bit = ({ value }) => (
       fontSize: 10,
       backgroundColor: value == 1 ? '#1b6cff' : '#1b6cff00',
       border: '1px solid #1b6cff',
-      width: ".7em",
-      height: ".7em",
+      width: '.7em',
+      height: '.7em',
       display: 'inline-block',
-      borderRadius: "50%",
-      margin: "0 .1em"
+      borderRadius: '50%',
+      margin: '0 .1em',
     }}
   ></div>
 );
 
 const LowerMenu = ({ register }) => {
   const classes = useStyles();
-
   return (
     <section className={classes.root}>
-      <TableContainer component={Paper} style={{ margin: '10px', backgroundColor: '#313241' }}>
+      <TableContainer
+        component={Paper}
+        style={{ margin: '10px', backgroundColor: '#313241' }}
+      >
         <Table className={classes.table} aria-label='resgistry operation table'>
           <TableHead>
             <TableRow>
