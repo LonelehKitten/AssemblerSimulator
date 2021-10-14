@@ -107,6 +107,7 @@ const Console = ({ dragger, ...props }) => {
     stdin,
     setStdin,
     setMemory,
+    memoryRefs,
   } = useContext();
 
   const classes = useStyles();
@@ -115,7 +116,7 @@ const Console = ({ dragger, ...props }) => {
 
   const handleSubmit = (e) => {
     if (e.keyCode == 13) {
-      let input = parseInt(e.target.value)
+      let input = parseInt('0x' + e.target.value)
         .toString(16)
         .toUpperCase()
         .padStart(4, 0);
@@ -126,9 +127,12 @@ const Console = ({ dragger, ...props }) => {
       //   type: 'SETCELL',
       //   payload: { index: parseInt(registers.AX), value: input },
       // });
-
       setMemory((memory) => {
-        if (registers?.AX) memory[parseInt(registers.AX)] = input;
+        if (registers?.AX) {
+          memory[parseInt(registers.AX)] = input;
+          //console.log(memoryRefs);
+          //memoryRefs.current[parseInt(registers.AX)].current.value = input;
+        }
         return memory;
       });
       const message = e.target.value;
