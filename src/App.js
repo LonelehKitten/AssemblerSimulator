@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useReducer } from 'react';
 import {
   ThemeProvider,
   createTheme,
@@ -99,6 +99,21 @@ function App2() {
   const [alertMessage, setAlertMessage] = useState(null);
   const [EtoC, setEtoC] = useState(250); // EtoC = Editor to Console
   const [EtoR, setEtoR] = useState(460); // EtoR = Editor to Register
+
+  // const memoryReducer = (state, action) => {
+  //   switch (action.type) {
+  //     case 'SETCELL':
+  //       setMemory((memory) => {
+  //         memory[parseInt(action.payload.index)] = action.payload.value;
+  //         return memory;
+  //       });
+  //       break;
+  //     default:
+  //       return state;
+  //   }
+  // };
+
+  // const [memoryRedux, setMemoryRedux] = useReducer(memoryReducer, memory);
 
   const handleVertical = (e) => {
     e.preventDefault();
@@ -212,6 +227,8 @@ function App2() {
     EtoC,
     stdin,
     setStdin,
+    // memoryRedux,
+    // setMemoryRedux,
   };
 
   return (

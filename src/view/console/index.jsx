@@ -99,8 +99,15 @@ const { ipcRenderer } = window.electron;
 2 = Sucess
 */
 const Console = ({ dragger, ...props }) => {
-  const { addFile, alertShow, registers, stdin, setStdin, memory, setMemory } =
-    useContext();
+  const {
+    // setMemoryRedux,
+    // addFile,
+    alertShow,
+    registers,
+    stdin,
+    setStdin,
+    setMemory,
+  } = useContext();
 
   const classes = useStyles();
   const consoleEndRef = useRef(null);
@@ -108,12 +115,22 @@ const Console = ({ dragger, ...props }) => {
 
   const handleSubmit = (e) => {
     if (e.keyCode == 13) {
-      const newMemory = memory;
-      let input = e.target.value.toString().padStart(4, '0');
+      let input = parseInt(e.target.value)
+        .toString(16)
+        .toUpperCase()
+        .padStart(4, 0);
+      if (input.includes('NaN')) input = 'FFFF';
       if (input.length > 4) input = input.substring(0, 4);
-      if (registers?.AX) newMemory[parseInt(registers.AX)] = input;
-      ipcRenderer.send('cycle_stdin', input);
-      setMemory(newMemory);
+
+      // setMemoryRedux({
+      //   type: 'SETCELL',
+      //   payload: { index: parseInt(registers.AX), value: input },
+      // });
+
+      setMemory((memory) => {
+        if (registers?.AX) memory[parseInt(registers.AX)] = input;
+        return memory;
+      });
       const message = e.target.value;
       if (message === '') return;
       const data = [{ message, type: 0 }];
@@ -121,6 +138,7 @@ const Console = ({ dragger, ...props }) => {
       setHistory((oldValue) => [...oldValue, ...data]);
       e.target.value = '';
       ipcRenderer.send('play', 'requestSendInput', [message]);
+      // ipcRenderer.send('play', 'requestSendInput', [input]);
     }
   };
 
