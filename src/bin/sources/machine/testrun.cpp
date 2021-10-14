@@ -5,7 +5,7 @@ cd bin
 cd sources
 cd machine
 
-g++ Z808Processor.cpp Z808Response.cpp Z808Machine.cpp run.cpp -o run 
+g++ Z808Processor.cpp Z808Response.cpp Z808Machine.cpp testrun.cpp -o run 
 run.exe
 */
 
@@ -65,15 +65,15 @@ int main()
     memory.push_back(numero_instruction);   //passando 8 bits, byte mais a direita
     numero_instruction = numero_instruction >> 8; //Deslocamento 8 bits pra direita
     memory.push_back(numero_instruction);   //passando 8 bits, byte que antes estavam mais a esquerda
-    //Exemplo da instrucao JZ 0x0011
+    //Exemplo da instrucao JZ 09
     memory.push_back(0x74);     //Opcode da instrucao jz opd
-    memory.push_back(0x09);     //Byte da direita do numero 11
-    memory.push_back(0x00);     //Byte da esquerda do numero 11
+    memory.push_back(0x09);     //Byte da direita do numero 9
+    memory.push_back(0x00);     //Byte da esquerda do numero 9
     //Repetindo SUB AX, opd com opd = 511
     memory.push_back(0x2D);
     memory.push_back(0xFF);
     memory.push_back(0x01);
-    //Exemplo da instrucao JMP 03, pula para o indice 03
+    //Exemplo da instrucao JMP -14, pula para o indice 03
     memory.push_back(0xEB);     //Opcode da instrucao jmp opd
     memory.push_back(0xF2);
     memory.push_back(0xFF);

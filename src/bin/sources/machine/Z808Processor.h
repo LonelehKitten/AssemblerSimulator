@@ -66,6 +66,9 @@ private:
 
     //Tabela de registradores
     std::vector<Z808Word> Z808Registers;
+
+    //Indica se houve uma escrita na memória
+    bool opStore;
     //Guarda o endereço da posição de memória em uma operação de escrita
     Z808Word storeAddr;
     //Guarda o valor da memória em uma operação de escrita
@@ -75,9 +78,6 @@ private:
     //"false" para read
     //"true" para write
     bool interruptionMode;
-
-    //Indica se houve uma escrita na memória
-    bool opStore;
 
     //Flag para caso alguma instrução esteja errada
     bool errorInstruction;
