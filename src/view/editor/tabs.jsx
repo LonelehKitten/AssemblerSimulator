@@ -35,7 +35,6 @@ const Tabs = ({ value, onChange, listFiles }) => {
   const classes = useStyles();
 
   const inputFile = useRef(null);
-  const [anchorEl, setAnchorEl] = useState(null);
 
   const onChangeFile = (event) => {
     event.stopPropagation();
@@ -54,34 +53,6 @@ const Tabs = ({ value, onChange, listFiles }) => {
     event.target.value = '';
   };
 
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleAdd = () => {
-    addFile('', '', 'Novo Arquivo');
-    setAnchorEl(null);
-  };
-
-  const handleUpload = () => {
-    setAnchorEl(null);
-    ipcRenderer.send('invoke_open_file');
-    ipcRenderer.once('open_file', (e, path, code = '') => {
-      if (path === false) {
-        if (code != '') {
-          alertShow('error', code);
-        }
-      } else {
-        alertShow('success', 'Arquivo aberto');
-        addFile(path, code);
-      }
-    });
-  };
-
   return (
     <div
       style={{
@@ -98,12 +69,6 @@ const Tabs = ({ value, onChange, listFiles }) => {
         scrollButtons='auto'
         className={classes.root}
       >
-        <Tab
-          value=''
-          onClick={handleClick}
-          icon={<AddIcon />}
-          className={classes.plus}
-        />
         {Object.entries(listFiles).map(([id, file], key) => (
           <Item
             key={key}
@@ -114,16 +79,6 @@ const Tabs = ({ value, onChange, listFiles }) => {
           />
         ))}
       </TabContainer>
-      <Menu
-        id='simple-menu'
-        anchorEl={anchorEl}
-        keepMounted
-        open={Boolean(anchorEl)}
-        onClose={handleClose}
-      >
-        <MenuItem onClick={handleAdd}>Novo Arquivo</MenuItem>
-        <MenuItem onClick={handleUpload}>Enviar Arquivo</MenuItem>
-      </Menu>
       <input
         accept='.asm'
         type='file'

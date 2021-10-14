@@ -170,6 +170,8 @@ void LexiconScanner::undo() {
 
 LexiconScannerStatus * LexiconScanner::nextToken(AutomatonPattern automatonPattern) {
 
+    this->error = false;
+
     start(automatonPattern);
 
     while(true) {

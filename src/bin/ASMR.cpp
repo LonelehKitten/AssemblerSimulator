@@ -76,7 +76,7 @@ void requestNextStep(const Nan::FunctionCallbackInfo<v8::Value> & info) {
  * @param frequencia em int
  */
 void requestClockChange(const Nan::FunctionCallbackInfo<v8::Value> & info) {
-    InterfaceBus::getInstance().serviceClockChange(info[0]);
+    InterfaceBus::getInstance().serviceClockChange((NodeInfo *) &info, info[0]);
 }
 
 /**
@@ -91,7 +91,7 @@ void requestKillProcess(const Nan::FunctionCallbackInfo<v8::Value> & info) {
  * @param texto em string
  */
 void requestSendInput(const Nan::FunctionCallbackInfo<v8::Value> & info) {
-    InterfaceBus::getInstance().serviceSendInput(info[0]);
+    InterfaceBus::getInstance().serviceSendInput((NodeInfo *) &info, info[0]);
 }
 
 // =======================================================

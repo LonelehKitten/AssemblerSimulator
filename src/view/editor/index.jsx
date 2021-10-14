@@ -1,13 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useContext } from '../../utils/context';
 import TabContainer from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';import { makeStyles } from '@material-ui/core/styles';
-
+import Tab from '@material-ui/core/Tab';
+import { makeStyles } from '@material-ui/core/styles';
 
 import Ace from './ace';
 import Tabs from './tabs';
 import Memory from './memory';
-
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -27,18 +26,20 @@ const useStyles = makeStyles((theme) => ({
 
 const Editor = (props) => {
   const classes = useStyles();
-  const { listFiles, changeFile } = useContext();
-  const [menu,setMenu] = useState("editor");
+  const { listFiles, changeFile, EtoC } = useContext();
+  const [menu, setMenu] = useState('editor');
   const [value, setValue] = useState('');
+
+  const aceRef = useRef();
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
     changeFile(newValue);
   };
 
-  const changeMenu = (event,newValue) => {
+  const changeMenu = (event, newValue) => {
     setMenu(newValue);
-  }
+  };
 
   return (
     <div id='editor' {...props}>
@@ -52,22 +53,17 @@ const Editor = (props) => {
         scrollButtons='auto'
         className={classes.root}
       >
-      <Tab
-        value='editor'
-        label='Editor'
-      />
-      <Tab
-        value='memory'
-        label='Memoria'
-      />
+        <Tab value='editor' label='Editor' />
+        <Tab value='memory' label='Memoria' />
       </TabContainer>
-      {menu == "editor" && 
-      <>
-        <Tabs value={value} onChange={handleChange} listFiles={listFiles} />
-        
-        <Ace onChange={() => console.log('aa')} />
-      </>}
-      {menu == "memory" && <Memory />}
+      {menu == 'editor' && (
+        <>
+          <Tabs value={value} onChange={handleChange} listFiles={listFiles} />
+
+          <Ace ref={aceRef} onChange={() => console.log('aa')} />
+        </>
+      )}
+      {menu == 'memory' && <Memory />}
     </div>
   );
 };

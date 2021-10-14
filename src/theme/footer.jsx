@@ -2,6 +2,7 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import IconButton from '@material-ui/core/IconButton';
 import WebAssetIcon from '@material-ui/icons/WebAsset';
+import { useContext } from '../utils/context';
 import PropTypes from 'prop-types';
 
 const useStyles = makeStyles((theme) => ({
@@ -11,24 +12,43 @@ const useStyles = makeStyles((theme) => ({
         backgroundColor: '#6e00ff',
     },
     footerButton: {
-        width: '3em',
+        width: '7em',
         height: '100%',
         fontSize: '.7em',
         fontWeight: 'bold',
         color: 'white',
-        marginLeft: '2em',
+        backgroundColor: '#fff0',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+        transition: 'all .1s',
+        cursor: 'pointer',
+        userSelect: 'none',
+        '&:hover': {
+            backgroundColor: '#fff8'
+        }
     }
 }));
 
-const openConsole = () => {
-
-}
-
 const Footer = () => {
+    const { consoleOpen, setConsoleOpen } = useContext();
+    const toggleConsole = () => {
+        setConsoleOpen(!consoleOpen)
+    }
+
     const classes = useStyles();
     return (
         <div className={classes.footer}>
-            <IconButton
+           <div className={classes.footerButton} onClick={toggleConsole}>
+                <WebAssetIcon style={{fontSize: '1.5em', margin: '0 .25em'}}  /> 
+                Console
+           </div>
+        </div>
+    );
+};
+
+/*
+ <IconButton
             edge='start'
             className={classes.footerButton}
             color='inherit'
@@ -38,9 +58,8 @@ const Footer = () => {
             <WebAssetIcon style={{fontSize: '1.5em', marginRight: '.25em'}} /> 
             Console
           </IconButton>
-        </div>
-    );
-};
+
+*/
 
 Footer.propTypes = {};
 

@@ -22,6 +22,9 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import AllOutIcon from '@material-ui/icons/AllOut';
 import BugReportIcon from '@material-ui/icons/BugReport';
 import UpdateIcon from '@material-ui/icons/Update';
+import DescriptionIcon from '@material-ui/icons/Description';
+import FolderOpenIcon from '@material-ui/icons/FolderOpen';
+import InfoIcon from '@material-ui/icons/Info';
 
 import { useContext } from '../utils/context';
 import event from '../utils/event';
@@ -40,23 +43,49 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
   },
   button: {
-    "&.Mui-disabled": {
-      color: "rgba(255,255,255,0.4)"
-    }
+    '&.Mui-disabled': {
+      color: 'rgba(255,255,255,0.4)',
+    },
   },
   slider: {
-    "& .MuiSlider-valueLabel": {
-      top: "inherit",
+    '& .MuiSlider-valueLabel': {
+      top: 'inherit',
       bottom: -51,
-      "&>span": {
-        transform: "rotate(135deg)",
-        "& >span": {
-          transform: "rotate(-135deg)",
-          color: "#333"
-        }
-      }
-    }
-  }
+      '&>span': {
+        transform: 'rotate(135deg)',
+        '& >span': {
+          transform: 'rotate(-135deg)',
+          color: '#333',
+        },
+      },
+    },
+  },
+  menu: {
+    '& .MuiPaper-root': {
+      backgroundColor: '#63668a !important',
+      width: '15em',
+    },
+    '& ul': {
+      listStyleType: 'none',
+      padding: 0,
+    },
+  },
+  menuOption: {
+    fontSize: '.8em',
+    fontWeight: 'bold',
+    backgroundColor: '#fff0',
+    color: 'white',
+    padding: '1em',
+    display: 'flex',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    cursor: 'pointer',
+    transition: 'all .1s',
+    '&:hover': {
+      backgroundColor: '#fff8',
+      color: 'black',
+    },
+  },
 }));
 
 const requests = [
@@ -70,11 +99,13 @@ const requests = [
   'requestKillProcess',
   'requestClockChange',
   'requestSendInput',
-  'simulate'
+  'simulate',
 ];
 
 const Header = () => {
-  const { memory, currentFile, playing, setPlaying } = useContext();
+  const { memory, currentFile, addFile, alertShow, playing, setPlaying } =
+    useContext();
+  //const { addFile, currentID, alertShow } = useContext();
   const [anchorEl, setAnchorEl] = useState(null);
   const classes = useStyles();
 
@@ -88,29 +119,93 @@ const Header = () => {
     setOpen(false);
   };
 
+  const getBytecodeFromEditor = () => {
+    return currentFile?.code
+      .replace(/[^0-9a-fA-F]/g, '')
+      .match(/.{2}/g)
+      .map((current) => parseInt('0x'.concat(current)))
+      .filter((current) => !isNaN(current));
+  };
+
   const handlePlay = (type) => () => {
-    const encoder = new TextEncoder()
+    const encoder = new TextEncoder();
+
+    /*
     console.log(encoder.encode(memory.join("")).length); // Aqui Converte para um array de bits
-    const test = memory.map((item) => parseInt(item,16)) // Aqui apenas converter hexa (string) para decimal (number)
-    console.log(test.length);
+    const test = memory.map((item) => parseInt(item, 16)) // Aqui apenas converter hexa (string) para decimal (number)
+    console.log(test.length);*/
+    let memoryToBytes = [];
+    for (let i = 0; i < memory.length; i++) {
+      let string = String(memory[i]).padStart(4, 0);
+      memoryToBytes.push(parseInt(string.substr(0, 2), 16));
+      memoryToBytes.push(parseInt(string.substr(2, 2), 16));
+    }
+    console.log(memoryToBytes);
     // play_expandMacros
-    if (!isEmpty(currentFile?.code) || type == "simulate") {
+    if (!isEmpty(currentFile?.code) || type == 'simulate') {
       // Habilita ou não o "Playing"
-      if (type == "requestEndTest" || type == "requestTest" || type == "requestKillProcess") setPlaying(false);
+      if (
+        type == 'requestEndTest' ||
+        type == 'requestTest' ||
+        type == 'requestKillProcess'
+      )
+        setPlaying(false);
       else setPlaying(true);
       //[currentFile?.code]
       const params = [];
       // Adicionar as instruções
-      if (["requestExpandMacros", "requestAssembleAndRun", "requestAssembleAndRunBySteps","requestRun","requestRunBySteps"].includes(type)) params.push(currentFile?.code);
-      if (["requestAssembleAndRun", "requestAssembleAndRunBySteps","requestRun","requestRunBySteps"].includes(type)) params.push(memory);
-      event("play", [type, params],() => {});
+      if (['requestRun', 'requestRunBySteps'].includes(type)) {
+        params.push(getBytecodeFromEditor());
+      }
+      if (
+        [
+          'requestExpandMacros',
+          'requestAssembleAndRun',
+          'requestAssembleAndRunBySteps',
+        ].includes(type)
+      ) {
+        params.push(currentFile?.code);
+      }
+      if (
+        [
+          'requestAssembleAndRun',
+          'requestAssembleAndRunBySteps',
+          'requestRun',
+          'requestRunBySteps',
+        ].includes(type)
+      ) {
+        params.push(memoryToBytes);
+      }
+      event('play', [type, params]);
     }
   };
 
   const handleClickDebug = (type) => () => {
     handlePlay(type)();
     setAnchorEl(null);
-  }
+  };
+
+  const handleAdd = () => {
+    addFile('', '', 'Novo Arquivo');
+    setOpen(false);
+  };
+
+  const handleUpload = () => {
+    ipcRenderer.send('invoke_open_file');
+    ipcRenderer.once('open_file', (e, path, code = '') => {
+      if (path === false) {
+        if (code != '') {
+          alertShow('error', code);
+        }
+      } else {
+        alertShow('success', 'Arquivo aberto');
+        addFile(path, code);
+      }
+    });
+    setOpen(false);
+  };
+
+  const handleAbout = () => {};
 
   return (
     <div className={classes.root}>
@@ -129,42 +224,138 @@ const Header = () => {
           <Slider
             className={classes.slider}
             defaultValue={16}
-            valueLabelDisplay="auto"
+            valueLabelDisplay='auto'
             step={1}
             marks
             min={1}
             max={20}
-            style={{ color: "#fff", width: 200, marginLeft: "1em", marginRight: "2em" }}
+            style={{
+              color: '#fff',
+              width: 200,
+              marginLeft: '1em',
+              marginRight: '2em',
+            }}
           />
-          <Tooltip title="Expandir Macro (requestExpandMacros)">
-            <Button color='inherit' onClick={handlePlay("requestExpandMacros")} disabled={playing} className={classes.button}>
-              <AllOutIcon />
+          <Tooltip title='Expandir Macro (requestExpandMacros)'>
+            <Button
+              color='inherit'
+              onClick={handlePlay('requestExpandMacros')}
+              disabled={playing}
+              className={classes.button}
+            >
+              <AllOutIcon
+                style={{ color: !playing ? '#169dff' : '#169dff55' }}
+              />
             </Button>
           </Tooltip>
-          <Tooltip title="Executar (requestRun)">
-            <Button color='inherit' onClick={handlePlay("requestRun")} disabled={playing} className={classes.button}>
-              <PlayArrowIcon />
+          <Tooltip title='Executar (requestRun)'>
+            <Button
+              color='inherit'
+              onClick={handlePlay('requestRun')}
+              disabled={playing}
+              className={classes.button}
+            >
+              <PlayArrowIcon
+                style={{ color: !playing ? '#3dff3d' : '#3dff3d55' }}
+              />
             </Button>
           </Tooltip>
-          <Tooltip title="Avançar (requestNextStep)">
-            <Button color='inherit' onClick={handlePlay("requestNextStep")} disabled={playing} className={classes.button}>
+          <Tooltip title='Avançar (requestNextStep)'>
+            <Button
+              color='inherit'
+              onClick={handlePlay('requestNextStep')}
+              disabled={playing}
+              className={classes.button}
+            >
               <SkipNextIcon />
             </Button>
           </Tooltip>
-          <Tooltip title="Parar (requestKillProcess)">
-            <Button color='inherit' onClick={handlePlay("requestKillProcess")} disabled={!playing} className={classes.button}>
-              <StopIcon />
+          <Tooltip title='Parar (requestKillProcess)'>
+            <Button
+              color='inherit'
+              onClick={handlePlay('requestKillProcess')}
+              disabled={!playing}
+              className={classes.button}
+            >
+              <StopIcon style={{ color: playing ? '#ff6535' : '#ff653555' }} />
             </Button>
           </Tooltip>
-          <Tooltip title="Debugar">
-            <Button color='inherit' onClick={(event) => setAnchorEl(event.currentTarget)} className={classes.button}>
+          <Tooltip title='Debugar'>
+            <Button
+              color='inherit'
+              onClick={(event) => setAnchorEl(event.currentTarget)}
+              className={classes.button}
+            >
               <BugReportIcon />
             </Button>
           </Tooltip>
         </Toolbar>
       </AppBar>
-      <Drawer anchor={'left'} open={open} onClose={handleDrawerClose}>
-        <TreeView
+      <Drawer
+        className={classes.menu}
+        anchor={'left'}
+        open={open}
+        onClose={handleDrawerClose}
+      >
+        <ul>
+          <li>
+            <div
+              className={classes.menuOption}
+              aria-label='novo arquivo'
+              onClick={handleAdd}
+            >
+              <DescriptionIcon
+                style={{ fontSize: '1.5em', margin: '0 1em 0 .25em' }}
+              />
+              Novo arquivo
+            </div>
+          </li>
+          <li>
+            <div
+              className={classes.menuOption}
+              aria-label='menu'
+              onClick={handleUpload}
+            >
+              <FolderOpenIcon
+                style={{ fontSize: '1.5em', margin: '0 1em 0 .25em' }}
+              />
+              Abrir arquivo
+            </div>
+          </li>
+          <li>
+            <div
+              className={classes.menuOption}
+              aria-label='menu'
+              onClick={handleAbout}
+            >
+              <InfoIcon
+                style={{ fontSize: '1.5em', margin: '0 1em 0 .25em' }}
+              />
+              Sobre
+            </div>
+          </li>
+        </ul>
+      </Drawer>
+      <Menu
+        anchorEl={anchorEl}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        id='debug'
+        keepMounted
+        //transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+        open={Boolean(anchorEl)}
+        onClose={() => setAnchorEl(null)}
+      >
+        {requests.map((name) => (
+          <MenuItem onClick={handleClickDebug(name)}>{name}</MenuItem>
+        ))}
+      </Menu>
+    </div>
+  );
+};
+
+/*
+
+<TreeView
           color='primary'
           className={classes.root}
           defaultCollapseIcon={<ExpandMoreIcon />}
@@ -177,21 +368,8 @@ const Header = () => {
             <TreeItem nodeId='4' label='Webstorm' />
           </TreeItem>
         </TreeView>
-      </Drawer>
-      <Menu
-        anchorEl={anchorEl}
-        //anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        id="debug"
-        keepMounted
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-        open={Boolean(anchorEl)}
-        onClose={() => setAnchorEl(null)}
-      >
-        {requests.map((name) => <MenuItem onClick={handleClickDebug(name)}>{name}</MenuItem>)}
-      </Menu>
-    </div>
-  );
-};
+
+*/
 
 export default Header;
 /*

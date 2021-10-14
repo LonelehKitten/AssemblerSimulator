@@ -1,3 +1,6 @@
+#ifndef Z808PROCESSOR_H
+#define Z808PROCESSOR_H
+
 #include <vector>
 #include <bitset>
 
@@ -126,3 +129,5 @@ public:
      */
     int execute(std::vector<Z808Byte> memory, long int i = -1);
 };
+
+#endif // Z808PROCESSOR_H

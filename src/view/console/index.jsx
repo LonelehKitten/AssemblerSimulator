@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, memo } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -14,14 +14,14 @@ import ErrorIcon from '@material-ui/icons/Error';
 const messagesIcon = {
   0: <InfoIcon />,
   1: <ErrorIcon />,
-  2: <CheckCircleIcon />
-}
+  2: <CheckCircleIcon />,
+};
 
 const messagesType = {
   0: 'info',
   1: 'error',
-  2: 'success'
-}
+  2: 'success',
+};
 
 const useStyles = makeStyles((theme) => ({
   textField: {
@@ -34,7 +34,7 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: '#21222c',
     fontSize: 24,
     outline: 0,
-    borderRadius: '3px'
+    borderRadius: '3px',
   },
   root: {
     overflow: 'auto',
@@ -68,27 +68,27 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: '20px 0px 0px 20px',
     minHeight: '30px',
     marginTop: '5px',
-    "& .MuiListItemIcon-root":{
-      minWidth: 28
+    '& .MuiListItemIcon-root': {
+      minWidth: 28,
     },
-    "&.info": {
-      color: "rgb(166, 213, 250)",
-      "& .MuiSvgIcon-root": {
-        color: "rgb(166, 213, 250)",
-      }
+    '&.info': {
+      color: 'rgb(166, 213, 250)',
+      '& .MuiSvgIcon-root': {
+        color: 'rgb(166, 213, 250)',
+      },
     },
-    "&.error": {
-      color: "rgb(250, 179, 174)",
-      "& .MuiSvgIcon-root": {
-        color: "rgb(250, 179, 174)",
-      }
+    '&.error': {
+      color: 'rgb(250, 179, 174)',
+      '& .MuiSvgIcon-root': {
+        color: 'rgb(250, 179, 174)',
+      },
     },
-    "&.success": {
-      color: "rgb(183, 223, 185)",
-      "& .MuiSvgIcon-root": {
-        color: "rgb(183, 223, 185)",
-      }
-    }
+    '&.success': {
+      color: 'rgb(183, 223, 185)',
+      '& .MuiSvgIcon-root': {
+        color: 'rgb(183, 223, 185)',
+      },
+    },
   },
 }));
 
@@ -98,25 +98,47 @@ const { ipcRenderer } = window.electron;
 1 = Error
 2 = Sucess
 */
-const Console = (props) => {
+const Console = ({ dragger, ...props }) => {
   const {
-    addFile,
-    alertShow
+    // setMemoryRedux,
+    // addFile,
+    alertShow,
+    registers,
+    stdin,
+    setStdin,
+    setMemory,
   } = useContext();
 
   const classes = useStyles();
   const consoleEndRef = useRef(null);
   const [history, setHistory] = useState([]);
-  const [stdIn,setstdIn] = useState(false);
 
   const handleSubmit = (e) => {
     if (e.keyCode == 13) {
+      let input = parseInt(e.target.value)
+        .toString(16)
+        .toUpperCase()
+        .padStart(4, 0);
+      if (input.includes('NaN')) input = 'FFFF';
+      if (input.length > 4) input = input.substring(0, 4);
+
+      // setMemoryRedux({
+      //   type: 'SETCELL',
+      //   payload: { index: parseInt(registers.AX), value: input },
+      // });
+
+      setMemory((memory) => {
+        if (registers?.AX) memory[parseInt(registers.AX)] = input;
+        return memory;
+      });
       const message = e.target.value;
       if (message === '') return;
       const data = [{ message, type: 0 }];
       console.log(data);
       setHistory((oldValue) => [...oldValue, ...data]);
       e.target.value = '';
+      ipcRenderer.send('play', 'requestSendInput', [message]);
+      // ipcRenderer.send('play', 'requestSendInput', [input]);
     }
   };
 
@@ -125,7 +147,7 @@ const Console = (props) => {
   }, [history]);
 
   /*
-  // codigo pra teste : o resultado deve ser '3' //
+  // codigo pra teste : o resultado deve ser '3' // 
 name VALEUSEGMENT
 add AX, DX
 end VALEUSEGMENT
@@ -134,13 +156,12 @@ end VALEUSEGMENT
   useEffect(() => {
     // Evento do Console
     ipcRenderer.on('console', (e, message) => {
-      console.log("message",message);
+      console.log('message', message);
       setHistory((oldValue) => [...oldValue, ...[message]]);
     });
-    ipcRenderer.on('cycle_stdin',(value) => {
-      setstdIn(value);
+    ipcRenderer.on('cycle_stdin', (value) => {
+      setStdin(value);
     });
-  
 
     // Evento da MacroExpandida
     ipcRenderer.on('macroExpanded', (e, message) => {
@@ -148,7 +169,7 @@ end VALEUSEGMENT
         'invoke_save_file',
         JSON.stringify({
           code: message,
-          path: ''
+          path: '',
         })
       );
       ipcRenderer.once('save_file', (e, success, path) => {
@@ -164,20 +185,22 @@ end VALEUSEGMENT
 
   return (
     <div id='console' {...props}>
+      {/* {dragger} */}
       <List className={classes.root}>
         {history.map((item, key) => (
-          <ListItem key={key} className={classes.inputedTexts + " " + messagesType[item.type]}>
-            <ListItemIcon>
-              {messagesIcon[item.type]}
-            </ListItemIcon>
+          <ListItem
+            key={key}
+            className={classes.inputedTexts + ' ' + messagesType[item.type]}
+          >
+            <ListItemIcon>{messagesIcon[item.type]}</ListItemIcon>
             <ListItemText fontFamily='VT323' primary={item.message} />
           </ListItem>
         ))}
         <div ref={consoleEndRef}></div>
       </List>
       <input
-        disabled={!stdIn}
-        style={{display: stdIn ? 'inline-block' : 'none'}}
+        disabled={!stdin}
+        style={{ display: stdin ? 'inline-block' : 'none' }}
         onKeyDown={handleSubmit}
         placeholder='Digite um comando . . .'
         className={classes.textField}
@@ -186,7 +209,7 @@ end VALEUSEGMENT
   );
 };
 
-export default Console;
+export default memo(Console);
 
 /*
          sx={{
