@@ -98,17 +98,21 @@ void Z808Processor::setSR(Z808Operation op1, Z808Operation op2, int instruction)
     else if (instruction == XOR)
         value = op1 ^ op2;
 
-    Z808Word word = (Z808Word) value, wordop1 = (Z808Word) op1, wordop2 = (Z808Word) op2;
+    std::bitset<32> word32 = (std::bitset<32>) value, op1Word = (std::bitset<32>) op1, op2Word = (std::bitset<32>) op2;
+    Z808Word word16 = (Z808Word) value;
+
+    std::bitset<1> carry;
 
     if (instruction == ADD)
     {
                                             //flag CF
-        if (word[16] && (wordop1[15] || wordop2[15]))
+        carry = op1Word.test(15) ^ op2Word.test(15) ^ word16.test(15);
+        if (carry.test(0) && op1Word.test(15) || carry.test(0) && op2Word.test(15) || op2Word.test(15) && op1Word.test(15))
             Z808Registers[SR].set(CF);
         else
             Z808Registers[SR].reset(CF);
                                             //flag PF
-        if (word.count() % 2 == 0)
+        if (word16.count() % 2 == 0)
             Z808Registers[SR].set(PF);
         else
             Z808Registers[SR].reset(PF);
@@ -118,7 +122,7 @@ void Z808Processor::setSR(Z808Operation op1, Z808Operation op2, int instruction)
         else
             Z808Registers[SR].reset(ZF);
                                             //flag SF
-        if (word[31])
+        if (word16.test(15))
             Z808Registers[SR].set(SF);
         else
             Z808Registers[SR].reset(SF);
@@ -132,12 +136,12 @@ void Z808Processor::setSR(Z808Operation op1, Z808Operation op2, int instruction)
     if (instruction == SUB)
     {
                                             //flag CF
-        if (op1 < 0 && op2 > 0 && !word[31])
+        if (op1 < 0 && op2 > 0 && !word16.test(15))
             Z808Registers[SR].set(CF);
         else
             Z808Registers[SR].reset(CF);
                                             //flag PF
-        if (word.count() % 2 == 0)
+        if (word16.count() % 2 == 0)
             Z808Registers[SR].set(PF);
         else
             Z808Registers[SR].reset(PF);
@@ -147,7 +151,7 @@ void Z808Processor::setSR(Z808Operation op1, Z808Operation op2, int instruction)
         else
             Z808Registers[SR].reset(ZF);
                                             //flag SF
-        if (word[31])
+        if (word16.test(15))
             Z808Registers[SR].set(SF);
         else
             Z808Registers[SR].reset(SF);
@@ -180,7 +184,7 @@ void Z808Processor::setSR(Z808Operation op1, Z808Operation op2, int instruction)
                                             //flag CF
         Z808Registers[SR].reset(CF);
                                             //flag PF
-        if (word.count() % 2 == 0)
+        if (word16.count() % 2 == 0)
             Z808Registers[SR].set(PF);
         else
             Z808Registers[SR].reset(PF);
@@ -190,7 +194,7 @@ void Z808Processor::setSR(Z808Operation op1, Z808Operation op2, int instruction)
         else
             Z808Registers[SR].reset(ZF);
                                             //flag SF
-        if (value & 0x00008000)
+        if (word16.test(15))
             Z808Registers[SR].set(SF);
         else
             Z808Registers[SR].reset(SF);
