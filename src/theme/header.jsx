@@ -119,7 +119,7 @@ const Header = () => {
   };
 
   const getBytecodeFromEditor = () => {
-    //currentFile?.code
+    // Código de conversão de string para Array<Number>
   }
 
   const handlePlay = (type) => () => {
