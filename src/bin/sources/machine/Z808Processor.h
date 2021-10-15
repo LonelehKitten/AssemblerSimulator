@@ -100,6 +100,8 @@ public:
     Z808Word getAX();
     //Pega o registrador IP - contador de programa
     Z808Word getIP();
+    //Pega o registrador SR - flags
+    Z808Word* getSR();
     //Verifica se houve interrupção
     bool isInterrupt(); //Z808Registers[SR][IF];
     //Verifica se a última instrução foi de escrita na memória
