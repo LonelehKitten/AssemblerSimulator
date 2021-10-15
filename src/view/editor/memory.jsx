@@ -72,7 +72,7 @@ const { ipcRenderer } = window.electron;
 
 const Memory = () => {
   const classes = useStyles();
-  const { memory, setMemory } = useContext();
+  const { memory, setMemory, memoryRefs } = useContext();
   const [page, setPage] = useState(1);
 
   //   const [rerender, setRerender] = useState(0);
@@ -111,6 +111,7 @@ const Memory = () => {
       row[id].push(
         <TableCell align='center'>
           <input
+            //ref={memoryRefs.current[key]}
             onBlur={handleBlur}
             onChange={handleMemorChange}
             name={key}
@@ -168,6 +169,7 @@ const Memory = () => {
                     .padStart(5, 0)}
                 </TableCell>
                 {row}
+                {console.log(row)}
               </TableRow>
             ))}
           </TableBody>
@@ -176,5 +178,4 @@ const Memory = () => {
     </div>
   );
 };
-
 export default Memory;

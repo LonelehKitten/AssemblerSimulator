@@ -1,4 +1,4 @@
-import { useEffect, useState, useReducer } from 'react';
+import React, { useEffect, useState, useRef, useReducer } from 'react';
 import {
   ThemeProvider,
   createTheme,
@@ -93,6 +93,8 @@ function App2() {
       asFlags: [true, false, true, true, false, true, true, false],
     },
   });
+
+  const memoryRefs = useRef([React.createRef(), React.createRef()]);
   const [playing, setPlaying] = useState(false);
   const [currentID, setCurrentID] = useState('');
   const [currentFile, setCurrentFile] = useState(null);
@@ -235,6 +237,7 @@ function App2() {
     EtoC,
     stdin,
     setStdin,
+    memoryRefs,
     // memoryRedux,
     // setMemoryRedux,
   };
