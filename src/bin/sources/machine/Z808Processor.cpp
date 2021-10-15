@@ -6,6 +6,7 @@ Z808Processor::Z808Processor()
     Z808Registers[SP] = SP_BASEADDR;
     interruptionMode = false;
     storeAddr = 0;
+    storeValue = 0;
     opStore = false;
     clearError();
 }
@@ -23,6 +24,11 @@ Z808Word Z808Processor::getAX()
 Z808Word Z808Processor::getIP()
 {
     return Z808Registers[IP];
+}
+
+Z808Word* Z808Processor::getSR()
+{
+    return &Z808Registers[SR];
 }
 
 bool Z808Processor::isInterrupt()
@@ -860,6 +866,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
         }
 
         storeAddr = Z808Registers[SP];                  //Preparando para escrita na memória
+        storeValue = (Z808Word) operator2;
         opStore = true;
 
         Z808Registers[IP] = (Z808Word) operator1;       //Jump para a posicao da chamada
@@ -1052,6 +1059,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
                 }
 
                 storeAddr = Z808Registers[SP];                  //Preparando para escrita na memória
+                storeValue = (Z808Word) operator1;
                 opStore = true;
 
                 Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
@@ -1074,6 +1082,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
                 }
 
                 storeAddr = Z808Registers[SP];                  //Preparando para escrita na memória
+                storeValue = (Z808Word) operator1;
                 opStore = true;
 
                 Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
@@ -1108,6 +1117,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
         }
 
         storeAddr = Z808Registers[SP];                  //Preparando para escrita na memória
+        storeValue = (Z808Word) operator1;
         opStore = true;
 
         Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
@@ -1137,6 +1147,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
         memory[operator1+1] = (Z808Byte) operator2;
         
         storeAddr = (Z808Word) (operator1/2);                  //Preparando para escrita na memória
+        storeValue = (Z808Word) operator2;
         opStore = true;
 
         Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
