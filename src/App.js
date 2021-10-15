@@ -196,14 +196,22 @@ function App2() {
 
   useEffect(() => {
     ipcRenderer.on('cycle_memory', (evt, data) => {
-      if (typeof data.address == undefined || typeof data.newValue == undefined)
-        return;
-      setMemory((old) =>
-        old.map((value, key) => (key == data.address ? data.newValue : value))
-      );
+      if (Object.keys(data).length === 0) return;
+      setMemory((old) => {
+        if(Object.keys(old).includes(data.address.toString())) {
+          old[data.address] = data.newValue.toString(16);
+        }
+        return old;
+      });
     });
     ipcRenderer.on('init_memory', (evt, data) => {
-      setMemory(data);
+      setMemory(() => {
+        const memoryChanges = [];
+        for (let b = 0; b < data.length; b++) {
+          memoryChanges.push(data[b]);
+        }
+        return memoryChanges;
+      })
     });
   }, []);
 

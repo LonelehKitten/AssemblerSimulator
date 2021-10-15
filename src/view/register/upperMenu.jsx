@@ -85,11 +85,11 @@ const UpperMenu = ({ register }) => {
       <section style={{ margin: 10, display: "flex" }}>
         <Paper className={classes.root}>
           <span className={classes.name}>PC</span>
-          <span className={classes.value}>{parseInt(register.PC).toString("16").toUpperCase()}</span>
+          <span className={classes.value}>{register.PC.toString("16").toUpperCase()}</span>
         </Paper>
         <Paper className={classes.root}>
           <span className={classes.name}>SR</span>
-          <span className={classes.value}>{parseInt(register.SR.asLiteral).toString("16").toUpperCase()}</span>
+          <span className={classes.value}>{register.SR.asLiteral.toString("16").toUpperCase()}</span>
         </Paper>
         <Paper className={classes.root + " " + classes.bits}>
           <div className={classes.row}>

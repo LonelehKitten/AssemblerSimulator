@@ -33,23 +33,25 @@ emitter.on('macroExpanded', (data) => {
 emitter.on("programToMemory",(data) => {
     const text= [];
     for(let i=0;i<data.length;i += 2){
-        text.push(data[i].toString(16)+data[i+1].toString(16));
+        text.push((data[i].toString(16).padStart(2, 0)+data[i+1].toString(16).padStart(2, 0)));
     }
     getCurrentBrowser()?.webContents.send("init_memory",text);
     clearInterval(ProgramToMemoryEventObserver)
+    CycleEventObserver = setInterval(() => asmr.observeCycleFiring(getEmitter()), 10);
 });
 emitter.on('cycle', (data) => {
-    if(data == "halt"){
+    if(data === "halt"){
         playing = false;
         clearInterval(CycleEventObserver)
-    }else{
-        const array = JSON.parse(data);
-        console.log(array);
-        getCurrentBrowser()?.webContents.send("cycle_memory",array.memoryChanges);
-        getCurrentBrowser()?.webContents.send("cycle_registers",array.registers);
-        getCurrentBrowser()?.webContents.send("cycle_stdin",array.stdin);
-        if(stdout != "") getCurrentBrowser()?.webContents.send("console",{message: array.stdout,type:0});
+        return;
     }
+    console.log('on cycle:', data);
+    const response = JSON.parse(data);
+    console.log(response);
+    getCurrentBrowser()?.webContents.send("cycle_memory",response.memoryChange);
+    getCurrentBrowser()?.webContents.send("cycle_registers",response.registers);
+    if(response.stdin) getCurrentBrowser()?.webContents.send("cycle_stdin",response.stdin);
+    if(response.stdout !== "") getCurrentBrowser()?.webContents.send("console",{message: response.stdout,type:0});
 });
 emitter.on('log', (data) => {
     getCurrentBrowser()?.webContents.send("console",JSON.parse(data));
@@ -88,7 +90,6 @@ ipcMain.on("play", (event, type, params) => {
             case "requestAssembleAndRunBySteps":
             case "requestRun":
             case "requestRunBySteps":
-                CycleEventObserver = setInterval(() => asmr.observeCycleFiring(getEmitter()), 10);
                 ProgramToMemoryEventObserver = setInterval(() => asmr.observeProgramToMemoryFiring(getEmitter()), 10);
                 break;
         }
@@ -96,7 +97,7 @@ ipcMain.on("play", (event, type, params) => {
     // Para simulações das memorias e registradores
     if(type == "simulate"){
         const array = JSON.parse(simulate());
-        getCurrentBrowser()?.webContents.send("cycle_memory",array.memoryChanges);
+        getCurrentBrowser()?.webContents.send("cycle_memory",array.memoryChange);
         getCurrentBrowser()?.webContents.send("cycle_registers",array.registers);
         getCurrentBrowser()?.webContents.send("cycle_stdin",array.stdin);
         if(array.stdout != '') getCurrentBrowser()?.webContents.send("console",{message: array.stdout,type:0});

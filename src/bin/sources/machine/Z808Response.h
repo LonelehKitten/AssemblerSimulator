@@ -4,6 +4,7 @@
 #include <string>
 #include <bitset>
 #include <utility>
+#include <iostream>
 
 typedef unsigned short int USint;
 typedef std::string JSON;
