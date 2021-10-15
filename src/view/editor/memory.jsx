@@ -93,8 +93,13 @@ const Memory = () => {
     changeMemory(name, value.substr(0, 4).padStart(4, 0));
   };
 
-  const changeMemory = (name, value) => {
-    setMemory((old) => old.map((item, key) => (key == name ? value : item)));
+  const changeMemory = (address, value) => {
+    setMemory((old) => {
+      if(old[address] !== undefined) {
+        old[address] = value;
+      }
+      return old;
+    });
   };
 
   const rows = useMemo(() => {

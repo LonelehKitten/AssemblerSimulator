@@ -163,7 +163,7 @@ end VALEUSEGMENT
       console.log('message', message);
       setHistory((oldValue) => [...oldValue, ...[message]]);
     });
-    ipcRenderer.on('cycle_stdin', (value) => {
+    ipcRenderer.on('cycle_stdin', (e, value) => {
       setStdin(value);
     });
 

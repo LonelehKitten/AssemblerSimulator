@@ -27,6 +27,8 @@ void Z808Machine::memoryUpdate(std::vector<Z808Byte> *memory, std::vector<unsign
         this->memory->at(i) = programBytes->at(i);
 
     InterfaceBus::getInstance().dispatchProgramToMemory(memory);
+
+    while(InterfaceBus::getInstance().isUpdating());
 }
 
 bool Z808Machine::isEnd()
@@ -67,12 +69,16 @@ int Z808Machine::run(bool isBySteps)
     InterfaceBus * interfaceBus = &InterfaceBus::getInstance();
 
     programEnd = false;
+
+    std::cout << "machine: before while" << std::endl;
     
     while(!isEnd())
     {
         if(!isBySteps) std::this_thread::sleep_for(interfaceBus->getClock());
 
+        std::cout << "machine: within while: pre execute" << std::endl;
         increment = processor->execute(*memory);
+        std::cout << "machine: within while: post execute" << std::endl;
 
         if (processor->instructionError())
         {
@@ -144,6 +150,7 @@ int Z808Machine::run(bool isBySteps)
             else
             {
                 Format->setStandardInput(true);
+                std::cout << "REQUESTED INPUT FROM USER" << std::endl;
             }
         }
         else
@@ -152,21 +159,37 @@ int Z808Machine::run(bool isBySteps)
         
         
         //************End_Setters do Z808Response
+
+        std::cout << "machine: iomode: " << (ioMode ? "write" : "false") << std::endl;
         
-        interfaceBus->dispatchCycle(*Format,!ioMode);
-        
+        std::cout << "machine: within while: pre cycle" << std::endl;
+        interfaceBus->dispatchCycle(*Format, processor->isInterrupt() && !ioMode);
+        std::cout << "machine: within while: post cycle" << std::endl;
         while(interfaceBus->isUpdating());
+
+
+        std::cout << "machine: within while: post updating" << std::endl;
         
         if(interfaceBus->isInputing())
         {
+            std::cout << "machine: within while: inputing 1" << std::endl;
+
             while(interfaceBus->isInputing());
+
+            std::cout << "machine: within while: inputing 2" << std::endl;
 
             processor->resetInterruption();
 
+            std::cout << "machine: within while: inputing 3" << std::endl;
+
             interfaceBus->setNextStepRequested(true);
         }
+
+        std::cout << "machine: within while: post inputing" << std::endl;
         
         while(isBySteps && !interfaceBus->isNextStepRequested());
+
+        std::cout << "machine: within while: post interruptions" << std::endl;
 
         //Exemplo de como pegar o valor numerico do registrador AX (checar indices no Z808Processor.h)
         //std::cout << "\nAX: " << std::hex << registradores[0].to_ulong();

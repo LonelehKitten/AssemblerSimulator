@@ -47,7 +47,9 @@ void requestAssembleAndRunBySteps(const Nan::FunctionCallbackInfo<v8::Value> & i
  * @param 128Kb de memória em um array de int
  */
 void requestRun(const Nan::FunctionCallbackInfo<v8::Value> & info) {
+    std::cout << "cpp: begin" << std::endl;
     InterfaceBus::getInstance().serviceRun((NodeInfo *) &info, info[0], info[1]);
+    std::cout << "cpp: end" << std::endl;
 }
 /**
  * Requisita execução passo a passo

@@ -155,7 +155,9 @@ const Header = () => {
       const params = [];
       // Adicionar as instruções
       if (['requestRun', 'requestRunBySteps'].includes(type)) {
-        params.push(getBytecodeFromEditor());
+        let arr = getBytecodeFromEditor()
+        console.log(arr)
+        params.push(arr);
       }
       if (
         [

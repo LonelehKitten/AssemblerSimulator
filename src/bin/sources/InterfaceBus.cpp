@@ -52,6 +52,7 @@ void InterfaceBus::producer() {
                 serviceThread = new std::thread(ServiceBus::startAssembleAndRunBySteps);
                 break;
             case Service::RUN:
+                std::cout << "primary thread: service run start" << std::endl;
                 serviceThread = new std::thread(ServiceBus::startRun);
                 break;
             case Service::RUN_BY_STEPS:
@@ -145,6 +146,36 @@ void InterfaceBus::setNextStepRequested(bool nextStepRequested) {
     mutex.unlock();
 }
 
+//---
+
+bool InterfaceBus::isOutputReady() {
+    bool outputReady;
+    mutex.lock();
+    outputReady = this->outputReport.ready;
+    mutex.unlock();
+    return outputReady;
+}
+
+void InterfaceBus::setOutputReady(bool outputReady) {
+    mutex.lock();
+    this->outputReport.ready = outputReady;
+    mutex.unlock();
+}
+
+bool InterfaceBus::isInputReady() {
+    bool inputReady;
+    mutex.lock();
+    inputReady = this->inputReport.ready;
+    mutex.unlock();
+    return inputReady;
+}
+
+void InterfaceBus::setInputReady(bool inputReady) {
+    mutex.lock();
+    this->inputReport.ready = inputReady;
+    mutex.unlock();
+}
+
 std::mutex& InterfaceBus::getMutex() {
     std::mutex& mutex = this->mutex;
     return mutex;
@@ -170,9 +201,11 @@ void InterfaceBus::runAssembleAndRunBySteps() {
 }
 
 void InterfaceBus::runRun() {
-
+    std::cout << "service run: memory setting" << std::endl;
     machine->memoryUpdate(&inputReport.memory, &inputReport.bytecode);
+    std::cout << "service run: run" << std::endl;
     machine->run(false);
+    std::cout << "service run: memory set" << std::endl;
 
     while(isUpdating());
     setWaiting(false);
@@ -213,29 +246,33 @@ V8Context InterfaceBus::getV8Context() {
 // pra expansão de macro
 void InterfaceBus::dispatchMacroExpanded(std::string code) {
     outputReport.code = code;
-    outputReport.ready = true;
+    setOutputReady(true);
 }
 
 // pra cada ciclo do processador
 void InterfaceBus::dispatchProgramToMemory(std::vector<byte> * memory) {
-    outputReport.memory = castByteArraytoJSON(memory);
-    outputReport.ready = true;
+    std::cout << "dpm: before cast" << std::endl;
+    outputReport.memory = memory;
+    std::cout << "dpm: after cast" << std::endl;
     setUpdating(true);
+    setOutputReady(true);
 }
 
 // pra cada ciclo do processador
 void InterfaceBus::dispatchCycle(Z808Response& response, bool waitingForInput) {
     outputReport.response = response.toJSON();
-    outputReport.ready = true;
+    std::cout << "interfaceBus: post toJson" << std::endl;
     setUpdating(true);
     setInputing(waitingForInput);
+    setOutputReady(true);
+    std::cout << "interfaceBus: post " << std::endl;
 }
 
 // para sinalizar fim de execução
 void InterfaceBus::dispatchHalt() {
     outputReport.response = "halt";
-    outputReport.ready = true;
     setUpdating(true);
+    setOutputReady(true);
 }
 
 // quando houver alguma mensagem a ser printada no console
@@ -251,26 +288,30 @@ void InterfaceBus::dispatchLog(std::string message, LogStatus status) {
 // =======================================================
 void InterfaceBus::checkMacroExpanded(NodeInfo * info) {
     this->info = info;
-    if(!outputReport.ready) return;
+    if(!isOutputReady()) return;
     trigger("macroExpanded", outputReport.code.c_str());
-    outputReport.ready = false;
+    setOutputReady(false);
     setWaiting(false);
 }
 
 void InterfaceBus::checkProgramToMemory(NodeInfo * info) {
     this->info = info;
-    if(!outputReport.ready) return;
-    trigger("programToMemory", outputReport.memory);
-    outputReport.ready = false;
+    if(!isOutputReady()) return;
+    trigger("programToMemory", castByteArraytoV8(outputReport.memory));
+    std::cout << "cpm: post trigger" << std::endl;
+    setOutputReady(false);
+    std::cout << "cpm: post ready" << std::endl;
     setUpdating(false);
 }
 
 void InterfaceBus::checkCycle(NodeInfo * info) {
     this->info = info;
-    if(!outputReport.ready) return;
+    if(!isOutputReady()) return;
     trigger("cycle", outputReport.response);
-    outputReport.ready = false;
+    std::cout << "cpm: post trigger" << std::endl;
+    setOutputReady(false);
     setUpdating(false);
+    std::cout << "cpm: post updating" << std::endl;
 }
 
 void InterfaceBus::checkLog(NodeInfo * info) {
@@ -397,10 +438,20 @@ void InterfaceBus::trigger(char * event, std::string data) {
                 2,
                 arguments
             );
+}
 
-    //if(!maybe.IsEmpty()) return castV8toString(maybe.ToLocalChecked());
-
-    //return "";
+void InterfaceBus::trigger(char * event, v8::Local<v8::Array> data) {
+    v8::Local<v8::Value> arguments[2] = {
+          Nan::New(event).ToLocalChecked(),
+          data
+    };
+    Nan::AsyncResource resource("nan:makeCallback");
+    Nan::MaybeLocal<v8::Value> maybe = resource.runInAsyncScope(
+                Nan::GetCurrentContext()->Global(),
+                (*info)[0].As<v8::Function>(),
+                2,
+                arguments
+            );
 }
 
 std::string InterfaceBus::castV8toString(V8Var jsString) {
@@ -423,15 +474,15 @@ std::vector<byte> InterfaceBus::castV8toByteArray(V8Var jsNumberArray) {
     return std::vector<byte>(array, array+length);
 }
 
-JSON InterfaceBus::castByteArraytoJSON(std::vector<byte> * array) {
-    JSON str = "{\"bytes\": [";
+v8::Local<v8::Array> InterfaceBus::castByteArraytoV8(std::vector<byte> * array) {
+    std::cout << "dpm: 1" << std::endl;
+    v8::Local<v8::Array> jsArray = Nan::New<v8::Array>();
+    std::cout << "dpm: 2" << std::endl;
     for(int i = 0; i < (int) array->size(); i++) {
-        str += std::to_string(array->at(i));
-        if(i+1 < (int) array->size()) {
-            str += ", ";
-        }
+        Nan::Set(jsArray, i, Nan::New<v8::Number>(array->at(i)));
     }
-    return str + "]}";
+    std::cout << "dpm: 3" << std::endl;
+    return jsArray;
 }
 
 InterfaceBus& InterfaceBus::getInstance() {

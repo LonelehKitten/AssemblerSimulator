@@ -57,7 +57,7 @@ typedef struct OutputReport {
     bool ready;
     JSON  response;
     std::string code;
-    JSON  memory;
+    std::vector<byte> * memory;
 } OutputReport;
 
 class InterfaceBus {
@@ -83,11 +83,12 @@ class InterfaceBus {
          InterfaceBus();
 
          void trigger(char * event, std::string data);
+         void trigger(char * event, v8::Local<v8::Array> data);
 
          std::string castV8toString(V8Var jsString);
          int castV8toInt(V8Var jsNumber);
          std::vector<byte> castV8toByteArray(V8Var jsNumberArray);
-         JSON castByteArraytoJSON(std::vector<byte> * array);
+         v8::Local<v8::Array> castByteArraytoV8(std::vector<byte> * array);
 
          EventEmitter getEventEmitter();
          V8Context getV8Context();
@@ -96,6 +97,14 @@ class InterfaceBus {
          void setWaiting(bool waiting);
          void setUpdating(bool updating);
          void setInputing(bool inputing);
+
+         bool isOutputReady();
+
+         void setOutputReady(bool outputReady);
+
+         bool isInputReady();
+
+         void setInputReady(bool inputReady);
 
     public:
 
