@@ -48,7 +48,7 @@ emitter.on('cycle', (data) => {
     getCurrentBrowser()?.webContents.send("cycle_memory",response.memoryChange);
     getCurrentBrowser()?.webContents.send("cycle_registers",response.registers);
     if(response.stdin) getCurrentBrowser()?.webContents.send("cycle_stdin",response.stdin);
-    if(response.stdout !== "") getCurrentBrowser()?.webContents.send("console",{message: response.stdout,type:0});
+    if(response.stdout !== "") getCurrentBrowser()?.webContents.send("console",{message: response.stdout,status:0});
 });
 emitter.on('log', (data) => {
     getCurrentBrowser()?.webContents.send("console",JSON.parse(data));
@@ -105,14 +105,14 @@ ipcMain.on("play", (event, type, params) => {
 const simulate = () => {
     const json = {
         registers: {
-            AX: Math.random() * 50,
-            DX: Math.random() * 50,
-            SI: Math.random() * 50,
-            SS: Math.random() * 50,
-            DS: Math.random() * 50,
-            CS: Math.random() * 50,
-            SP: Math.random() * 50,
-            PC: Math.random() * 50,
+            AX: parseInt(Math.random() * 50),
+            DX: parseInt(Math.random() * 50),
+            SI: parseInt(Math.random() * 50),
+            SS: parseInt(Math.random() * 50),
+            DS: parseInt(Math.random() * 50),
+            CS: parseInt(Math.random() * 50),
+            SP: parseInt(Math.random() * 50),
+            PC: parseInt(Math.random() * 50),
             SR: {
                 asLiteral: Math.random() * 50,
                 asFlags: [randomBool(),false,false,false,false,false,randomBool(),randomBool(),randomBool(),randomBool(),false,false,randomBool()]
