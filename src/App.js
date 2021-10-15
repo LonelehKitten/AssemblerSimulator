@@ -201,7 +201,7 @@ function App2() {
       if (Object.keys(data).length === 0) return;
       setMemory((old) => {
         if(Object.keys(old).includes(data.address.toString())) {
-          old[data.address] = data.newValue.toString(16);
+          old[data.address] = data.newValue.toString(16).padStart(4, 0);
         }
         return old;
       });
