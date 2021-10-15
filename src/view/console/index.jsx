@@ -137,7 +137,7 @@ const Console = ({ dragger, ...props }) => {
       });
       const message = e.target.value;
       if (message === '') return;
-      const data = [{ message, type: 0 }];
+      const data = [{ message, status: 0 }];
       console.log(data);
       setHistory((oldValue) => [...oldValue, ...data]);
       e.target.value = '';
@@ -194,9 +194,9 @@ end VALEUSEGMENT
         {history.map((item, key) => (
           <ListItem
             key={key}
-            className={classes.inputedTexts + ' ' + messagesType[item.type]}
+            className={classes.inputedTexts + ' ' + messagesType[item.status]}
           >
-            <ListItemIcon>{messagesIcon[item.type]}</ListItemIcon>
+            <ListItemIcon>{messagesIcon[item.status]}</ListItemIcon>
             <ListItemText fontFamily='VT323' primary={item.message} />
           </ListItem>
         ))}

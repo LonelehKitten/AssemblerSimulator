@@ -10,16 +10,6 @@ import Paper from '@material-ui/core/Paper';
 import Brightness1Icon from '@material-ui/icons/Brightness1';
 
 import { useContext } from '../../utils/context';
-
-function createData(register, bits, value = null) {
-  if (value == null) value = parseInt(bits, 2);
-  return { register, bits, value };
-}
-
-const registers = ['AX', 'DX', 'SI', 'DS', 'SS', 'CS', 'SP', 'SR', 'PC'];
-
-const rows = registers.map((name) => createData(name, '0101010101101010'));
-console.log('Rows', rows);
 //];
 
 const useStyles = makeStyles((theme) => ({

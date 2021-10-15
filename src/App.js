@@ -80,16 +80,16 @@ function App2() {
 
   const [stdin, setStdin] = useState(false);
   const [registers, setRegisters] = useState({
-    AX: Math.random() * 50,
-    DX: Math.random() * 50,
-    SI: Math.random() * 50,
-    SS: Math.random() * 50,
-    DS: Math.random() * 50,
-    CS: Math.random() * 50,
-    SP: Math.random() * 50,
-    PC: Math.random() * 50,
+    AX: parseInt(Math.random() * 50),
+    DX: parseInt(Math.random() * 50),
+    SI: parseInt(Math.random() * 50),
+    SS: parseInt(Math.random() * 50),
+    DS: parseInt(Math.random() * 50),
+    CS: parseInt(Math.random() * 50),
+    SP: parseInt(Math.random() * 50),
+    PC: parseInt(Math.random() * 50),
     SR: {
-      asLiteral: Math.random() * 50,
+      asLiteral: parseInt(Math.random() * 50),
       asFlags: [true, false, true, true, false, true, true, false],
     },
   });

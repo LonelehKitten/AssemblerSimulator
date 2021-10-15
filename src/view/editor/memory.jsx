@@ -81,7 +81,7 @@ const Memory = () => {
   //     setRerender(rerender + 1);
   //   }, [memory]);
 
-  const handleMemorChange = (e) => {
+  const handleMemoryChange = (e) => {
     if ('0123456789abcdef'.split('').includes(e.nativeEvent.data)) {
       const { name, value } = e.target;
       changeMemory(name, value.substr(0, 4));
@@ -94,12 +94,15 @@ const Memory = () => {
   };
 
   const changeMemory = (address, value) => {
-    setMemory((old) => {
-      if(old[address] !== undefined) {
+    const old = [...memory];
+    old[address] = value;
+    setMemory(old);
+    /*setMemory((old) => {
+      if (old[address] !== undefined) {
         old[address] = value;
       }
       return old;
-    });
+    });*/
   };
 
   const rows = useMemo(() => {
@@ -113,7 +116,7 @@ const Memory = () => {
           <input
             //ref={memoryRefs.current[key]}
             onBlur={handleBlur}
-            onChange={handleMemorChange}
+            onChange={handleMemoryChange}
             name={key}
             className={classes.input}
             value={item}
@@ -169,7 +172,6 @@ const Memory = () => {
                     .padStart(5, 0)}
                 </TableCell>
                 {row}
-                {console.log(row)}
               </TableRow>
             ))}
           </TableBody>
