@@ -103,7 +103,7 @@ const requests = [
 ];
 
 const Header = () => {
-  const { memory, currentFile, addFile, alertShow, playing, setPlaying } = useContext();
+  const { memory, currentFile, addFile, alertShow, playing, setPlaying,setByStep } = useContext();
   //const { addFile, currentID, alertShow } = useContext();
   const [anchorEl, setAnchorEl] = useState(null);
   const classes = useStyles();
@@ -153,6 +153,11 @@ const Header = () => {
       }
       if (['requestAssembleAndRun', 'requestAssembleAndRunBySteps', 'requestRun', 'requestRunBySteps'].includes(type)) {
         params.push(memoryToBytes);
+      }
+      if(['requestRunBySteps','requestAssembleAndRunBySteps'].includes(type)){
+        setByStep(true);
+      }else{
+        setByStep(false);
       }
       event('play', [type, params]);
     }

@@ -80,21 +80,22 @@ function App2() {
 
   const [stdin, setStdin] = useState(false);
   const [registers, setRegisters] = useState({
-    AX: parseInt(Math.random() * 50),
-    DX: parseInt(Math.random() * 50),
-    SI: parseInt(Math.random() * 50),
-    SS: parseInt(Math.random() * 50),
-    DS: parseInt(Math.random() * 50),
-    CS: parseInt(Math.random() * 50),
-    SP: parseInt(Math.random() * 50),
-    PC: parseInt(Math.random() * 50),
+    AX: 0,
+    DX: 0,
+    SI: 0,
+    SS: 0,
+    DS: 0,
+    CS: 0,
+    SP: 0,
+    PC: 0,
     SR: {
-      asLiteral: parseInt(Math.random() * 50),
-      asFlags: [true, false, true, true, false, true, true, false],
+      asLiteral: 0,
+      asFlags: [false, false, false, false, false, false, false, false, false, false, false, false,false]
     },
   });
 
   const memoryRefs = useRef([React.createRef(), React.createRef()]);
+  const [byStep,setByStep] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [currentID, setCurrentID] = useState('');
   const [currentFile, setCurrentFile] = useState(null);
@@ -197,6 +198,9 @@ function App2() {
   }, [listFiles]);
 
   useEffect(() => {
+    ipcRenderer.on('end', (evt) => {
+      setPlaying(false);
+    });
     ipcRenderer.on('cycle_memory', (evt, data) => {
       if (Object.keys(data).length === 0) return;
       setMemory((old) => {
@@ -238,6 +242,8 @@ function App2() {
     stdin,
     setStdin,
     memoryRefs,
+    byStep,
+    setByStep
     // memoryRedux,
     // setMemoryRedux,
   };
