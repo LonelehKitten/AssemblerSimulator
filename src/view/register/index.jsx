@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
 const { ipcRenderer } = window.electron;
 
 const Register = (props) => {
-  const { registers, setRegisters } = useContext();
+  const { registers, setRegisters,byStep, setPlaying } = useContext();
 
   const classes = useStyles();
 
@@ -45,6 +45,7 @@ const Register = (props) => {
   useEffect(() => {
     ipcRenderer.on('cycle_registers', (e, data) => {
       setRegisters(data);
+      if(byStep) setPlaying(false);
     });
   }, []);
 

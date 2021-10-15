@@ -95,6 +95,7 @@ function App2() {
   });
 
   const memoryRefs = useRef([React.createRef(), React.createRef()]);
+  const [byStep,setByStep] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [currentID, setCurrentID] = useState('');
   const [currentFile, setCurrentFile] = useState(null);
@@ -197,6 +198,9 @@ function App2() {
   }, [listFiles]);
 
   useEffect(() => {
+    ipcRenderer.on('end', (evt) => {
+      setPlaying(false);
+    });
     ipcRenderer.on('cycle_memory', (evt, data) => {
       if (Object.keys(data).length === 0) return;
       setMemory((old) => {
@@ -238,6 +242,8 @@ function App2() {
     stdin,
     setStdin,
     memoryRefs,
+    byStep,
+    setByStep
     // memoryRedux,
     // setMemoryRedux,
   };
