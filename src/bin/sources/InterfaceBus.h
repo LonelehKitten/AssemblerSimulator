@@ -140,7 +140,7 @@ class InterfaceBus {
             comandos de entrada e saída de dados, e mudanças na memória.
             Deve ser executado pelo Z808Machine caso a instrução seja válida.
          */
-         void dispatchCycle(Z808Response& response, bool waitingForInput);         // pra cada ciclo do processador
+         void dispatchCycle(Z808Response& response, bool waitingForInput, bool isBySteps);         // pra cada ciclo do processador
          void dispatchHalt(); // sinaliza fim de execução do processador
          /*
             Retorna uma mensagem no console da interface.

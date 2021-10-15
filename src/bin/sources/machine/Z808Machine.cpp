@@ -163,7 +163,7 @@ int Z808Machine::run(bool isBySteps)
         std::cout << "machine: iomode: " << (ioMode ? "write" : "false") << std::endl;
         
         std::cout << "machine: within while: pre cycle" << std::endl;
-        interfaceBus->dispatchCycle(*Format, processor->isInterrupt() && !ioMode);
+        interfaceBus->dispatchCycle(*Format, processor->isInterrupt() && !ioMode, isBySteps);
         std::cout << "machine: within while: post cycle" << std::endl;
         while(interfaceBus->isUpdating());
 
@@ -181,8 +181,6 @@ int Z808Machine::run(bool isBySteps)
             processor->resetInterruption();
 
             std::cout << "machine: within while: inputing 3" << std::endl;
-
-            interfaceBus->setNextStepRequested(true);
         }
 
         std::cout << "machine: within while: post inputing" << std::endl;

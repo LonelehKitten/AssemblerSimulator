@@ -259,11 +259,12 @@ void InterfaceBus::dispatchProgramToMemory(std::vector<byte> * memory) {
 }
 
 // pra cada ciclo do processador
-void InterfaceBus::dispatchCycle(Z808Response& response, bool waitingForInput) {
+void InterfaceBus::dispatchCycle(Z808Response& response, bool waitingForInput, bool isBySteps) {
     outputReport.response = response.toJSON();
     std::cout << "interfaceBus: post toJson" << std::endl;
     setUpdating(true);
     setInputing(waitingForInput);
+    setNextStepRequested(!isBySteps);
     setOutputReady(true);
     std::cout << "interfaceBus: post " << std::endl;
 }
@@ -423,6 +424,7 @@ void InterfaceBus::serviceSendInput(NodeInfo * info, V8Var input) {
     this->info = info;
     machine->setInput(castV8toString(input));
     setInputing(false);
+    setNextStepRequested(true);
 }
 
 
