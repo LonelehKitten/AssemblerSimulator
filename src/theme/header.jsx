@@ -103,8 +103,7 @@ const requests = [
 ];
 
 const Header = () => {
-  const { memory, currentFile, addFile, alertShow, playing, setPlaying } =
-    useContext();
+  const { memory, currentFile, addFile, alertShow, playing, setPlaying } = useContext();
   //const { addFile, currentID, alertShow } = useContext();
   const [anchorEl, setAnchorEl] = useState(null);
   const classes = useStyles();
@@ -128,12 +127,6 @@ const Header = () => {
   };
 
   const handlePlay = (type) => () => {
-    const encoder = new TextEncoder();
-
-    /*
-    console.log(encoder.encode(memory.join("")).length); // Aqui Converte para um array de bits
-    const test = memory.map((item) => parseInt(item, 16)) // Aqui apenas converter hexa (string) para decimal (number)
-    console.log(test.length);*/
     let memoryToBytes = [];
     for (let i = 0; i < memory.length; i++) {
       let string = String(memory[i]).padStart(4, 0);
@@ -144,38 +137,21 @@ const Header = () => {
     // play_expandMacros
     if (!isEmpty(currentFile?.code) || type == 'simulate') {
       // Habilita ou não o "Playing"
-      if (
-        type == 'requestEndTest' ||
-        type == 'requestTest' ||
-        type == 'requestKillProcess'
-      )
-        setPlaying(false);
+      if (type == 'simulate' || type == 'requestEndTest' || type == 'requestTest' || type == 'requestKillProcess') setPlaying(false);
       else setPlaying(true);
-      //[currentFile?.code]
+
       const params = [];
+
       // Adicionar as instruções
       if (['requestRun', 'requestRunBySteps'].includes(type)) {
         let arr = getBytecodeFromEditor()
         console.log(arr)
         params.push(arr);
       }
-      if (
-        [
-          'requestExpandMacros',
-          'requestAssembleAndRun',
-          'requestAssembleAndRunBySteps',
-        ].includes(type)
-      ) {
+      if (['requestExpandMacros', 'requestAssembleAndRun', 'requestAssembleAndRunBySteps'].includes(type)) {
         params.push(currentFile?.code);
       }
-      if (
-        [
-          'requestAssembleAndRun',
-          'requestAssembleAndRunBySteps',
-          'requestRun',
-          'requestRunBySteps',
-        ].includes(type)
-      ) {
+      if (['requestAssembleAndRun', 'requestAssembleAndRunBySteps', 'requestRun', 'requestRunBySteps'].includes(type)) {
         params.push(memoryToBytes);
       }
       event('play', [type, params]);
@@ -207,7 +183,7 @@ const Header = () => {
     setOpen(false);
   };
 
-  const handleAbout = () => {};
+  const handleAbout = () => { };
 
   return (
     <div className={classes.root}>

@@ -1,11 +1,8 @@
 const bindings = require('bindings')
-//const addon = require('../build/Release/addon.node');
 const EventEmitter = require('events');
 const fs = require('fs');
 const { BrowserWindow, ipcMain, dialog, webContents } = require('electron');
 
-//const isAsmr = typeof asmr != "undefined"; // Para não dar pau no windows
-// require('bindings')('ASMR')
 let asmr;
 try{
     asmr = bindings('ASMR') ?? null; // Pega o ASMR se ele estiver compilado
@@ -123,7 +120,7 @@ const simulate = () => {
         },
         stdout: Math.random() % 5 == 0 ? "Teste "+Date.now() : "",
         stdin: Math.random() % 2 == 0,
-        memoryChanges:{
+        memoryChange:{
             address: 10,
             newValue: Math.floor(Math.random() * 1000)
         }
