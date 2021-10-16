@@ -6,6 +6,7 @@ const useStyles = makeStyles((theme, props) => ({
   root: {
     position: "relative",
     backgroundColor: "#313241",
+    width: '33%',
     color: "#fff",
     display: "block",
     margin: "0 5px",
@@ -35,7 +36,8 @@ const useStyles = makeStyles((theme, props) => ({
   bits: {
     flexGrow: 1,
     backgroundColor: "initial",
-    display: "block"
+    display: "block",
+    width: '33%'
   },
   row: {
     display: 'flex',
@@ -96,7 +98,7 @@ const UpperMenu = ({ register }) => {
         <Paper className={classes.root + " " + classes.bits}>
           <div className={classes.row}>
             {listBits.map((name, key) =>
-              <div><span className={flags[key] ? "active" : ""}>{name}</span></div>
+              <div key={key}><span className={flags[key] ? "active" : ""}>{name}</span></div>
             )}
           </div>
         </Paper>
