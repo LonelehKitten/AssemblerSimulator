@@ -1186,6 +1186,20 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
 
         break;
 
+        case 0xF0 :             //mov SI, AX
+            Z808Registers[SI] = Z808Registers[AX];
+
+            Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
+
+        break;
+
+        case 0xD0 :             //mov DX, AX
+            Z808Registers[DX] = Z808Registers[AX];
+
+            Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
+
+        break;
+
         case 0xC4:              //mov AX, SP
             break;
         //Bastante coisa pra implementar...
