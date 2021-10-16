@@ -32,6 +32,9 @@ public:
     //Recebe uma string contendo número, de -32768 até 32767 (int de 2 bytes)
     void setInput(std::string input);
 
+    //Reinicia a máquina
+    void resetMachine();
+
     /*
         - isBySteps - executa instruções qnd nextStepRequested for true
     */

@@ -54,6 +54,17 @@ void Z808Machine::setInput(std::string input)
     memory->at(ioAddr+1) = ioData;
 }
 
+void Z808Machine::resetMachine()
+{
+    processor->resetRegisters();
+    processor->clearRandom();
+
+    ioData = 0;
+    ioAddr = 0;
+    programEnd = false;
+    memory = nullptr;
+}
+
 int Z808Machine::run(bool isBySteps)
 {
 
