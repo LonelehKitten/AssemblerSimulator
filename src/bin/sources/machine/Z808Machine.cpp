@@ -57,7 +57,7 @@ void Z808Machine::setInput(std::string input)
 void Z808Machine::resetMachine()
 {
     processor->resetRegisters();
-    processor->clearRandom();
+    processor->clearError();
 
     ioData = 0;
     ioAddr = 0;
