@@ -56,6 +56,11 @@ Z808Word Z808Processor::getStoreValue()
     return storeValue;
 }
 
+void Z808Processor::resetRegisters()
+{
+    Z808Registers = std::vector<Z808Word>(6,0);
+}
+
 void Z808Processor::resetInterruption()
 {
     Z808Registers[SR].reset(IF);
