@@ -115,6 +115,7 @@ const Memory = () => {
         <TableCell align='center'>
           <input
             //ref={memoryRefs.current[key]}
+            key={key}
             onBlur={handleBlur}
             onChange={handleMemoryChange}
             name={key}

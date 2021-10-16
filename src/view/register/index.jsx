@@ -13,7 +13,10 @@ const useStyles = makeStyles((theme) => ({
   root: {
     backgroundColor: '#21222c',
     width: '100%',
-    height: '100%',
+    height: 'calc(100% - 1em)',
+    overflowY: 'scroll',
+    borderRadius: '1em',
+    userSelect: 'none'
   },
 }));
 /*
