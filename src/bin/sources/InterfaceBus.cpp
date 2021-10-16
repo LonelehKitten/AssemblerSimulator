@@ -201,6 +201,7 @@ void InterfaceBus::runAssembleAndRunBySteps() {
 }
 
 void InterfaceBus::runRun() {
+    machine->resetMachine();
     std::cout << "service run: memory setting" << std::endl;
     machine->memoryUpdate(&inputReport.memory, &inputReport.bytecode);
     std::cout << "service run: run" << std::endl;
