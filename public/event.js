@@ -39,7 +39,8 @@ emitter.on("programToMemory",(data) => {
 emitter.on('cycle', (data) => {
     if(data === "halt"){
         playing = false;
-        clearInterval(CycleEventObserver)
+        clearInterval(CycleEventObserver);
+        getCurrentBrowser()?.webContents.send("end");
         return;
     }
     console.log('on cycle:', data);
@@ -114,7 +115,7 @@ const simulate = () => {
             SP: parseInt(Math.random() * 50),
             PC: parseInt(Math.random() * 50),
             SR: {
-                asLiteral: Math.random() * 50,
+                asLiteral: parseInt(Math.random() * 50),
                 asFlags: [randomBool(),false,false,false,false,false,randomBool(),randomBool(),randomBool(),randomBool(),false,false,randomBool()]
             }
         },
