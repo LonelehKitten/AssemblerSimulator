@@ -198,6 +198,18 @@ function App2() {
   }, [listFiles]);
 
   useEffect(() => {
+    console.log("effect",byStep);
+    if(byStep) {
+      ipcRenderer.on('cycle', (evt) => {
+        console.log("byStep",byStep);
+        if(byStep) setPlaying(false);
+      });
+    }else{
+      ipcRenderer.removeAllListeners("cycle");
+    }
+  },[byStep]);
+
+  useEffect(() => {
     ipcRenderer.on('end', (evt) => {
       setPlaying(false);
     });
@@ -205,7 +217,7 @@ function App2() {
       if (Object.keys(data).length === 0) return;
       setMemory((old) => {
         if(Object.keys(old).includes(data.address.toString())) {
-          old[data.address] = data.newValue.toString(16);
+          old[data.address] = data.newValue.toString(16).padStart(4, 0);
         }
         return old;
       });

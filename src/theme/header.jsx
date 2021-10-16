@@ -103,9 +103,10 @@ const requests = [
 ];
 
 const Header = () => {
-  const { memory, currentFile, addFile, alertShow, playing, setPlaying,setByStep } = useContext();
+  const { memory, currentFile, addFile, alertShow, playing, setPlaying,byStep,setByStep } = useContext();
   //const { addFile, currentID, alertShow } = useContext();
   const [anchorEl, setAnchorEl] = useState(null);
+  const [clock, setClock] = useState(16);
   const classes = useStyles();
 
   const [open, setOpen] = useState(false);
@@ -154,9 +155,11 @@ const Header = () => {
       if (['requestAssembleAndRun', 'requestAssembleAndRunBySteps', 'requestRun', 'requestRunBySteps'].includes(type)) {
         params.push(memoryToBytes);
       }
-      if(['requestRunBySteps','requestAssembleAndRunBySteps'].includes(type)){
+      if(['requestRunBySteps','requestAssembleAndRunBySteps','requestNextStep'].includes(type)){
+        console.log("Header|BySteyp",type,true);
         setByStep(true);
       }else{
+        console.log("Header|BySteyp",type,false);
         setByStep(false);
       }
       event('play', [type, params]);
@@ -188,6 +191,13 @@ const Header = () => {
     setOpen(false);
   };
 
+  const handleChangeClock = (e,value) => {
+   // console.log(e.target.value);
+   // const value = parseInt(e.target.value);
+    event('clock_change',[value]);
+    setClock(value);
+  }
+
   const handleAbout = () => { };
 
   return (
@@ -205,6 +215,7 @@ const Header = () => {
           </IconButton>
           <UpdateIcon />
           <Slider
+            onBlur={() => event('clock_change',[clock])}
             className={classes.slider}
             defaultValue={16}
             valueLabelDisplay='auto'
@@ -212,6 +223,8 @@ const Header = () => {
             marks
             min={1}
             max={20}
+            onChange={(e,value) => setClock(value)}
+            value={clock}
             style={{
               color: '#fff',
               width: 200,
@@ -243,10 +256,10 @@ const Header = () => {
               />
             </Button>
           </Tooltip>
-          <Tooltip title='Avançar (requestNextStep)'>
+          <Tooltip title={byStep ? 'Avançar (requestNextStep)' :'Avançar (requestRunBySteps)'}>
             <Button
               color='inherit'
-              onClick={handlePlay('requestNextStep')}
+              onClick={handlePlay(byStep ? 'requestNextStep' : 'requestRunBySteps')}
               disabled={playing}
               className={classes.button}
             >
