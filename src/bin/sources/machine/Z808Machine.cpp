@@ -20,7 +20,6 @@ Z808Machine::Z808Machine()
 
 void Z808Machine::memoryUpdate(std::vector<Z808Byte> *memory, std::vector<unsigned char> *programBytes)
 {
-    delete this->memory;
     this->memory = memory;
 
     for (int i = PROGRAM_BEGIN; programBytes != nullptr && i < programBytes->size(); i++)

@@ -198,6 +198,18 @@ function App2() {
   }, [listFiles]);
 
   useEffect(() => {
+    console.log("effect",byStep);
+    if(byStep) {
+      ipcRenderer.on('cycle', (evt) => {
+        console.log("byStep",byStep);
+        if(byStep) setPlaying(false);
+      });
+    }else{
+      ipcRenderer.removeAllListeners("cycle");
+    }
+  },[byStep]);
+
+  useEffect(() => {
     ipcRenderer.on('end', (evt) => {
       setPlaying(false);
     });

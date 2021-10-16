@@ -46,6 +46,7 @@ emitter.on('cycle', (data) => {
     console.log('on cycle:', data);
     const response = JSON.parse(data);
     console.log(response);
+    getCurrentBrowser()?.webContents.send("cycle");
     getCurrentBrowser()?.webContents.send("cycle_memory",response.memoryChange);
     getCurrentBrowser()?.webContents.send("cycle_registers",response.registers);
     if(response.stdin) getCurrentBrowser()?.webContents.send("cycle_stdin",response.stdin);
@@ -73,32 +74,37 @@ const requests = [
     'requestSendInput'
 ];
 ipcMain.on("play", (event, type, params) => {
-    // Executa as requisições após o evento do front
-    console.log(type,params);
-    if(requests.includes(type) && isAsmr){
-        asmr[type].apply(asmr,params);
-        playing = true;
+    try{
+        // Executa as requisições após o evento do front
+        console.log(type,params);
+        if(requests.includes(type) && isAsmr){
+            asmr[type].apply(asmr,params);
+            playing = true;
 
-        // Adicionar os observações
-        switch(type){
-            case "requestExpandMacros":
-                MacroExpandedEventObserver = setInterval(() => asmr.observeExpandedMacrosFiring(getEmitter()), 10);
-                break;
-            case "requestAssembleAndRun":
-            case "requestAssembleAndRunBySteps":
-            case "requestRun":
-            case "requestRunBySteps":
-                ProgramToMemoryEventObserver = setInterval(() => asmr.observeProgramToMemoryFiring(getEmitter()), 10);
-                break;
+            // Adicionar os observações
+            switch(type){
+                case "requestExpandMacros":
+                    MacroExpandedEventObserver = setInterval(() => asmr.observeExpandedMacrosFiring(getEmitter()), 10);
+                    break;
+                case "requestAssembleAndRun":
+                case "requestAssembleAndRunBySteps":
+                case "requestRun":
+                case "requestRunBySteps":
+                    ProgramToMemoryEventObserver = setInterval(() => asmr.observeProgramToMemoryFiring(getEmitter()), 10);
+                    break;
+            }
         }
-    }
-    // Para simulações das memorias e registradores
-    if(type == "simulate"){
-        const array = JSON.parse(simulate());
-        getCurrentBrowser()?.webContents.send("cycle_memory",array.memoryChange);
-        getCurrentBrowser()?.webContents.send("cycle_registers",array.registers);
-        getCurrentBrowser()?.webContents.send("cycle_stdin",array.stdin);
-        if(array.stdout != '') getCurrentBrowser()?.webContents.send("console",{message: array.stdout,type:0});
+        // Para simulações das memorias e registradores
+        if(type == "simulate"){
+            const array = JSON.parse(simulate());
+            getCurrentBrowser()?.webContents.send("cycle");
+            getCurrentBrowser()?.webContents.send("cycle_memory",array.memoryChange);
+            getCurrentBrowser()?.webContents.send("cycle_registers",array.registers);
+            getCurrentBrowser()?.webContents.send("cycle_stdin",array.stdin);
+            if(array.stdout != '') getCurrentBrowser()?.webContents.send("console",{message: array.stdout,type:0});
+        }
+    }catch(e){
+        console.log("Error",e);
     }
 })
 
@@ -161,6 +167,12 @@ ipcMain.on('invoke_save_file', async (event, data) => {
     });
 });
 
+ipcMain.on('clock_change', async (event, clock) => {
+    if(isAsmr){
+        console.log(clock);
+        asmr.requestClockChange(clock);
+    }
+});
 // Carregar Arquivo
 ipcMain.on('invoke_open_file', async (event, data) => {
     const result = await dialog.showOpenDialog(BrowserWindow.getFocusedWindow(), {
