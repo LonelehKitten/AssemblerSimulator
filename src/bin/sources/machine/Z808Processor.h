@@ -112,8 +112,8 @@ public:
     Z808Word getStoreValue();
     //Pega o tipo de interrupção
     bool getInterruptionMode();
-    //Reseta os valores dos registradores
-    void resetRegisters();
+    //Reseta os valores do processador
+    void reset();
     //Reseta a flag de interrupção
     void resetInterruption();
     //Limpa todas as flags de erro
