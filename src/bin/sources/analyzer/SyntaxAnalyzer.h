@@ -70,7 +70,7 @@ class SyntaxAnalyzer {
 
         void acceptMacroContent();
 
-
+        std::string getErrorMessage(int lineNumber);
 
         const std::string getAux1() const;
         const std::string getAux2() const;

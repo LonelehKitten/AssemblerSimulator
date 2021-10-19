@@ -57,6 +57,7 @@ void LexiconScanner::initTokenSet() {
     this->tokenSet[TokenNames::nOpSUB]              = new LexiconScanner::TokenSetUnit("sub",       TokenTypes::tOPERATION);
     this->tokenSet[TokenNames::nOpMUL]              = new LexiconScanner::TokenSetUnit("mul",       TokenTypes::tOPERATION);
     this->tokenSet[TokenNames::nOpDIV]              = new LexiconScanner::TokenSetUnit("div",       TokenTypes::tOPERATION);
+    this->tokenSet[TokenNames::nOpCMP]              = new LexiconScanner::TokenSetUnit("cmp",       TokenTypes::tOPERATION);
     this->tokenSet[TokenNames::nOpOR]               = new LexiconScanner::TokenSetUnit("or",        TokenTypes::tOPERATION);
     this->tokenSet[TokenNames::nOpAND]              = new LexiconScanner::TokenSetUnit("and",       TokenTypes::tOPERATION);
     this->tokenSet[TokenNames::nOpXOR]              = new LexiconScanner::TokenSetUnit("xor",       TokenTypes::tOPERATION);
@@ -115,7 +116,9 @@ void LexiconScanner::initTokenSet() {
     this->tokenSet[TokenNames::nORG]                = new LexiconScanner::TokenSetUnit("org",       TokenTypes::tORG);
 
     this->tokenSet[TokenNames::nOFFSET]             = new LexiconScanner::TokenSetUnit("$",         TokenTypes::tOFFSET);
-    this->tokenSet[TokenNames::nSTACK]              = new LexiconScanner::TokenSetUnit("stack",       TokenTypes::tSTACK);
+    this->tokenSet[TokenNames::nSTACK]              = new LexiconScanner::TokenSetUnit("stack",     TokenTypes::tSTACK);
+
+    this->tokenSet[TokenNames::nHALT]               = new LexiconScanner::TokenSetUnit("halt",      TokenTypes::tHALT);
 
 }
 
@@ -186,8 +189,11 @@ LexiconScannerStatus * LexiconScanner::nextToken(AutomatonPattern automatonPatte
         }
 
         if(this->error) {
+
+
+
             DEBUG(std::cout << "ERROR" << std::endl;)
-            return new FailStatus("Unknown Token: " + this->token);
+            return new FailStatus("unknown token");
         }
 
         nextChar();
@@ -203,6 +209,19 @@ void LexiconScanner::log() {
     column += '^';
     std::cout << this->line << std::endl;
     std::cout << column << std::endl;
+}
+
+std::string LexiconScanner::getErrorMessage() {
+
+    std::string errorMessage = this->line.substr(0, this->line.length()-1) + "\\n";
+
+    std::string column = "";
+    for(int i = 0; i < this->lastTokenBeginPosition; i++)
+        column += '~';
+    column += '^';
+
+    return errorMessage + column;
+
 }
 
 void LexiconScanner::start(AutomatonPattern automatonPattern) {

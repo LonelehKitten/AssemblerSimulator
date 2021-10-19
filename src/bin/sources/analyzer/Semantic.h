@@ -58,7 +58,8 @@ enum Instruction{
     iMACROCALL,
     iMACROCONTENT,
     iLABEL,
-    iINVALID
+    iINVALID,
+    iHALT
 };
 
 class Semantic {
@@ -173,9 +174,13 @@ class Cmp : public Semantic {
     private:
         //primeiro operand : regitrador AX
         std::string operand2; //DX ou cte
+        std::vector<Token *> * expression;
     public:
         Cmp(std::string line, std::string operand2);
+        Cmp(std::string line, std::vector<Token *> * expression);
+
         std::string getOperand2();
+        std::vector<Token *> *getExpression() const;
 };
 
 // logicas
@@ -259,7 +264,8 @@ class Jmp : public Semantic {
     private:
         std::vector<Token *> * expression;         //endereço
     public:
-        Jmp(std::string line);
+        Jmp(std::string line, std::vector<Token *> * expression);
+        std::vector<Token *> * getExpression() const;
         //opcode = EB
 };
 
@@ -267,7 +273,8 @@ class Je : public Semantic {
     private:
         std::vector<Token *> * expression;         //endereço
     public:
-        Je(std::string line);
+        Je(std::string line, std::vector<Token *> * expression);
+        std::vector<Token *> * getExpression() const;
         //opcode = 74
 };
 
@@ -275,7 +282,8 @@ class Jnz : public Semantic {
     private:
         std::vector<Token *> * expression;         //endereço
     public:
-        Jnz(std::string line);
+        Jnz(std::string line, std::vector<Token *> * expression);
+        std::vector<Token *> * getExpression() const;
         //opcode = 75
 };
 
@@ -283,7 +291,8 @@ class Jz : public Semantic {
     private:
         std::vector<Token *> * expression;         //endereço
     public:
-        Jz(std::string line);
+        Jz(std::string line, std::vector<Token *> * expression);
+        std::vector<Token *> * getExpression() const;
         //opcode = 74
 };
 
@@ -291,7 +300,8 @@ class Jp : public Semantic {
     private:
         std::vector<Token *> * expression;         //endereço
     public:
-        Jp(std::string line);
+        Jp(std::string line, std::vector<Token *> * expression);
+        std::vector<Token *> * getExpression() const;
         //opcode = 7A
 };
 
@@ -299,7 +309,8 @@ class Call : public Semantic {
     private:
         std::vector<Token *> * expression;         //endereço
     public:
-        Call(std::string line);
+        Call(std::string line, std::vector<Token *> * expression);
+        std::vector<Token *> * getExpression() const;
         //opcode = E8
 };
 
@@ -307,7 +318,8 @@ class Int : public Semantic {
     private:
         std::vector<Token *> * expression;         //sei la oq é cte
     public:
-        Int(std::string line);
+        Int(std::string line, std::vector<Token *> * expression);
+        std::vector<Token *> * getExpression() const;
         //opcode = CD
 };
 
@@ -434,6 +446,10 @@ class Label : public Semantic {
         std::string getName();
 };
 
+class Halt : public Semantic {
+    public:
+        Halt(std::string line);
+};
 
 
 /*

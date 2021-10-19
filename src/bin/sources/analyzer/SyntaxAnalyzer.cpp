@@ -220,6 +220,13 @@ Semantic * SyntaxAnalyzer::getRow() {
                     expression = getExpression(3, t);
                     return new Sub(this->line, expression);
 
+                case TokenNames::nOpCMP:
+                    if(row[3]->getType() == TokenTypes::tREGISTER) {
+                        return new Cmp(this->line, this->aux1);
+                    }
+                    expression = getExpression(3, t);
+                    return new Cmp(this->line, expression);
+
                 case TokenNames::nOpDIV:
                     return new Mul(this->line, this->aux1);
 
@@ -239,15 +246,31 @@ Semantic * SyntaxAnalyzer::getRow() {
                         row[t]->getType() == TokenTypes::tINDEX_OP
                     );
 
-                case TokenNames::nOpOR:
+                case TokenNames::nExpOR:
                     return new Or(this->line, this->getAux1());
-                    break;
-                case TokenNames::nOpAND:
+                case TokenNames::nExpAND:
                     return new And(this->line, this->getAux1());
-                    break;
-                case TokenNames::nOpXOR:
+                case TokenNames::nExpXOR:
                     return new Xor(this->line, this->getAux1());
-                    break;
+                case TokenNames::nExpNOT:
+                    return new Not(this->line);
+
+                case TokenNames::nOpJMP:
+                    return new Jmp(this->line, getExpression(1, t));
+                case TokenNames::nOpJE:
+                    return new Je(this->line, getExpression(1, t));
+                case TokenNames::nOpJNZ:
+                    return new Jnz(this->line, getExpression(1, t));
+                case TokenNames::nOpJZ:
+                    return new Jz(this->line, getExpression(1, t));
+                case TokenNames::nOpJP:
+                    return new Jp(this->line, getExpression(1, t));
+                case TokenNames::nOpCALL:
+                    return new Call(this->line, getExpression(1, t));
+                case TokenNames::nOpINT:
+                    return new Int(this->line, getExpression(1, t));
+                case TokenNames::nOpRET:
+                    return new Ret(this->line);
 
                 case TokenNames::nOpPUSH:
                     return new Push(this->line);
@@ -257,6 +280,10 @@ Semantic * SyntaxAnalyzer::getRow() {
                     return new Pushf(this->line);
                 case TokenNames::nOpPOPF:
                     return new Popf(this->line);
+
+                case TokenNames::nHALT:
+                    return new Halt(this->line);
+
                 default:
                     break;
             }
@@ -287,7 +314,22 @@ std::vector<Token *> * SyntaxAnalyzer::getExpression(int it, int& pointer) {
 
 }
 
-LexiconScanner *SyntaxAnalyzer::getScanner() const {
+std::string SyntaxAnalyzer::getErrorMessage(int lineNumber) {
+
+    std::string errorMessage = scanner->isUnknownToken() ?
+                "[ERROR] Unknown Token: " :
+                "[ERROR] Unexpected Symbol: ";
+
+    errorMessage += scanner->getToken() + "\\n";
+    errorMessage += scanner->getErrorMessage() + "\\n";
+
+    errorMessage += "line: ";
+    errorMessage += std::to_string(lineNumber);
+
+    return errorMessage;
+}
+
+LexiconScanner * SyntaxAnalyzer::getScanner() const {
     return scanner;
 }
 

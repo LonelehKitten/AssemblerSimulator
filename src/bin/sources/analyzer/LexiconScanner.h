@@ -132,6 +132,8 @@ class LexiconScanner {
          */
         LexiconScannerStatus * nextToken(AutomatonPattern automatonPattern);
 
+        std::string getErrorMessage();
+
         // ======================
 
         bool q(LexiconAutomatons::Transition ** transition, int length, LexiconAutomatons::Transition * defaultAction=nullptr);

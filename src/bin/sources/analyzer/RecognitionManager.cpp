@@ -1,4 +1,5 @@
 #include "RecognitionManager.h"
+#include "../InterfaceBus.h"
 
 RecognitionManager::RecognitionManager() {
     this->analyzer = new SyntaxAnalyzer();
@@ -17,9 +18,13 @@ std::vector<Semantic *> * RecognitionManager::analyze(std::string text, bool str
     std::vector<Semantic *> * lines = new std::vector<Semantic *>();
 
     for(int i = 0; i < (int) rawLines->size(); i++) {
-        analyzer->set(rawLines->at(i), i < (int) rawLines->size());
+        analyzer->set(rawLines->at(i), i+1 < (int) rawLines->size());
         if(analyzer->check()) {
-            if(!analyzer->init() && strict) {
+            bool status = analyzer->init();
+            if(!status) {
+                InterfaceBus::getInstance().dispatchLog(analyzer->getErrorMessage(i+1), LogStatus::ERROR);
+            }
+            if(!status && strict) {
 
                 for(int j = 0; j < (int) lines->size(); j++)
                     lines->at(j)->~Semantic();
