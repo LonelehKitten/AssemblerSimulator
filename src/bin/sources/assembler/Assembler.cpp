@@ -4,15 +4,13 @@
 Assembler::Assembler(std::vector<Semantic *> * lines) :
     lines(lines)
 {}
-
-std::string Assembler::macroExpandParams(std::vector<label *> params, macroDef * macroThis)
-{
+//std::string Assembler::macroExpandParams(std::vector<label *> params, macroDef * macroThis) {
     
     /**Ja definido em Assembler.h: 
     *       std::vector<macroDef *> macroTable;
     *       std::vector<label *> labelTable;
     */
-
+/*
    std::vector<Semantic *> macroLines = *(macroThis->getText());
 
    std::string lineThis;
@@ -70,8 +68,10 @@ std::string Assembler::macroExpandParams(std::vector<label *> params, macroDef *
     return outputText;
 
 }
+*/
 
-void Assembler::replaceAll(std::string& str, const std::string& from, const std::string& to) {
+//void Assembler::replaceAll(std::string& str, const std::string& from, const std::string& to) {
+/*
     if(from.empty())
         return;
     size_t start_pos = 0;
@@ -80,9 +80,9 @@ void Assembler::replaceAll(std::string& str, const std::string& from, const std:
         start_pos += to.length();
     }
 }
-
-int Assembler::macroExpandParamsDoDaniel(MacroCall * macrocall, int k) {
-
+*/
+//int Assembler::macroExpandParamsDoDaniel(MacroCall * macrocall, int k) {
+/*
     std::cout << "============ EXPANDS ==========" << std::endl;
     
     RecognitionManager * rm = new RecognitionManager();
@@ -119,9 +119,9 @@ int Assembler::macroExpandParamsDoDaniel(MacroCall * macrocall, int k) {
     return preproccessDoDaniel(rm->analyze(input, false), k);
 
 }
-
-int Assembler::preproccessDoDaniel (std::vector<Semantic *> * lines, int k) {
-
+*/
+//int Assembler::preproccessDoDaniel (std::vector<Semantic *> * lines, int k) {
+/*
     std::vector<bool> macroFound;   //Pilha de controle das declaracoes de macro
 
     std::cout << "============ PREPROCESS ==========" << std::endl;
@@ -211,9 +211,9 @@ int Assembler::preproccessDoDaniel (std::vector<Semantic *> * lines, int k) {
     return k;
 
 }
-
-void Assembler::init(bool willExecute) {
-
+*/
+//void Assembler::init(bool willExecute) {
+/*
     double startTime = InterfaceBus::getInstance().getMilliseconds();
     this->preproccessDoDaniel(lines, 0);
     double totalTime = (InterfaceBus::getInstance().getMilliseconds() - startTime) / 1000;
@@ -231,14 +231,14 @@ void Assembler::init(bool willExecute) {
         LogStatus::INFO
     );
 }
-
-std::string Assembler::preproccess() {
+*/
+//std::string Assembler::preproccess() {
     
     /**Ja definido em Assembler.h: 
      *       std::vector<macroDef *> macroTable;
      *       std::vector<label *> labelTable;
      */
-
+/*
     std::string outputResult = "";
 
     RecognitionManager * rm = new RecognitionManager();
@@ -337,16 +337,16 @@ std::string Assembler::preproccess() {
                 
                 //textOnExpansion += lineResult + '\n';
                 //}
-                /*
-                std::vector<Semantic *> * s_array = rm->analyze(textOnExpansion, false);
-                std::vector<Semantic *> * prior = new std::vector(lines->begin(), lines->begin()+i-1);
-                std::vector<Semantic *> * after = new std::vector(lines->begin()+i+1, lines->end());
-                std::vector<Semantic *> * tempDelete = lines;
-                delete tempDelete;
-                std::copy(prior->begin(),prior->end(),lines->begin());
-                std::copy(s_array->begin(),s_array->end(),lines->end());
-                std::copy(after->begin(),after->end(),lines->end());
-                */  
+                
+                //std::vector<Semantic *> * s_array = rm->analyze(textOnExpansion, false);
+                //std::vector<Semantic *> * prior = new std::vector(lines->begin(), lines->begin()+i-1);
+                //std::vector<Semantic *> * after = new std::vector(lines->begin()+i+1, lines->end());
+                //std::vector<Semantic *> * tempDelete = lines;
+                //delete tempDelete;
+                //std::copy(prior->begin(),prior->end(),lines->begin());
+                //std::copy(s_array->begin(),s_array->end(),lines->end());
+                //std::copy(after->begin(),after->end(),lines->end());
+                
                 //for(int x=0; x < (*s_array).size(); x++)
                 //{
                 //    (*lines)[i] = (*s_array)[x];
@@ -403,14 +403,16 @@ std::string Assembler::preproccess() {
     }
 
     //Teste das macros tabeladas
-    /*
-    std::cout << "Total: " << macroTable.size() << std::endl << std::endl;
-    for (int i = 0; i < (int) macroTable.size(); i++)
-    {
-        macroDef * item = macroTable[i];
-        std::cout << item << std::endl;
-    }
-    */
+    
+    //std::cout << "Total: " << macroTable.size() << std::endl << std::endl;
+    //for (int i = 0; i < (int) macroTable.size(); i++)
+    //{
+    //    macroDef * item = macroTable[i];
+    //    std::cout << item << std::endl;
+    //}
+    
     return outputResult;
 
 }
+*/
+

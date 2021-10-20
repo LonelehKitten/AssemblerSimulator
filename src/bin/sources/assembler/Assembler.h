@@ -7,23 +7,29 @@
 #include <string>
 #include <algorithm>
 #include <cctype>
-#include "macroDef.h"
+#include "MacroDef.h"
 #include "../analyzer/Semantic.h"
 #include "../analyzer/RecognitionManager.h"
+
+struct label
+{
+    std::string name;
+    std::string valor;
+};
 
 class Assembler
 {
 
 private:
     std::vector<Semantic *> * lines;
-    std::vector<macroDef *> macroTable;
+    std::vector<MacroDef *> macroTable;
     std::vector<label *> labelTable;
 
     std::string output;
 
-    std::string macroExpandParams(std::vector<label *> params, macroDef * macroThis);
+    std::string macroExpandParams(std::vector<label *> params, MacroDef * macroThis);
 
-    std::unordered_map<std::string, macroDef *> macroMap;
+    std::unordered_map<std::string, MacroDef *> macroMap;
     int macroExpandParamsDoDaniel(MacroCall * macrocall, int k);
 
     void replaceAll(std::string& str, const std::string& from, const std::string& to);

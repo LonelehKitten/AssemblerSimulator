@@ -1,37 +1,37 @@
-#include "macroDef.h"
+#include "MacroDef.h"
 
-macroDef::macroDef(std::string name, std::vector<std::string> args)
+MacroDef::MacroDef(std::string name, std::vector<std::string> args)
 {
     this->name = name;
     this->args = args;
     this->macroText = new std::vector<Semantic *>();
 }
 
-std::string macroDef::getName()
+std::string MacroDef::getName()
 {
     return this->name;
 }
 
-std::vector<std::string> macroDef::getArgs()
+std::vector<std::string> MacroDef::getArgs()
 {
     return this->args;
 }
 
-std::vector<Semantic *> * macroDef::getText()
+std::vector<Semantic *> * MacroDef::getText()
 {
     return this->macroText;
 }
 
-void macroDef::setText(Semantic * line)
+void MacroDef::setText(Semantic * line)
 {
     this->macroText->emplace_back(line);
 }
 
 
-std::string macroDef::macroLine()
+std::string MacroDef::macroLine()
 {
 }
 
-void macroDef::updateMacro(std::vector<std::string> args)
+void MacroDef::updateMacro(std::vector<std::string> args)
 {
 }
