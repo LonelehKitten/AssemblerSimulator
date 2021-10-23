@@ -1,10 +1,10 @@
 #include <string>
 
-class Label
+struct Label
 {
-private:
     std::string name;
-    std::string valor;
-public:
-    Label();
+    std::string value;
+    int address;
+    
+    Label(std::string, std::string, int);
 };
