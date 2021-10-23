@@ -1,11 +1,13 @@
 
-//std::string Assembler::macroExpandParams(std::vector<label *> params, macroDef * macroThis) {
+#include "Assembler.h"
+
+std::string Assembler::macroExpandParams(std::vector<label *> params, macroDef * macroThis) {
     
     /**Ja definido em Assembler.h: 
     *       std::vector<macroDef *> macroTable;
     *       std::vector<label *> labelTable;
     */
-/*
+
    std::vector<Semantic *> macroLines = *(macroThis->getText());
 
    std::string lineThis;
@@ -63,10 +65,10 @@
     return outputText;
 
 }
-*/
 
-//void Assembler::replaceAll(std::string& str, const std::string& from, const std::string& to) {
-/*
+
+void Assembler::replaceAll(std::string& str, const std::string& from, const std::string& to) {
+
     if(from.empty())
         return;
     size_t start_pos = 0;
@@ -75,9 +77,9 @@
         start_pos += to.length();
     }
 }
-*/
-//int Assembler::macroExpandParamsDoDaniel(MacroCall * macrocall, int k) {
-/*
+
+int Assembler::macroExpandParamsDoDaniel(MacroCall * macrocall, int k) {
+
     std::cout << "============ EXPANDS ==========" << std::endl;
     
     RecognitionManager * rm = new RecognitionManager();
@@ -114,9 +116,9 @@
     return preproccessDoDaniel(rm->analyze(input, false), k);
 
 }
-*/
-//int Assembler::preproccessDoDaniel (std::vector<Semantic *> * lines, int k) {
-/*
+
+int Assembler::preproccessDoDaniel (std::vector<Semantic *> * lines, int k) {
+
     std::vector<bool> macroFound;   //Pilha de controle das declaracoes de macro
 
     std::cout << "============ PREPROCESS ==========" << std::endl;
@@ -206,9 +208,9 @@
     return k;
 
 }
-*/
-//void Assembler::init(bool willExecute) {
-/*
+
+void Assembler::init(bool willExecute) {
+
     double startTime = InterfaceBus::getInstance().getMilliseconds();
     this->preproccessDoDaniel(lines, 0);
     double totalTime = (InterfaceBus::getInstance().getMilliseconds() - startTime) / 1000;
@@ -226,14 +228,13 @@
         LogStatus::INFO
     );
 }
-*/
-//std::string Assembler::preproccess() {
+
+std::string Assembler::preproccess() {
     
     /**Ja definido em Assembler.h: 
      *       std::vector<macroDef *> macroTable;
      *       std::vector<label *> labelTable;
      */
-/*
     std::string outputResult = "";
 
     RecognitionManager * rm = new RecognitionManager();
@@ -409,4 +410,3 @@
     return outputResult;
 
 }
-*/

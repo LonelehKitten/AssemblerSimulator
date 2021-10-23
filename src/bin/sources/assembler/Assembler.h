@@ -50,7 +50,7 @@ public:
     void init(bool willExecute);
     int preproccessDoDaniel (std::vector<Semantic *> * lines, int k);
 
-    void assemble();
+    std::vector<unsigned char> assemble();
 
 };
 
