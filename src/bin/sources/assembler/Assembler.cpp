@@ -67,7 +67,7 @@ void Assembler::assembleStep2()
     return;
 }
 
-void Assembler::assemble()
+void Assembler::assembleStep1()
 {
     int locationCounter = 0;
     int label;                      //#### template ####
@@ -145,4 +145,10 @@ void Assembler::assemble()
     }
     
     return; //Retornar talvez ja aqui o código de máquina
+}
+
+std::vector<unsigned char> Assembler::assemble()
+{
+    assembleStep1();
+    return assembleCode;
 }

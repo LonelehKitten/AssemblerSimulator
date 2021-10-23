@@ -29,20 +29,23 @@ private:
 
     int assemblerError;
 
-
     std::string macroExpandParams(std::vector<Label *> params, MacroDef * macroThis);
     int macroExpandParamsDoDaniel(MacroCall * macrocall, int k);
 
     void replaceAll(std::string& str, const std::string& from, const std::string& to);
 
     void assembleStep2();
+    void assembleStep1();
 
     void Assembler::assembleByteCode(Semantic * line);
 
 public:
     Assembler(std::vector<Semantic *> * lines);
 
+    //Método principal para chamar o pré processador
     std::string preproccess();
+    //Método principal para chamar o montador (PRÉPROCESSADOR PRECISA SER CHAMADO ANTES)
+    std::vector<unsigned char> assemble();
 
     void init(bool willExecute);
     int preproccessDoDaniel (std::vector<Semantic *> * lines, int k);
