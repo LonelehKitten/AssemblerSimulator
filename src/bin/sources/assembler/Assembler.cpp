@@ -6,10 +6,13 @@ Assembler::Assembler(std::vector<Semantic *> * lines) :
     lines(lines)
 {}
 
-/** Atributos de Semantic que precisamos pegar
- * 
- * 
- * 
+/** Coisas de Semantic que precisamos pegar:
+ * getOperands - não entendi como funciona, talvez não seja o que precisamos
+ * getLabel - Só tem o getName de uma subclasse Semantic Label
+ * a subclasse pra pseudoinstrução ORG - não está implementada
+ * (talvez tenha mais, mas por enquanto foi o que notamos)
+ ** Coisas de Semantic prontas:
+ * getType - retorna um enum, com base nele podemos pegar o código de máquina referente
  */
 
 std::vector<unsigned char> Assembler::assembleByteCode(Semantic * line)
@@ -54,8 +57,8 @@ void Assembler::assembleStep2()
                 code = assembleByteCode(line);
                 //code = gerenatemachinecode(entry, operand);
 
-                //assemblemachinecode(locationCounter, code);    //Usa this->assembleCode, std::vector<byte>
                 //Concatena os vetores code e this->assembleCode
+                //assemblemachinecode(locationCounter, code);    //Usa this->assembleCode, std::vector<unsigned char>
                 locationCounter = locationCounter + length;
 
             break;
@@ -100,18 +103,18 @@ void Assembler::assemble()
                     if(opcode == 'EQU')
                     {
                         // ** value <- GETOPERANDVALUE (operand) ** 
-                        value = (operand);
+                        //value = (operand);
                         length = 0;
                     }else
                     {
                         value = locationCounter;
-                        lenght(entry, operand);
+                        //lenght(entry, operand);
                     }
 
                     if(label != NULL) 
                     {
                         // ** INSERTTABLE(ST, label, value) ** 
-                        (ST, label, value); //usar this->symbolTable (unordered_map) para ST
+                        //(ST, label, value); //usar this->symbolTable (unordered_map) para ST
                         locationCounter = locationCounter + lenght;
                     }
                 break;
@@ -129,7 +132,7 @@ void Assembler::assemble()
                 
                 if(label != NULL)
                     //INSERTTABLE (ST, label, LC)
-                    (ST, label, LC);        //usar this->symbolTable (unordered_map) para ST
+                    //(ST, label, LC);        //usar this->symbolTable (unordered_map) para ST
                     
                 locationCounter = locationCounter + lenght;
             }
