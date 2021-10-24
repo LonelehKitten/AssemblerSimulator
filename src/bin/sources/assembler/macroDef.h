@@ -7,13 +7,7 @@
 #include <cstring>
 #include "../analyzer/Semantic.h"
 
-struct label
-{
-    std::string name;
-    std::string valor;
-};
-
-class macroDef
+class MacroDef
 {
 private:
     std::string name;   // nome de chamada da macro
@@ -22,7 +16,7 @@ private:
     
 public:
     // constructor
-    macroDef(std::string name, std::vector<std::string> args);
+    MacroDef(std::string name, std::vector<std::string> args);
 
     // getters
     std::string getName();
