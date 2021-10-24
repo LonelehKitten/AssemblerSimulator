@@ -54,7 +54,7 @@ class SyntaxAnalyzer {
 
         bool check();
 
-        Semantic * getRow();
+        Semantic * getRow(int offset=0);
 
         bool q(SyntaxAutomatons::Transition * transition);
 

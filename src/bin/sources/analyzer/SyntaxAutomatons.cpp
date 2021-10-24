@@ -598,7 +598,12 @@ namespace SyntaxAutomatons {
         transition->setUndo(true);
         transition->~Transition();
         r = analyzer->q(transition);
-        if(!r) return false;
+        if(!r) {
+            if(!analyzer->getLastToken()->isEndOfLine()) {
+                analyzer->setState(qBegin);
+            }
+            return false;
+        }
 
         //analyzer->setEndpoint(q1_expression_separator);
         //r = ExpressionAutomaton::qBegin_Expression(analyzer);

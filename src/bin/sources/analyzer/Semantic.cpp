@@ -300,10 +300,18 @@ std::string EndP::getName() {
 }
 
 
-Label::Label(std::string line, std::string name)
-    : Semantic(line, Instruction::iLABEL), name(name) {}
+Label::Label(std::string line, std::string name, Semantic * semantic) :
+    Semantic(line, Instruction::iLABEL),
+    name(name),
+    semantic(semantic)
+{}
+
 std::string Label::getName() {
     return name;
+}
+
+Semantic * Label::getSemantic() {
+    return semantic;
 }
 
 
@@ -385,3 +393,12 @@ Ret::Ret(std::string line) : Semantic(line, Instruction::iRET) {}
 
 
 Halt::Halt(std::string line) : Semantic(line, Instruction::iHALT) {}
+
+
+Org::Org(std::string line, std::vector<Token *> * expression) :
+    Semantic(line, Instruction::iINT), expression(expression)
+{}
+
+std::vector<Token *> * Org::getExpression() const {
+    return expression;
+}

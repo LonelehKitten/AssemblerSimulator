@@ -125,7 +125,7 @@ bool SyntaxAnalyzer::check() {
     return valid;
 }
 
-Semantic * SyntaxAnalyzer::getRow() {
+Semantic * SyntaxAnalyzer::getRow(int offset) {
 
     if(this->error) {
         return new Invalid(this->line);
@@ -134,8 +134,8 @@ Semantic * SyntaxAnalyzer::getRow() {
     int t;
     std::vector<std::vector<Token *> *> * params = new std::vector<std::vector<Token *> *>();
     std::vector<Token *> * expression;
-    Token * t1 = row[0], * t2;
-    if(row.size() > 1) t2 = row[1];
+    Token * t1 = row[offset], * t2;
+    if((int) row.size() > offset+1) t2 = row[offset+1];
 
 
     if(!macroStack->empty() && t1->getType() == TokenTypes::tMACROCONTENT) {
@@ -165,22 +165,22 @@ Semantic * SyntaxAnalyzer::getRow() {
                     }
                     break;
                 case TokenTypes::tIDENTIFIER:
-                    t = 0;
+                    t = offset;
                     while(t < (int) row.size()) {
                         t++;
                         params->emplace_back(getExpression(t, t));
                     }
                     return new MacroCall(this->line, this->aux1, params);
                 case TokenTypes::tCOLON:
-                    return new Label(this->line, this->getAux1());
+                    return new Label(this->line, this->getAux1(), (int) row.size() > offset+2 ? getRow(offset+2) : nullptr);
                 case TokenTypes::tVARDEF:
-                    if(row[2]->getType() == TokenTypes::tUNDEFINED) {
+                    if(row[offset+2]->getType() == TokenTypes::tUNDEFINED) {
                         return new Dw(this->line, this->aux1, nullptr);
                     }
-                    expression = getExpression(2, t);
+                    expression = getExpression(offset+2, t);
                     return new Dw(this->line, this->aux1, expression);
                 case TokenTypes::tCONSTDEF:
-                    expression = getExpression(2, t);
+                    expression = getExpression(offset+2, t);
                     return new Equ(this->line, this->aux1, expression);
                 default:
                     break;
@@ -190,10 +190,10 @@ Semantic * SyntaxAnalyzer::getRow() {
             return new Assume(this->line, this->aux1, this->getAux2());
 
         case TokenTypes::tVARDEF:
-            if(row[1]->getType() == TokenTypes::tUNDEFINED) {
+            if(row[offset+1]->getType() == TokenTypes::tUNDEFINED) {
                 return new Dw(this->line, nullptr);
             }
-            expression = getExpression(1, t);
+            expression = getExpression(offset+1, t);
             return new Dw(this->line, expression);
 
         case TokenTypes::tEND:
@@ -207,24 +207,24 @@ Semantic * SyntaxAnalyzer::getRow() {
         case TokenTypes::tOPERATION:
             switch (t1->getName()) {
                 case TokenNames::nOpADD:
-                    if(row[3]->getType() == TokenTypes::tREGISTER) {
+                    if(row[offset+3]->getType() == TokenTypes::tREGISTER) {
                         return new Add(this->line, this->aux1);
                     }
-                    expression = getExpression(3, t);
+                    expression = getExpression(offset+3, t);
                     return new Add(this->line, expression);
 
                 case TokenNames::nOpSUB:
-                    if(row[3]->getType() == TokenTypes::tREGISTER) {
+                    if(row[offset+3]->getType() == TokenTypes::tREGISTER) {
                         return new Sub(this->line, this->aux1);
                     }
-                    expression = getExpression(3, t);
+                    expression = getExpression(offset+3, t);
                     return new Sub(this->line, expression);
 
                 case TokenNames::nOpCMP:
-                    if(row[3]->getType() == TokenTypes::tREGISTER) {
+                    if(row[offset+3]->getType() == TokenTypes::tREGISTER) {
                         return new Cmp(this->line, this->aux1);
                     }
-                    expression = getExpression(3, t);
+                    expression = getExpression(offset+3, t);
                     return new Cmp(this->line, expression);
 
                 case TokenNames::nOpDIV:
@@ -235,13 +235,13 @@ Semantic * SyntaxAnalyzer::getRow() {
 
                 case TokenNames::nOpMOV:
                     if(t2->getType() == TokenTypes::tREGISTER) {
-                        if(row[3]->getType() == TokenTypes::tREGISTER) {
+                        if(row[offset+3]->getType() == TokenTypes::tREGISTER) {
                             return new Mov(this->line, this->aux1, this->aux2);
                         }
-                        expression = getExpression(3, t);
+                        expression = getExpression(offset+3, t);
                         return new Mov(this->line, this->aux1, expression, (t < (int) row.size()));
                     }
-                    expression = getExpression(2, t);
+                    expression = getExpression(offset+2, t);
                     return new Mov(this->line, expression, this->aux2,
                         row[t]->getType() == TokenTypes::tINDEX_OP
                     );
@@ -256,19 +256,19 @@ Semantic * SyntaxAnalyzer::getRow() {
                     return new Not(this->line);
 
                 case TokenNames::nOpJMP:
-                    return new Jmp(this->line, getExpression(1, t));
+                    return new Jmp(this->line, getExpression(offset+1, t));
                 case TokenNames::nOpJE:
-                    return new Je(this->line, getExpression(1, t));
+                    return new Je(this->line, getExpression(offset+1, t));
                 case TokenNames::nOpJNZ:
-                    return new Jnz(this->line, getExpression(1, t));
+                    return new Jnz(this->line, getExpression(offset+1, t));
                 case TokenNames::nOpJZ:
-                    return new Jz(this->line, getExpression(1, t));
+                    return new Jz(this->line, getExpression(offset+1, t));
                 case TokenNames::nOpJP:
-                    return new Jp(this->line, getExpression(1, t));
+                    return new Jp(this->line, getExpression(offset+1, t));
                 case TokenNames::nOpCALL:
-                    return new Call(this->line, getExpression(1, t));
+                    return new Call(this->line, getExpression(offset+1, t));
                 case TokenNames::nOpINT:
-                    return new Int(this->line, getExpression(1, t));
+                    return new Int(this->line, getExpression(offset+1, t));
                 case TokenNames::nOpRET:
                     return new Ret(this->line);
 

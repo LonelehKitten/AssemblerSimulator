@@ -441,9 +441,11 @@ class EndP : public Semantic {
 class Label : public Semantic {
     private:
         std::string name;
+        Semantic * semantic;
     public:
-        Label(std::string line, std::string name);
+        Label(std::string line, std::string name, Semantic * semantic);
         std::string getName();
+        Semantic * getSemantic();
 };
 
 class Halt : public Semantic {
@@ -452,11 +454,15 @@ class Halt : public Semantic {
 };
 
 
-/*
-class Org : Semantic {
 
+class Org : Semantic {
+    private:
+        std::vector<Token *> * expression;
+    public:
+        Org(std::string line, std::vector<Token *> *  expression);
+        std::vector<Token *> * getExpression() const;
 };
-*/
+
 
 
 
