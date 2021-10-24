@@ -7,36 +7,50 @@
 #include <string>
 #include <algorithm>
 #include <cctype>
-#include "macroDef.h"
+#include "MacroDef.h"
+#include "Label.h"
 #include "../analyzer/Semantic.h"
 #include "../analyzer/RecognitionManager.h"
 
 class Assembler
 {
-
 private:
     std::vector<Semantic *> * lines;
-    std::vector<macroDef *> macroTable;
-    std::vector<label *> labelTable;
+
+    std::unordered_map<std::string, MacroDef *> macroTable;
+    std::unordered_map<std::string, Label *> symbolTable;
 
     std::string output;
 
-    std::string macroExpandParams(std::vector<label *> params, macroDef * macroThis);
+    std::vector<unsigned char> assembleCode;
 
-    std::unordered_map<std::string, macroDef *> macroMap;
+    int lineCounter;
+    //int programCounter;
+
+    int assemblerError;
+
+    std::string macroExpandParams(std::vector<Label *> params, MacroDef * macroThis);
     int macroExpandParamsDoDaniel(MacroCall * macrocall, int k);
 
     void replaceAll(std::string& str, const std::string& from, const std::string& to);
 
+    void assembleStep2();
+    void assembleStep1();
+
+    void Assembler::assembleByteCode(Semantic * line);
+
 public:
     Assembler(std::vector<Semantic *> * lines);
 
+    //Método principal para chamar o pré processador
     std::string preproccess();
+    //Método principal para chamar o montador (PRÉPROCESSADOR PRECISA SER CHAMADO ANTES)
+    std::vector<unsigned char> assemble();
 
     void init(bool willExecute);
     int preproccessDoDaniel (std::vector<Semantic *> * lines, int k);
 
-
+    std::vector<unsigned char> assemble();
 
 };
 
