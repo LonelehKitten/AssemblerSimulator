@@ -185,6 +185,7 @@ namespace SyntaxAutomatons {
                     break;
                 case TokenNames::nOpADD:
                 case TokenNames::nOpSUB:
+                case TokenNames::nOpCMP:
                     analyzer->setState(qASOA);
                     break;
                 case TokenNames::nOpMUL:
@@ -219,12 +220,28 @@ namespace SyntaxAutomatons {
         transition->setLoad(false);
         transition->setState(qASOA);
         r = analyzer->q(transition);
-        if(!r) return false;
+        if(!r) {
+            transition->~Transition();
+            return false;
+        }
 
         transition->setTokenType(TokenTypes::tExpLOGICALu);
         transition->setState(qMov_1_ax);
         r = analyzer->q(transition);
-        if(!r) return false;
+        if(!r) {
+            transition->~Transition();
+            return false;
+        }
+
+        transition->setTokenType(TokenTypes::tHALT);
+        transition->setState(qEnd);
+        r = analyzer->q(transition);
+        if(!r) {
+            analyzer->setError(false);
+            transition->~Transition();
+            return false;
+        }
+
 
         transition->setState(q1);
         transition->setId(true);
@@ -238,12 +255,15 @@ namespace SyntaxAutomatons {
     }
 
     bool qJ(SyntaxAnalyzer * analyzer) {
+        /*
         Transition * transition = new Transition(AutomatonPattern::pLABEL);
         transition->setState(qEnd);
         transition->setId(true);
         bool r = analyzer->q(transition);
         transition->~Transition();
-        return r;
+        */
+        analyzer->setEndpoint(qEnd);
+        return ExpressionAutomaton::qBegin_Expression(analyzer);
     }
 
     bool qMD(SyntaxAnalyzer * analyzer) {
@@ -267,7 +287,8 @@ namespace SyntaxAutomatons {
         bool r = analyzer->q(transition);
         transition->~Transition();
         if(!r && analyzer->getLastToken()->getName() == TokenNames::nRegAX) return false;
-        return r;
+        analyzer->setError(true);
+        return false;
     }
 
     bool qASOA_sep(SyntaxAnalyzer * analyzer) {
@@ -577,7 +598,12 @@ namespace SyntaxAutomatons {
         transition->setUndo(true);
         transition->~Transition();
         r = analyzer->q(transition);
-        if(!r) return false;
+        if(!r) {
+            if(!analyzer->getLastToken()->isEndOfLine()) {
+                analyzer->setState(qBegin);
+            }
+            return false;
+        }
 
         //analyzer->setEndpoint(q1_expression_separator);
         //r = ExpressionAutomaton::qBegin_Expression(analyzer);

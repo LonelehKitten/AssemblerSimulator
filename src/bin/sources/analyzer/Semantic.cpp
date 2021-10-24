@@ -97,10 +97,25 @@ std::string Mul::getOperand() {
     return operand;
 }
 
-Cmp::Cmp(std::string line, std::string operand2)
-    : Semantic(line, Instruction::iCMP), operand2(operand2) {}
+Cmp::Cmp(std::string line, std::string operand2) :
+    Semantic(line, Instruction::iCMP),
+    operand2(operand2),
+    expression(nullptr)
+{}
+
+Cmp::Cmp(std::string line, std::vector<Token *> * expression) :
+    Semantic(line, Instruction::iCMP),
+    operand2(""),
+    expression(expression)
+{}
+
 std::string Cmp::getOperand2() {
     return operand2;
+}
+
+std::vector<Token *> * Cmp::getExpression() const
+{
+    return expression;
 }
 
 //lógicas
@@ -285,10 +300,18 @@ std::string EndP::getName() {
 }
 
 
-Label::Label(std::string line, std::string name)
-    : Semantic(line, Instruction::iLABEL), name(name) {}
+Label::Label(std::string line, std::string name, Semantic * semantic) :
+    Semantic(line, Instruction::iLABEL),
+    name(name),
+    semantic(semantic)
+{}
+
 std::string Label::getName() {
     return name;
+}
+
+Semantic * Label::getSemantic() {
+    return semantic;
 }
 
 
@@ -308,3 +331,74 @@ std::vector<std::vector<Token *> *> * MacroCall::getParams() const
 MacroContent::MacroContent(const std::string line) : Semantic(line, Instruction::iMACROCONTENT)
 {}
 
+// desvio
+
+Jmp::Jmp(std::string line, std::vector<Token *> * expression) :
+    Semantic(line, Instruction::iJMP), expression(expression)
+{}
+
+std::vector<Token *> * Jmp::getExpression() const {
+    return expression;
+}
+
+Je::Je(std::string line, std::vector<Token *> * expression) :
+    Semantic(line, Instruction::iJE), expression(expression)
+{}
+
+std::vector<Token *> * Je::getExpression() const {
+    return expression;
+}
+
+Jnz::Jnz(std::string line, std::vector<Token *> * expression) :
+    Semantic(line, Instruction::iJNZ), expression(expression)
+{}
+
+std::vector<Token *> * Jnz::getExpression() const {
+    return expression;
+}
+
+Jz::Jz(std::string line, std::vector<Token *> * expression) :
+    Semantic(line, Instruction::iJZ), expression(expression)
+{}
+
+std::vector<Token *> * Jz::getExpression() const {
+    return expression;
+}
+
+Jp::Jp(std::string line, std::vector<Token *> * expression) :
+    Semantic(line, Instruction::iJP), expression(expression)
+{}
+
+std::vector<Token *> * Jp::getExpression() const {
+    return expression;
+}
+
+Call::Call(std::string line, std::vector<Token *> * expression) :
+    Semantic(line, Instruction::iCALL), expression(expression)
+{}
+
+std::vector<Token *> * Call::getExpression() const {
+    return expression;
+}
+
+Int::Int(std::string line, std::vector<Token *> * expression) :
+    Semantic(line, Instruction::iINT), expression(expression)
+{}
+
+std::vector<Token *> * Int::getExpression() const {
+    return expression;
+}
+
+Ret::Ret(std::string line) : Semantic(line, Instruction::iRET) {}
+
+
+Halt::Halt(std::string line) : Semantic(line, Instruction::iHALT) {}
+
+
+Org::Org(std::string line, std::vector<Token *> * expression) :
+    Semantic(line, Instruction::iINT), expression(expression)
+{}
+
+std::vector<Token *> * Org::getExpression() const {
+    return expression;
+}

@@ -101,7 +101,7 @@ const { ipcRenderer } = window.electron;
 const Console = ({ dragger, ...props }) => {
   const {
     // setMemoryRedux,
-    // addFile,
+    addFile,
     alertShow,
     registers,
     stdin,
@@ -197,7 +197,11 @@ end VALEUSEGMENT
             className={classes.inputedTexts + ' ' + messagesType[item.status]}
           >
             <ListItemIcon>{messagesIcon[item.status]}</ListItemIcon>
-            <ListItemText fontFamily='VT323' primary={item.message} />
+            <ListItemText fontFamily='VT323' >
+              {item.message.split("\n").map((i, ik) => (
+                <span key={ik}>{i} <br  /></span>
+              ))}
+            </ListItemText>
           </ListItem>
         ))}
         <div ref={consoleEndRef}></div>
