@@ -1,0 +1,11 @@
+appId: ufpel.AssemblerSimulator
+
+files:
+  - package.json
+
+#win:
+#  icon: build/logo-512.png
+
+publish:
+  provider: github
+  token: #Adicionar Token aqui
