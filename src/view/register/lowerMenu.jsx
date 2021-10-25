@@ -17,7 +17,7 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexWrap: 'wrap',
     marginTop: '0',
-    height: '100%',//'calc(70vh - 3rem)',
+    height: '88%', //100% //'calc(70vh - 3rem)',
   },
   table: {
     alignContent: 'center',
@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
     '& .MuiTableCell-root': {
       borderColor: '#999',
       color: '#fff',
-    }
+    },
   },
   register: {
     width: '100%',
@@ -62,26 +62,26 @@ const useStyles = makeStyles((theme) => ({
         height: '50%',
         margin: '1%',
         '&:nth-child(1)': {
-          borderRadius: '.75em 0 0 0'
+          borderRadius: '.75em 0 0 0',
         },
         '&:nth-child(8)': {
-          borderRadius: '0 .75em 0 0'
+          borderRadius: '0 .75em 0 0',
         },
         '&:nth-child(9)': {
-          borderRadius: '0 0 0 .75em'
+          borderRadius: '0 0 0 .75em',
         },
         '&:nth-child(16)': {
-          borderRadius: '0 0 .75em 0'
+          borderRadius: '0 0 .75em 0',
         },
-      }
+      },
     },
     '& .value': {
       width: '25%',
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
-    }
-  }
+    },
+  },
 }));
 /*
 const Bit = ({ value }) => (
@@ -109,38 +109,38 @@ const Bit = ({ value }) => (
   ></div>
 );
 
-
-const Register = ({name, value}) => {
+const Register = ({ name, value }) => {
   const classes = useStyles();
   const bits = parseInt(value).toString('2').padStart(16, 0);
   return (
     <div className={classes.register}>
-      <div className="name">{name}</div>
-      <div className="bits">
+      <div className='name'>{name}</div>
+      <div className='bits'>
         {[...bits].map((bit, key) => (
-          <div 
+          <div
             key={key}
-            style={{backgroundColor: bit === '1' ? '#1b6cff' : '#1b6cff44'}}
-          >&nbsp;
+            style={{ backgroundColor: bit === '1' ? '#1b6cff' : '#1b6cff44' }}
+          >
+            &nbsp;
           </div>
         ))}
       </div>
-      <div className="value">{parseInt(value).toString(16).padStart(4, 0)}</div>
+      <div className='value'>{parseInt(value).toString(16).padStart(4, 0)}</div>
     </div>
-  )
-}
+  );
+};
 
 const LowerMenu = ({ register }) => {
   const classes = useStyles();
   return (
     <section className={classes.root}>
-      <Register name="AX" value={register.AX}  />
-      <Register name="DX" value={register.DX}  />
-      <Register name="SI" value={register.SI}  />
-      <Register name="DS" value={register.DS}  />
-      <Register name="CS" value={register.CS}  />
-      <Register name="SS" value={register.SS}  />
-      <Register name="SP" value={register.SP}  />
+      <Register name='AX' value={register.AX} />
+      <Register name='DX' value={register.DX} />
+      <Register name='SI' value={register.SI} />
+      <Register name='DS' value={register.DS} />
+      <Register name='CS' value={register.CS} />
+      <Register name='SS' value={register.SS} />
+      <Register name='SP' value={register.SP} />
     </section>
   );
 };
