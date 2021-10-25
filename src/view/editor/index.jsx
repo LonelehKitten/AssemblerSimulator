@@ -26,10 +26,9 @@ const useStyles = makeStyles((theme) => ({
 
 const Editor = (props) => {
   const classes = useStyles();
-  const { listFiles, changeFile, EtoC } = useContext();
+  const { listFiles, changeFile } = useContext();
   const [menu, setMenu] = useState('editor');
   const [value, setValue] = useState('');
-
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -39,12 +38,6 @@ const Editor = (props) => {
   const changeMenu = (event, newValue) => {
     setMenu(newValue);
   };
-/*
-  return (
-    <div id='editor' {...props}>
-      <Tabs value={value} onChange={handleChange} listFiles={listFiles} />
-      <Ace />
-    </div>);*/
 
   return (
     <div id='editor' {...props}>
@@ -72,6 +65,5 @@ const Editor = (props) => {
     </div>
   );
 };
-//<Memory />
 
 export default Editor;

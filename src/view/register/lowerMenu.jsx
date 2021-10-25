@@ -1,16 +1,4 @@
-import React, { useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
-import Brightness1Icon from '@material-ui/icons/Brightness1';
-
-import { useContext } from '../../utils/context';
-//];
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -83,17 +71,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
 }));
-/*
-const Bit = ({ value }) => (
-  <Brightness1Icon
-    style={{
-      fontSize: 10,
-      color: value == 1 ? '#1956c500' : '#1956c5',
-      border: '1px solid #1956c5'
-    }}
-  />
-);
-*/
+
 const Bit = ({ value }) => (
   <div
     style={{
@@ -144,41 +122,5 @@ const LowerMenu = ({ register }) => {
     </section>
   );
 };
-
-/*
-
-<TableContainer
-        component={Paper}
-        style={{ margin: '10px', backgroundColor: '#313241' }}
-      >
-        <Table className={classes.table} aria-label='resgistry operation table'>
-          <TableHead>
-            <TableRow>
-              <TableCell align='center'>Registrador</TableCell>
-              <TableCell align='center'>Bits</TableCell>
-              <TableCell align='center'>Valor</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {Object.entries(register).map(([row, value], key) => {
-              if (row == 'SR') return;
-              const bits = parseInt(value).toString('2').padStart(16, 0);
-              return (
-                <TableRow key={key}>
-                  <TableCell align='center'>{row}</TableCell>
-                  <TableCell align='center'>
-                    {[...bits].map((item) => (
-                      <Bit value={item} />
-                    ))}
-                  </TableCell>
-                  <TableCell align='center'>{parseInt(value)}</TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
-
-*/
 
 export default LowerMenu;

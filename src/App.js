@@ -17,6 +17,9 @@ import Container from './utils/container';
 import { Context } from './utils/context';
 import Alert from './utils/alert';
 
+// Considerar excluir este arquivo OU o Appt.js
+// ter os dois vai causar confusão
+
 const theme = createTheme({
   palette: {
     primary: {
@@ -32,28 +35,17 @@ const theme = createTheme({
 
 const useStyles = makeStyles((theme) => ({
   main: {
-    //position: 'relative',
-    //float: 'left',
     backgroundColor: theme.palette.secondary.main,
     height: 'calc(100vh - 48px - 1.5em)',
   },
   sidebar: {
-    //position: 'relative',
-    //float: 'left',
     backgroundColor: '#21222c',
     height: 'calc(100vh - 48px - 1.5em)',
   },
 }));
 
 const { ipcRenderer } = window.electron;
-/*
-ipcRenderer.once(event, callback); // Para receber o evento Electron -> React
-ipcRenderer.send(event, data?); // Para enviar o evento React -> Electron
 
-    abc: { name: "Arquivo 1", code: "add" },
-    abce: { name: "Arquivo 2", code: "add aX" }
-  
-*/
 function App2() {
   const classes = useStyles();
 
@@ -89,33 +81,32 @@ function App2() {
     PC: 0,
     SR: {
       asLiteral: 0,
-      asFlags: [false, false, false, false, false, false, false, false, false, false, false, false,false]
+      asFlags: [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+      ],
     },
   });
 
   const memoryRefs = useRef([React.createRef(), React.createRef()]);
-  const [byStep,setByStep] = useState(false);
+  const [byStep, setByStep] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [currentID, setCurrentID] = useState('');
   const [currentFile, setCurrentFile] = useState(null);
   const [alertMessage, setAlertMessage] = useState(null);
   const [EtoC, setEtoC] = useState(250); // EtoC = Editor to Console
   const [EtoR, setEtoR] = useState(460); // EtoR = Editor to Register
-
-  // const memoryReducer = (state, action) => {
-  //   switch (action.type) {
-  //     case 'SETCELL':
-  //       setMemory((memory) => {
-  //         memory[parseInt(action.payload.index)] = action.payload.value;
-  //         return memory;
-  //       });
-  //       break;
-  //     default:
-  //       return state;
-  //   }
-  // };
-
-  // const [memoryRedux, setMemoryRedux] = useReducer(memoryReducer, memory);
 
   const handleVertical = (e) => {
     e.preventDefault();
@@ -148,9 +139,6 @@ function App2() {
   };
 
   const addFile = (path, code, name = null) => {
-    /*
-    const newValue = listFiles;
-    newValue[id] = {name,path,code};*/
     let idExists = null;
     Object.entries(listFiles).forEach(([k, item]) => {
       if (item.path === path && item.path != '') idExists = k;
@@ -197,16 +185,16 @@ function App2() {
   }, [listFiles]);
 
   useEffect(() => {
-    console.log("effect",byStep);
-    if(byStep) {
+    console.log('effect', byStep);
+    if (byStep) {
       ipcRenderer.on('cycle', (evt) => {
-        console.log("byStep",byStep);
-        if(byStep) setPlaying(false);
+        console.log('byStep', byStep);
+        if (byStep) setPlaying(false);
       });
-    }else{
-      ipcRenderer.removeAllListeners("cycle");
+    } else {
+      ipcRenderer.removeAllListeners('cycle');
     }
-  },[byStep]);
+  }, [byStep]);
 
   useEffect(() => {
     ipcRenderer.on('end', (evt) => {
@@ -215,7 +203,7 @@ function App2() {
     ipcRenderer.on('cycle_memory', (evt, data) => {
       if (Object.keys(data).length === 0) return;
       setMemory((old) => {
-        if(Object.keys(old).includes(data.address.toString())) {
+        if (Object.keys(old).includes(data.address.toString())) {
           old[data.address] = data.newValue.toString(16).padStart(4, 0);
         }
         return old;
@@ -228,7 +216,7 @@ function App2() {
           memoryChanges.push(data[b]);
         }
         return memoryChanges;
-      })
+      });
     });
   }, []);
 
@@ -254,7 +242,7 @@ function App2() {
     setStdin,
     memoryRefs,
     byStep,
-    setByStep
+    setByStep,
   };
 
   return (
@@ -311,39 +299,6 @@ function App2() {
     </Context.Provider>
   );
 }
-
-/*
-        <main
-          className={classes.main}
-          style={{ width: `calc(100% - ${EtoR}px)` }}
-        >
-          <Editor style={{ 
-            overflow: 'hidden', 
-            border: '1px solid green',
-            height: `calc(100vh - 48px - ${consoleOpen ? EtoC : 0}px - 1.5em)` 
-            }} 
-            />
-          <Dragger orientation='horizontal' onMouse={handleHorizontal} />
-          <Console
-            style={{ 
-              height: `calc(${consoleOpen ? EtoC : 0}px - 8px)`, 
-              border: '1px solid red',
-              marginLeft: '3px' 
-            }}
-            width={EtoR}
-            show={consoleOpen}
-          />
-        </main>
-        
-        <aside className={classes.sidebar} style={{ width: EtoR + 'px' }}>
-          <Dragger onMouse={handleVertical} />
-          <Register
-            style={{ minWidth: '15vw' }}
-            width={EtoR}
-            height={`calc(100vh)`}
-          />
-        </aside>
-*/
 
 const Loading = () => (
   <Backdrop style={{ color: '#fff' }} open={true}>

@@ -99,16 +99,8 @@ const { ipcRenderer } = window.electron;
 2 = Sucess
 */
 const Console = ({ dragger, ...props }) => {
-  const {
-    // setMemoryRedux,
-    addFile,
-    alertShow,
-    registers,
-    stdin,
-    setStdin,
-    setMemory,
-    memoryRefs,
-  } = useContext();
+  const { addFile, alertShow, registers, stdin, setStdin, setMemory } =
+    useContext();
 
   const classes = useStyles();
   const consoleEndRef = useRef(null);
@@ -130,8 +122,6 @@ const Console = ({ dragger, ...props }) => {
       setMemory((memory) => {
         if (registers?.AX) {
           memory[parseInt(registers.AX)] = input;
-          //console.log(memoryRefs);
-          //memoryRefs.current[parseInt(registers.AX)].current.value = input;
         }
         return memory;
       });
@@ -197,9 +187,11 @@ end VALEUSEGMENT
             className={classes.inputedTexts + ' ' + messagesType[item.status]}
           >
             <ListItemIcon>{messagesIcon[item.status]}</ListItemIcon>
-            <ListItemText fontFamily='VT323' >
-              {item.message.split("\n").map((i, ik) => (
-                <span key={ik}>{i} <br  /></span>
+            <ListItemText fontFamily='VT323'>
+              {item.message.split('\n').map((i, ik) => (
+                <span key={ik}>
+                  {i} <br />
+                </span>
               ))}
             </ListItemText>
           </ListItem>
@@ -218,21 +210,3 @@ end VALEUSEGMENT
 };
 
 export default memo(Console);
-
-/*
-         sx={{
-          position: 'relative',
-          overflow: 'auto',
-          '&::-webkit-scrollbar': {
-            width: '0.3em',
-            height: '0.4em',
-          },
-          '&::-webkit-scrollbar-track': {
-            '-webkit-box-shadow': 'inset 0 0 6px rgba(0,0,0,0.5)',
-          },
-          '&::-webkit-scrollbar-thumb': {
-            backgroundColor: '#191b24',
-            outline: '0px solid ',
-          },
-        }}
-        */

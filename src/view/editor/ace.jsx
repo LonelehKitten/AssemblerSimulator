@@ -1,4 +1,4 @@
-import React, {forwardRef} from 'react'
+import React, { forwardRef } from 'react';
 import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/mode-assembly_x86';
 import 'ace-builds/src-noconflict/theme-dracula';
@@ -47,7 +47,10 @@ const Ace = ({ onChange }, ref) => {
   };
 
   return (
-    <div onKeyUp={handleSave} style={{ width: '100%', height: 'calc(100% - 4rem)' }}>
+    <div
+      onKeyUp={handleSave}
+      style={{ width: '100%', height: 'calc(100% - 4rem)' }}
+    >
       {/** Gambiarra [ tem que ver isso aqui ] */}
 
       <AceEditor

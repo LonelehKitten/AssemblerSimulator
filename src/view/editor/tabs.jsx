@@ -1,12 +1,7 @@
-import React, { useRef, useState } from 'react';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
+import React, { useRef } from 'react';
+
 import { makeStyles } from '@material-ui/core/styles';
 import TabContainer from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
-import Tooltip from '@material-ui/core/Tooltip';
-
-import AddIcon from '@material-ui/icons/Add';
 
 import { useContext } from '../../utils/context';
 
