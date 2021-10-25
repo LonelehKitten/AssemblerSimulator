@@ -6,11 +6,11 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import Ace from './ace';
 import Tabs from './tabs';
-import Memory from './memory';
+import Memory from '../memory';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    backgroundColor: '#282a36 ',
+    backgroundColor: '#282a36',
     color: '#fff',
     minHeight: '2rem',
     '& 	.MuiTab-root': {
@@ -30,7 +30,6 @@ const Editor = (props) => {
   const [menu, setMenu] = useState('editor');
   const [value, setValue] = useState('');
 
-  const aceRef = useRef();
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -40,6 +39,12 @@ const Editor = (props) => {
   const changeMenu = (event, newValue) => {
     setMenu(newValue);
   };
+/*
+  return (
+    <div id='editor' {...props}>
+      <Tabs value={value} onChange={handleChange} listFiles={listFiles} />
+      <Ace />
+    </div>);*/
 
   return (
     <div id='editor' {...props}>
@@ -60,7 +65,7 @@ const Editor = (props) => {
         <>
           <Tabs value={value} onChange={handleChange} listFiles={listFiles} />
 
-          <Ace ref={aceRef} onChange={() => console.log('aa')} />
+          <Ace onChange={() => console.log('aa')} />
         </>
       )}
       {menu == 'memory' && <Memory />}

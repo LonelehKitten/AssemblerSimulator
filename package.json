@@ -32,7 +32,7 @@
     "react:build": "react-scripts build",
     "react:test": "react-scripts test",
     "react:eject": "react-scripts eject",
-    "electron:serve": "concurrently -k \"cross-env BROWSER=none npm react:start\" \"npm run electron:start\"",
+    "electron:serve": "concurrently -k \"cross-env BROWSER=none npm run react:start\" \"npm run electron:start\"",
     "electron:build": "npm react:build && electron-builder -c.extraMetadata.main=build/main.js",
     "electron:start": "wait-on tcp:3000 && electron .",
     "electron:deploy": "electron-builder --win --publish always -c.extraMetadata.main=build/electron.js --config=electron-builder.yml",

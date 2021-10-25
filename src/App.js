@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useReducer } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   ThemeProvider,
   createTheme,
@@ -13,7 +13,6 @@ import Editor from './view/editor';
 import Console from './view/console';
 import Register from './view/register';
 
-import Dragger from './utils/dragger';
 import Container from './utils/container';
 import { Context } from './utils/context';
 import Alert from './utils/alert';
@@ -256,8 +255,6 @@ function App2() {
     memoryRefs,
     byStep,
     setByStep
-    // memoryRedux,
-    // setMemoryRedux,
   };
 
   return (
