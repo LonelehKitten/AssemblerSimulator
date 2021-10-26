@@ -8,17 +8,16 @@
 #include <algorithm>
 #include <cctype>
 #include "MacroDef.h"
-#include "Label.h"
-#include "../analyzer/Semantic.h"
-#include "../analyzer/RecognitionManager.h"
+#include "Symbol.h"
 
 class Assembler
 {
 private:
     std::vector<Semantic *> * lines;
 
+    std::vector<MacroDef *> macroList;
     std::unordered_map<std::string, MacroDef *> macroTable;
-    std::unordered_map<std::string, Label *> symbolTable;
+    std::unordered_map<std::string, Symbol *> symbolTable;
 
     std::string output;
 
@@ -29,7 +28,7 @@ private:
 
     int assemblerError;
 
-    std::string macroExpandParams(std::vector<Label *> params, MacroDef * macroThis);
+    std::string macroExpandParams(std::vector<Symbol *> params, MacroDef * macroThis);
     int macroExpandParamsDoDaniel(MacroCall * macrocall, int k);
 
     void replaceAll(std::string& str, const std::string& from, const std::string& to);
@@ -37,7 +36,8 @@ private:
     void assembleStep2();
     void assembleStep1();
 
-    void Assembler::assembleByteCode(Semantic * line);
+    std::vector<unsigned char> assembleByteCode(Semantic * line);
+
 
 public:
     Assembler(std::vector<Semantic *> * lines);
@@ -49,8 +49,6 @@ public:
 
     void init(bool willExecute);
     int preproccessDoDaniel (std::vector<Semantic *> * lines, int k);
-
-    std::vector<unsigned char> assemble();
 
 };
 

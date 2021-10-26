@@ -15,7 +15,8 @@
         "src/bin/sources/analyzer/SyntaxAutomatons.cpp",
         "src/bin/sources/analyzer/Token.cpp",
         "src/bin/sources/assembler/Assembler.cpp",
-        "src/bin/sources/assembler/macroDef.cpp",
+        "src/bin/sources/assembler/MacroDef.cpp",
+        "src/bin/sources/assembler/Symbol.cpp",
         "src/bin/sources/machine/Z808Machine.cpp",
         "src/bin/sources/machine/Z808Processor.cpp",
         "src/bin/sources/machine/Z808Response.cpp"
