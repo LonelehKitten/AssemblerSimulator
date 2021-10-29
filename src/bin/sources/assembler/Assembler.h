@@ -45,7 +45,12 @@ public:
     //Método principal para chamar o pré processador
     std::string preproccess();
     //Método principal para chamar o montador (PRÉPROCESSADOR PRECISA SER CHAMADO ANTES)
-    std::vector<unsigned char> assemble();
+    //Recebe como parâmetro o tipo de montador que será executado
+    //"0" para montador simples de 1 passo
+    //"1" para montador load-and-go
+    //"2" para montador simples de 2 passos
+    //"3" para montador completo de 2 passos
+    std::vector<unsigned char> assemble(int assemblerType);
 
     void init(bool willExecute);
     int preproccessDoDaniel (std::vector<Semantic *> * lines, int k);

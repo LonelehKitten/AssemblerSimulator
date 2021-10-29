@@ -157,10 +157,10 @@ void Assembler::assembleStep1()
 
     */
     
-    return; //Retornar talvez ja aqui o código de máquina
+    return;
 }
 
-std::vector<unsigned char> Assembler::assemble()
+std::vector<unsigned char> Assembler::assemble(int assemblerType)
 {
     assembleStep1();
     return assembleCode;
