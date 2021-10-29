@@ -27,56 +27,7 @@ std::vector<unsigned char> Assembler::assembleByteCode(Semantic * line)
     return bytecode;
 }
 
-void Assembler::assembleStep2()
-{
-    /*
-
-    int locationCounter = 0;
-    int startAddress;
-    Instruction instruction;
-
-    for(line = this->lines->begin(); line != this->lines->end(); ++line)
-    {
-        instruction = line->getType();
-        //operand = line->getOperand();     //pegar depois
-
-        switch(instruction) {
-            case Instruction::iEQU:
-                // NADA
-            break;
-
-            case Instruction::iORG:
-                //LC = GETOPERANDVALUE (operand)
-            break;
-
-            case Instruction::iEND:
-                //startAddress = GETOPERANDVALUE(operand)
-                //ASSEMBLECLOSINGCODE(startAdress);
-            break;
-
-            default:
-                //if(opcode == 'DC' || opcode == 'DS'){
-                    //entry = findtable(POT, opcode);
-                //}else{
-                    //entry = findtable(MOT, opcode);
-                //}
-
-                //length = getinstructionsize(entry, operand);
-                //code = assembleByteCode(line);
-                //code = gerenatemachinecode(entry, operand);
-
-                //Concatena os vetores code e this->assembleCode
-                //assemblemachinecode(locationCounter, code);    //Usa this->assembleCode, std::vector<unsigned char>
-                //locationCounter = locationCounter + length;
-
-            break;
-    }
-    */
-
-    return;
-}
-
-void Assembler::assembleStep1()
+int Assembler::basicoAssemblerStep1()
 {
     /*
 
@@ -107,7 +58,7 @@ void Assembler::assembleStep1()
                 break;
 
                 case 'END':
-                    assembleStep2();
+                    return basicoAssemblerStep2();
                 break;
 
                 case default:
@@ -157,12 +108,64 @@ void Assembler::assembleStep1()
 
     */
     
-    return;
+    return 0;
+}
+
+//NECESSÁRIO PARA A ENTREGA 3
+void Assembler::basicoAssemblerStep2()
+{
+    /*
+
+    int locationCounter = 0;
+    int startAddress;
+    Instruction instruction;
+
+    for(line = this->lines->begin(); line != this->lines->end(); ++line)
+    {
+        instruction = line->getType();
+        //operand = line->getOperand();     //pegar depois
+
+        switch(instruction) {
+            case Instruction::iEQU:
+                // NADA
+            break;
+
+            case Instruction::iORG:
+                //LC = GETOPERANDVALUE (operand)
+            break;
+
+            case Instruction::iEND:
+                //startAddress = GETOPERANDVALUE(operand)
+                //ASSEMBLECLOSINGCODE(startAdress);
+            break;
+
+            default:
+                //if(opcode == 'DC' || opcode == 'DS'){
+                    //entry = findtable(POT, opcode);
+                //}else{
+                    //entry = findtable(MOT, opcode);
+                //}
+
+                //length = getinstructionsize(entry, operand);
+                //code = assembleByteCode(line);
+                //code = gerenatemachinecode(entry, operand);
+
+                //Concatena os vetores code e this->assembleCode
+                //assemblemachinecode(locationCounter, code);    //Usa this->assembleCode, std::vector<unsigned char>
+                //locationCounter = locationCounter + length;
+
+            break;
+    }
+    */
+
+    return 0;
 }
 
 std::vector<unsigned char> Assembler::assemble(int assemblerType)
 {
-    assembleStep1();
+    //Switch case com assemblerType
+    //Métodos de assembler devem retornar flags de erro; tratar elas
+    int flag = basicoAssemblerStep1();
     return assembleCode;
 }
 
