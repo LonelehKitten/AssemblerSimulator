@@ -20,7 +20,7 @@ const Item = (
   { label, onChange, isSave, onClick, indicator, value, selected, fileName },
   ref
 ) => {
-  const { listFiles, setListFiles, currentID, changeFile } = useContext();
+  const { listFiles, setListFiles, currentFile, changeFile } = useContext();
   const classes = useStyles();
 
   const handleClick = (event) => {
@@ -30,9 +30,10 @@ const Item = (
 
   const handleClose = async () => {
     if (!isSave || confirm('Você não salvou esse arquivo, deseja continua?')) {
-      delete listFiles[value];
-      setListFiles(listFiles);
-      if (currentID == value) changeFile(null);
+      const newListFiles = {...listFiles};
+      delete newListFiles[value];
+      setListFiles(newListFiles);
+      if (currentFile?.id == value) changeFile(null);
     }
   };
 

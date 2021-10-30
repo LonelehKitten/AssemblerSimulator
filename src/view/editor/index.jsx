@@ -23,7 +23,24 @@ const useStyles = makeStyles((theme) => ({
     minWidth: 'auto',
   },
 }));
+/*
+const Editor = () => {
+  const { listFiles, changeFile } = useContext();
+  const [menu, setMenu] = useState('');
 
+  const handleChange = (event, newValue) => {
+    setMenu(newValue);
+    changeFile(newValue);
+  };
+  return (
+    <>
+      <Tabs value={menu} onChange={handleChange} listFiles={listFiles} />
+
+      <Ace onChange={() => console.log('aa')} />
+    </>
+  )
+}
+*/
 const Editor = (props) => {
   const classes = useStyles();
   const { listFiles, changeFile } = useContext();

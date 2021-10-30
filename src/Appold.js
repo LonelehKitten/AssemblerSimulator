@@ -7,7 +7,7 @@ import {
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
-import Header from './theme/header';
+import Header from './theme/header2';
 import Footer from './theme/footer';
 import Editor from './view/editor';
 import Console from './view/console';

@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
 const { ipcRenderer } = window.electron;
 
 const Tabs = ({ value, onChange, listFiles }) => {
-  const { addFile, currentID, alertShow } = useContext();
+  const { addFile, currentFile, alertShow } = useContext();
   const classes = useStyles();
 
   const inputFile = useRef(null);
@@ -55,7 +55,7 @@ const Tabs = ({ value, onChange, listFiles }) => {
       }}
     >
       <TabContainer
-        value={currentID || ''}
+        value={currentFile?.id || ''}
         indicatorColor='secondary'
         textColor='inherit'
         onChange={onChange}
@@ -63,6 +63,7 @@ const Tabs = ({ value, onChange, listFiles }) => {
         variant='scrollable'
         scrollButtons='auto'
         className={classes.root}
+        onDoubleClick={() => addFile('', '', 'Novo Arquivo')}
       >
         {Object.entries(listFiles).map(([id, file], key) => (
           <Item

@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
     root: {
         display: 'block',
         width: '50px',
-        height: 'calc(100vh - 48px - 1.5em)',
+        height: 'calc(100vh - 36px - 1.5em)',
         backgroundColor: '#313241',
         zIndex: 9,
         "& .MuiButton-root": {

@@ -11,7 +11,6 @@ const { ipcRenderer } = window.electron;
 const Ace = ({ onChange }, ref) => {
   const {
     listFiles,
-    currentID,
     currentFile,
     setCode,
     alertShow,
@@ -35,7 +34,7 @@ const Ace = ({ onChange }, ref) => {
             if (currentFile.path == '') {
               currentFile.path = path;
               currentFile.name = path.split('\\').slice(-1)[0];
-              setListFiles({ ...listFiles, ...{ [currentID]: currentFile } });
+              setListFiles({ ...listFiles, ...{ [currentFile.id]: currentFile } });
             }
             alertShow('success', 'Arquivo Salvo');
           } else {
