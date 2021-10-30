@@ -40,8 +40,9 @@ std::vector<unsigned char> Assembler::assembleByteCode(Semantic * line)
  */
 int Assembler::basicoAssemblerStep1()
 {
+    programCounter = 0;     //LC
     
-
+    
 
 
 
@@ -76,10 +77,7 @@ int Assembler::basicoAssemblerStep1()
                 case 'END':
                     return basicoAssemblerStep2();
                 break;
-
-                case default:
-                    if(opcode == 'EQU')
-                    {
+defaultValue
                         // ** value <- GETOPERANDVALUE (operand) ** 
                         //value = (operand);
                         length = 0;
