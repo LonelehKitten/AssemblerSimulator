@@ -24,12 +24,11 @@ private:
     std::vector<unsigned char> assembleCode;
 
     int lineCounter;
-    //int programCounter;
+    int programCounter;
 
     int assemblerError;
 
-    std::string macroExpandParams(std::vector<Symbol *> params, MacroDef * macroThis);
-    int macroExpandParamsDoDaniel(MacroCall * macrocall, int k);
+    int macroExpandParams(MacroCall * macrocall, int k);
 
     void replaceAll(std::string& str, const std::string& from, const std::string& to);
 
@@ -50,8 +49,6 @@ private:
 public:
     Assembler(std::vector<Semantic *> * lines);
 
-    //Método principal para chamar o pré processador
-    std::string preproccess();
     //Método principal para chamar o montador (PRÉPROCESSADOR PRECISA SER CHAMADO ANTES)
     //Recebe como parâmetro o tipo de montador que será executado
     //"0" para montador simples de 1 passo
@@ -62,7 +59,7 @@ public:
     int assemble(int assemblerType);
 
     void init(bool willExecute);
-    int preproccessDoDaniel (std::vector<Semantic *> * lines, int k);
+    int preproccess (std::vector<Semantic *> * lines, int k);
 
     // debug only
     std::string getOutput();
