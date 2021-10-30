@@ -13,11 +13,14 @@
 /src/bin/test/*
 /src/bin/teste.pro
 /src/bin/teste.pro.user
+/src/bin/teste_analyzer.pro
+/src/bin/teste_analyzer.pro.user
 /src/bin/test.pro
 /src/bin/test.pro.user
 /src/bin/obj
 /src/bin/build-teste-Desktop-Debug
-src/bin/build-test-Desktop-Debug
+/src/bin/build-teste_analyzer-Desktop-Debug
+/src/bin/build-test-Desktop-Debug
 
 # production
 /build

@@ -7,22 +7,18 @@ Token::Token(std::string token, TokenTypes type,TokenNames name, bool endOfLine)
     endOfLine(endOfLine)
 {}
 
-std::string Token::getToken()
-{
+std::string Token::getToken() {
     return token;
 }
 
-TokenTypes Token::getType() const
-{
+TokenTypes Token::getType() const {
     return type;
 }
 
-TokenNames Token::getName() const
-{
+TokenNames Token::getName() const {
     return name;
 }
 
-bool Token::isEndOfLine() const
-{
+bool Token::isEndOfLine() const {
     return endOfLine;
 }
