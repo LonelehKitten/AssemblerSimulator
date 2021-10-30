@@ -136,8 +136,8 @@ class Add : public Semantic {
         Add(std::string line, std::vector<Token *> * expression);
 
         std::string getOperand2();
-
         std::vector<Token *> *getExpression() const;
+
 };
 
 class Sub : public Semantic {
@@ -150,8 +150,8 @@ class Sub : public Semantic {
         Sub(std::string line, std::vector<Token *> * expression);
 
         std::string getOperand2();
-
         std::vector<Token *> *getExpression() const;
+
 };
 
 class Div : public Semantic {
@@ -193,6 +193,9 @@ class Or : public Semantic {
     public:
         Or(std::string line, std::string operand2);
         Or(std::string line, std::vector<Token *> * expression);
+
+        std::string getOperand2();
+        std::vector<Token *> *getExpression() const;
 };
 
 class And : public Semantic {
@@ -204,6 +207,9 @@ class And : public Semantic {
         And(std::string line, std::string operand2);
         And(std::string line, std::vector<Token *> * expression);
         //opcode = 23 ou 25
+
+        std::string getOperand2();
+        std::vector<Token *> *getExpression() const;
 };
 
 class Xor : public Semantic {
@@ -215,6 +221,9 @@ class Xor : public Semantic {
         Xor(std::string line, std::string operand2);
         Xor(std::string line, std::vector<Token *> * expression);
         //opcode = 33 ou 35
+
+        std::string getOperand2();
+        std::vector<Token *> *getExpression() const;
 };
 
 class Not : public Semantic {
@@ -391,14 +400,18 @@ class EndS : public Semantic {
 class Dw : public Semantic {
     private:
         std::string name;
-        std::vector<Token *> * expression; //por enquanto ta só int porque é o que tem no exemplo de entrada do trabalho
+        std::vector<Token *> * defaultValue, * length; //por enquanto ta só int porque é o que tem no exemplo de entrada do trabalho
     public:
-        Dw(std::string line, std::vector<Token *> * expression);
-        Dw(std::string line, std::string name, std::vector<Token *> * expression);
+        Dw(std::string line, std::vector<Token *> * defaultValue);
+        Dw(std::string line, std::vector<Token *> * defaultValue, std::vector<Token *> * length);
+        Dw(std::string line, std::string name, std::vector<Token *> * defaultValue);
+        Dw(std::string line, std::string name, std::vector<Token *> * defaultValue, std::vector<Token *> * length);
+
         std::string getName();
+        std::vector<Token *> *getDefaultValue() const;
+        std::vector<Token *> *getLength() const;
 
-
-        std::vector<Token *> *getExpression() const;
+        bool isArray() const;
 };
 
 // declaração de constante

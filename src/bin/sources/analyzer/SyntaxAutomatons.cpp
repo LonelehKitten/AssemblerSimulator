@@ -237,11 +237,9 @@ namespace SyntaxAutomatons {
         transition->setState(qEnd);
         r = analyzer->q(transition);
         if(!r) {
-            analyzer->setError(false);
             transition->~Transition();
             return false;
         }
-
 
         transition->setState(q1);
         transition->setId(true);
@@ -727,9 +725,9 @@ namespace SyntaxAutomatons {
         if(!analyzer->getLastToken()->isEndOfLine()) {
             analyzer->setError(true);
 
-            DEBUG(std::cout << "FALHA" << std::endl)
+            TEST(std::cout << "FALHA" << std::endl)
         }
-        else DEBUG(std::cout << "SUCESSO" << std::endl);
+        else TEST(std::cout << "SUCESSO" << std::endl)
 
         return true;
     }

@@ -64,6 +64,9 @@ public:
     void init(bool willExecute);
     int preproccessDoDaniel (std::vector<Semantic *> * lines, int k);
 
+    // debug only
+    std::string getOutput();
+
 };
 
 #endif // ASSEMBLER_H

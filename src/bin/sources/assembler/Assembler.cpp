@@ -2,9 +2,17 @@
 
 #include "../analyzer/Semantic.h"
 #include "../analyzer/RecognitionManager.h"
+#include "../GlobalSettings.h"
+
+#ifdef PRODUCTION_MODE
 #include "../InterfaceBus.h"
+#endif
 
 #define File std::vector<Semantic *>
+
+std::string Assembler::getOutput() {
+    return output;
+}
 
 Assembler::Assembler(std::vector<Semantic *> * lines) :
     lines(lines)
@@ -112,7 +120,7 @@ int Assembler::basicoAssemblerStep1()
 }
 
 //NECESSÁRIO PARA A ENTREGA 3
-void Assembler::basicoAssemblerStep2()
+int Assembler::basicoAssemblerStep2()
 {
     /*
 
@@ -161,12 +169,12 @@ void Assembler::basicoAssemblerStep2()
     return 0;
 }
 
-std::vector<unsigned char> Assembler::assemble(int assemblerType)
+int Assembler::assemble(int assemblerType)
 {
     //Switch case com assemblerType
     //Métodos de assembler devem retornar flags de erro; tratar elas
     int flag = basicoAssemblerStep1();
-    return assembleCode;
+    return 0;
 }
 
 
@@ -384,22 +392,23 @@ int Assembler::preproccessDoDaniel (std::vector<Semantic *> * lines, int k) {
 
 void Assembler::init(bool willExecute) {
 
-    double startTime = InterfaceBus::getInstance().getMilliseconds();
+    PRODUCTION(double startTime = InterfaceBus::getInstance().getMilliseconds())
     this->preproccessDoDaniel(lines, 0);
-    double totalTime = (InterfaceBus::getInstance().getMilliseconds() - startTime) / 1000;
+    PRODUCTION(double totalTime = (InterfaceBus::getInstance().getMilliseconds() - startTime) / 1000)
 
-    std::cout << "============ INIT ==========" << std::endl;
-    std::cout << output << std::endl;
-    std::cout << "============ INIT ==========" << std::endl;
+    TEST(std::cout << "============ INIT ==========" << std::endl)
+    TEST(std::cout << output << std::endl)
+    TEST(std::cout << "============ INIT ==========" << std::endl)
 
     if(willExecute) return;
 
-    InterfaceBus::getInstance().dispatchMacroExpanded(output);
-    InterfaceBus::getInstance().dispatchLog("Macros expandidas com sucesso!", LogStatus::SUCCESS);
-    InterfaceBus::getInstance().dispatchLog(
-        std::string("Tempo:    ") + std::to_string(totalTime) + std::string(" segundos"),
-        LogStatus::INFO
-    );
+    PRODUCTION(InterfaceBus::getInstance().dispatchMacroExpanded(output))
+    PRODUCTION(InterfaceBus::getInstance().dispatchLog("Macros expandidas com sucesso!", LogStatus::SUCCESS))
+    PRODUCTION(
+        InterfaceBus::getInstance().dispatchLog(
+            std::string("Tempo:    ") + std::to_string(totalTime) + std::string(" segundos"),
+            LogStatus::INFO
+    ))
 }
 
 std::string Assembler::preproccess() {
