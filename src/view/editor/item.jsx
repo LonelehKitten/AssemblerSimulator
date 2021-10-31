@@ -1,6 +1,7 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import CloseIcon from '@material-ui/icons/Close';
+
 import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
 import Tooltip from '@material-ui/core/Tooltip';
 import { useContext } from '../../utils/context';
@@ -14,6 +15,11 @@ const useStyles = makeStyles((theme) => ({
     color: 'white',
     fontSize: 18,
     marginLeft: 5,
+  },
+  selected: {
+    backgroundColor: '#21222c !important',
+    borderTop: '1px solid hotpink !important',
+    '& .MuiTab-textColorInherit.Mui-selected': {},
   },
 }));
 const Item = (
@@ -30,7 +36,7 @@ const Item = (
 
   const handleClose = async () => {
     if (!isSave || confirm('Você não salvou esse arquivo, deseja continua?')) {
-      const newListFiles = {...listFiles};
+      const newListFiles = { ...listFiles };
       delete newListFiles[value];
       setListFiles(newListFiles);
       if (currentFile?.id == value) changeFile(null);
@@ -41,8 +47,8 @@ const Item = (
     <Tooltip title={fileName} placement='bottom'>
       <button
         className={
-          'MuiButtonBase-root MuiTab-root MuiTab-textColorInherit' +
-          (selected ? ' Mui-selected' : '')
+          'MuiButtonBase-root MuiTab-root MuiTab-textColorInherit ' +
+          (selected ? classes.selected : '')
         }
         ref={ref}
         onClick={handleClick}

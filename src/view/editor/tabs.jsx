@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 
 import { makeStyles } from '@material-ui/core/styles';
 import TabContainer from '@material-ui/core/Tabs';
@@ -9,7 +9,7 @@ import Item from './item';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    backgroundColor: '#282a36 ',
+    backgroundColor: '#21222c ',
     color: '#fff',
     minHeight: '2rem',
     '& 	.MuiTab-root': {
@@ -47,6 +47,8 @@ const Tabs = ({ value, onChange, listFiles }) => {
     };
     event.target.value = '';
   };
+
+  const handleSelected = (fileId) => {};
 
   return (
     <div

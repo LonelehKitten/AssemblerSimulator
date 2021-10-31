@@ -10,13 +10,17 @@ import Memory from '../memory';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    backgroundColor: '#282a36',
+    backgroundColor: '#21222c',
     color: '#fff',
     minHeight: '2rem',
     '& 	.MuiTab-root': {
       boxShadow: '0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23)',
       padding: '0 12px',
       minHeight: '2rem',
+    },
+    '& .MuiTab-textColorInherit.Mui-selected': {
+      backgroundColor: '#282a36 !important',
+      borderTop: '1px solid hotpink !important',
     },
   },
   plus: {
@@ -68,12 +72,12 @@ const Editor = (props) => {
         scrollButtons='auto'
         className={classes.root}
       >
-        <Tab value='editor' label='Editor' />
+        <Tab className={classes.selected} value='editor' label='Editor' />
         <Tab value='memory' label='Memoria' />
       </TabContainer>
       {menu == 'editor' && (
         <>
-          <Tabs value={value} onChange={handleChange} listFiles={listFiles} />
+          <Tabs onChange={handleChange} listFiles={listFiles} />
 
           <Ace onChange={() => console.log('aa')} />
         </>

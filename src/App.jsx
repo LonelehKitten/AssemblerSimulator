@@ -19,9 +19,6 @@ import Container from './utils/container';
 import Global from './components/global';
 import Tabs from './components/tabs';
 
-// Considerar excluir este arquivo OU o App.js
-// ter os dois vai causar confusão
-
 const useStyles = makeStyles((theme) => ({
   container: {
     display: 'flex',
@@ -30,8 +27,8 @@ const useStyles = makeStyles((theme) => ({
   },
   main: {
     display: 'flex',
-    height: 'calc(100% - 36px - 1.5em)'
-  }
+    height: 'calc(100% - 36px - 1.5em)',
+  },
 }));
 
 const theme = createTheme({
@@ -93,12 +90,12 @@ const App = () => {
                 value={consoleOpen ? EtoC : 0}
               >
                 <Editor
-                      style={{
-                        width: '100%',
-                        height: `100%`,
-                      }}
-                    />
-                    {/*
+                  style={{
+                    width: '100%',
+                    height: `100%`,
+                  }}
+                />
+                {/*
                 <Tabs
                   render={{
                     editor: <Editor
@@ -141,7 +138,7 @@ const App = () => {
         </div>
         <Footer />
       </Global>
-    </ThemeProvider >
+    </ThemeProvider>
   );
 };
 
