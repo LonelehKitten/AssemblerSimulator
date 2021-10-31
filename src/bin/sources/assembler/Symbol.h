@@ -10,6 +10,7 @@ struct Symbol
     std::vector<int> addressOccurrences;
 
     Symbol(std::string, std::string, int);
+    Symbol(std::string, std::string);
 };
 
 #endif /* SYMBOL_H */
