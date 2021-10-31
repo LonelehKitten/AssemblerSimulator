@@ -8,7 +8,7 @@ SyntaxAnalyzer::SyntaxAnalyzer() {
 }
 
 void SyntaxAnalyzer::set(std::string line, bool last) {
-    DEBUG(std::cout << "entrou no set" << std::endl;)
+    TEST(std::cout << "entrou no set" << std::endl)
     this->line = line;
     this->last = last;
     this->state = SyntaxAutomatons::qBegin;
@@ -20,7 +20,7 @@ void SyntaxAnalyzer::set(std::string line, bool last) {
 }
 
 bool SyntaxAnalyzer::init() {
-    DEBUG(log("init");)
+    TEST(log("init"))
     this->row.clear();
     this->error = false;
     this->scanner->setLine(this->line);
@@ -29,7 +29,7 @@ bool SyntaxAnalyzer::init() {
             return true;
         }
         if(this->error) {
-            DEBUG(std::cout << "syntax error" << std::endl;)
+            TEST(std::cout << "syntax error" << std::endl)
             break;
         }
     }
@@ -178,6 +178,9 @@ Semantic * SyntaxAnalyzer::getRow(int offset) {
                         return new Dw(this->line, this->aux1, nullptr);
                     }
                     expression = getExpression(offset+2, t);
+                    if((int) row.size() > t) {
+                        return new Dw(this->line, this->aux1, getExpression(t+1, t), expression);
+                    }
                     return new Dw(this->line, this->aux1, expression);
                 case TokenTypes::tCONSTDEF:
                     expression = getExpression(offset+2, t);
@@ -194,6 +197,9 @@ Semantic * SyntaxAnalyzer::getRow(int offset) {
                 return new Dw(this->line, nullptr);
             }
             expression = getExpression(offset+1, t);
+            if((int) row.size() > t) {
+                return new Dw(this->line, getExpression(t+1, t), expression);
+            }
             return new Dw(this->line, expression);
 
         case TokenTypes::tEND:
@@ -296,13 +302,20 @@ Semantic * SyntaxAnalyzer::getRow(int offset) {
 
 }
 
+/*
+    it para sempre na posição limite, ou seja, = size ou na posição dos tipos limitantes
+*/
 std::vector<Token *> * SyntaxAnalyzer::getExpression(int it, int& pointer) {
 
     std::vector<Token *> * expression = new std::vector<Token *>();
 
     while(
           it < (int) row.size() &&
-          (row[it]->getType() != TokenTypes::tSEPARATOR && row[it]->getType() != TokenTypes::tINDEX_OP)
+          (
+              row[it]->getType() != TokenTypes::tSEPARATOR &&
+              row[it]->getType() != TokenTypes::tINDEX_OP &&
+              row[it]->getType() != TokenTypes::tVECFILL
+          )
     ) {
         expression->emplace_back(row[it]);
         it++;
@@ -382,7 +395,7 @@ bool SyntaxAnalyzer::q(SyntaxAutomatons::Transition * transition) {
             transition->getCustomFlag()
         ) {
 
-            DEBUG(log(token);)
+            TEST(log(token))
 
             if(transition->getPop() != "") this->stack->pop();
             if(transition->getPush() != "") this->stack->push(transition->getPush());
