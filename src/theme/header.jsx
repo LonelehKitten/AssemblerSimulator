@@ -7,9 +7,16 @@ import Button from '@material-ui/core/Button';
 import { useContext } from '../utils/context';
 //import Menu from '@material-ui/core/Menu';
 //import MenuItem from '@material-ui/core/MenuItem';
+import MenuContainer from '@material-ui/core/Menu';
 
 import event from '../utils/event';
 import Menu from './menu';
+
+import File from './menu/file';
+import Editor from './menu/editor';
+import Assembler from './menu/assembler';
+import Execute from './menu/execute';
+import Help from './menu/help';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -51,6 +58,10 @@ const useStyles = makeStyles((theme) => ({
             color: "#f1f1f1",
             "& .MuiMenuItem-root:hover": {
                 backgroundColor: "rgba(255,255,255,0.2)"
+            },
+            "& .MuiListItemIcon-root":{
+                color: "#f1f1f1",
+                minWidth: 26
             }
         }
     },
@@ -115,7 +126,7 @@ const Header = () => {
                         <Typography variant="p" className={classes.title}>
                             ASMR
                         </Typography>
-                        {Object.entries(menuTop).map(([key,name]) => <Button color="primary" onClick={handleToggle(key)} className={key == type ? "active" : ""}>{name}</Button>)}
+                        {Object.entries(menuTop).map(([key, name]) => <Button color="primary" onClick={handleToggle(key)} className={key == type ? "active" : ""}>{name}</Button>)}
                     </div>
                     <div className={classes.windowsButtons}>
                         <Button onClick={handleButton("minimize")}>&#xE921;</Button>
@@ -124,15 +135,36 @@ const Header = () => {
                     </div>
                 </Toolbar>
             </AppBar>
-            <Menu
+            <MenuContainer
                 anchorEl={anchorEl}
+                //                keepMounted
                 className={classes.menuRoot}
-                type={type}
+                open={Boolean(anchorEl)}
                 onClose={handleClose}
-                handleButton={handleButton}
-            />
+                style={{ marginTop: 18 }}
+                anchorOrigin={{
+                    horizontal: 'center'
+                }}
+                transformOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'center',
+                }}>
+                {type == "file" && <File onClose={handleClose} />}
+                {type == "editor" && <Editor onClose={handleClose} />}
+                {type == "assembler" && <Assembler onClose={handleClose} />}
+                {type == "execute" && <Execute onClose={handleClose} />}
+                {type == "help" && <Help onClose={handleClose} />}
+            </MenuContainer>
         </div>
     );
 };
+/*
+<Menu
+    anchorEl={anchorEl}
+    className={classes.menuRoot}
+    type={type}
+    onClose={handleClose}
+    handleButton={handleButton}
+/>*/
 
 export default Header;

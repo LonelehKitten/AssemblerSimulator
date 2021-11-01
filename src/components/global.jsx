@@ -66,6 +66,7 @@ const Global = ({ value, children }) => {
         }
     };
 
+
     const addFile = (path, code, name = null) => {
         let idExists = null;
         Object.entries(listFiles).forEach(([k, item]) => {
@@ -85,7 +86,6 @@ const Global = ({ value, children }) => {
             ...listFiles,
             [id]: { id, name, path, code, originCode: code },
         };
-        console.log(newValue);
         setCurrentFile(newValue[id]);
         setListFiles(newValue);
     };
@@ -106,7 +106,7 @@ const Global = ({ value, children }) => {
     // Salvar
     useEffect(() => {
         window.localStorage.setItem('_listFiles', JSON.stringify(listFiles));
-      }, [listFiles]);
+    }, [listFiles]);
 
     useEffect(() => {
         ipcRenderer.on('end', (evt) => {

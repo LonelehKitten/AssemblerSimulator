@@ -4,7 +4,7 @@ import 'ace-builds/src-noconflict/mode-assembly_x86';
 import 'ace-builds/src-noconflict/theme-dracula';
 import 'ace-builds/src-noconflict/ext-language_tools';
 
-import { useContext } from '../../utils/context';
+import { file, useContext } from '../../utils';
 
 const { ipcRenderer } = window.electron;
 
@@ -26,22 +26,7 @@ const Ace = ({ onChange }, ref) => {
 
   const handleSave = (e) => {
     if (e.keyCode == 83 && e.ctrlKey) {
-      if (currentFile.isSave) {
-        ipcRenderer.send('invoke_save_file', JSON.stringify(currentFile));
-        ipcRenderer.once('save_file', (e, success, path) => {
-          if (success) {
-            setCode(currentFile.code, true);
-            if (currentFile.path == '') {
-              currentFile.path = path;
-              currentFile.name = path.split('\\').slice(-1)[0];
-              setListFiles({ ...listFiles, ...{ [currentFile.id]: currentFile } });
-            }
-            alertShow('success', 'Arquivo Salvo');
-          } else {
-            alertShow('danger', 'Erro ao salvar o arquivo');
-          }
-        });
-      }
+      file.save({ alertShow, currentFile, setCode, setListFiles });
     }
   };
 

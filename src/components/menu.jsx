@@ -11,7 +11,8 @@ const Menu = ({onClose,options,...props}) => {
 
     return (
     <MenuContainer onClose={onClose} {...props}>
-        {options.map((item) => item.divider ? <Divider /> : <MenuItem onClick={handleClick(item)}>{item.label}</MenuItem>)}
+        {children}
     </MenuContainer>);
 }
+//{options.map((item) => item.divider ? <Divider /> : <MenuItem onClick={handleClick(item)}>{item.label}</MenuItem>)}
 export default Menu;

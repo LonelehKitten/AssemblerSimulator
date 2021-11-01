@@ -4,7 +4,7 @@ import CloseIcon from '@material-ui/icons/Close';
 
 import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
 import Tooltip from '@material-ui/core/Tooltip';
-import { useContext } from '../../utils/context';
+import { file, useContext } from '../../utils';
 
 const useStyles = makeStyles((theme) => ({
   isSave: {
@@ -34,13 +34,16 @@ const Item = (
     if (onClick) onClick(event);
   };
 
-  const handleClose = async () => {
-    if (!isSave || confirm('Você não salvou esse arquivo, deseja continua?')) {
+  const handleClose = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    file.close({setListFiles,changeFile,currentFile});
+/*    if (!isSave || confirm('Você não salvou esse arquivo, deseja continua?')) {
       const newListFiles = { ...listFiles };
       delete newListFiles[value];
       setListFiles(newListFiles);
       if (currentFile?.id == value) changeFile(null);
-    }
+    }*/
   };
 
   return (

@@ -99,7 +99,7 @@ const { ipcRenderer } = window.electron;
 2 = Sucess
 */
 const Console = ({ dragger, ...props }) => {
-  const { addFile, alertShow, registers, stdin, setStdin, setMemory } =
+  const { addFile, alertShow, registers, stdin, setStdin, setMemory, setPlaying } =
     useContext();
 
   const classes = useStyles();
@@ -174,6 +174,7 @@ end VALEUSEGMENT
           alertShow('danger', 'Erro ao salvar o arquivo');
         }
       });
+      setPlaying(false);
     });
   }, []);
 
