@@ -10,13 +10,14 @@
 
 #define File std::vector<Semantic *>
 
-std::string Assembler::getOutput() {
+std::string Assembler::getOutput()
+{
     return output;
 }
 
-Assembler::Assembler(std::vector<Semantic *> * lines) :
-    lines(lines)
-{}
+Assembler::Assembler(std::vector<Semantic *> *lines) : lines(lines)
+{
+}
 
 /** Coisas de Semantic que precisamos pegar:
  * getOperands - não entendi como funciona, talvez não seja o que precisamos
@@ -27,25 +28,174 @@ Assembler::Assembler(std::vector<Semantic *> * lines) :
  * getType - retorna um enum, com base nele podemos pegar o código de máquina referente
  */
 
-std::vector<unsigned char> Assembler::assembleByteCode(Semantic * line)
+std::vector<unsigned char> Assembler::assembleByteCode(Semantic *line)
 {
     std::vector<unsigned char> bytecode;
-    //bytecode.push_back(bytecode(line->getType()));
-    //bytecode.push_back(bytecode(line->getOperands()));
+    // bytecode.push_back(bytecode(line->getType()));
+    // bytecode.push_back(bytecode(line->getOperands()));
     return bytecode;
 }
 
+template <class T>
+void Assembler::tableArithmeticInstructions(T *t)
+{
+    Symbol *s;
+    std::set<std::string> * set;
+
+    if (t->getExpression() != nullptr){     //instrucoes q o expression não for nullptr tem simbolo
+
+        programCounter += 3;
+        set = t->getSymbolSet();
+
+        for(std::set<std::string>::iterator it = set.begin(); it != set.end()) {
+            s = new Symbol(*it,"??");
+
+            //procurar p ver se já n tem o simbolo na tabela
+            if(symbolTable.find(*it) != symbolTable.end())
+                symbolTable.insert(s->name, s);
+        }
+
+        return;
+
+    }
+
+    programCounter += 2;
+}
+
+template <class T>
+void Assembler::tableJumpsInstruction(T *t) 
+{
+    programCounter += 3;
+    
+    std::set<std::string> * set;
+
+    set = t->getSymbolSet();
+
+    for(std::set<std::string>::iterator it = set.begin(); it != set.end()) {
+        s = new Symbol(*it,"??");
+
+        //procurar p ver se já n tem o simbolo na tabela
+        if(symbolTable.find(*it) != symbolTable.end())
+            symbolTable.insert(s->name, s);
+    }
+}
+
+/**
+ * TABELA OS SÍMBOLOS
+ */
 int Assembler::basicoAssemblerStep1()
 {
-    /*
+    programCounter = 0; // LC
+    Instruction instruction;
+    std::vector<Token *> * expression;
+    Symbol *s;
+    Semantic * line;
 
+    //for (File::iterator line = lines->begin(); line != lines->end(); ++line)
+    for (int i = 0; i < lines->size(); ++i)
+    {
+        std::vector<Token *> *expression;
+        line = lines->at(i);
+        // expressão = std::vector<Token *> *
+
+        // aritmeticos exceto DIV e MUL
+        // logicos exceto NOT
+        // desvio exceto RET
+        // declaração de procedimento
+        // movimentação
+        // DW, EQU, ORG
+
+        instruction = line->getType();
+        switch (instruction)
+        {
+            //aritmeticas e logicas
+            case Instruction::iADD:
+                tableArithmeticInstructions<Add>((Add *) line);
+                break;
+            case Instruction::iSUB:
+                tableArithmeticInstructions<Sub>((Sub *) line);
+                break;
+            case Instruction::iCMP:
+                tableArithmeticInstructions<Cmp>((Cmp *) line);
+                break;
+            case Instruction::iOR:
+                tableArithmeticInstructions<Or>((Or *) line);
+                break;
+            case Instruction::iAND:
+                tableArithmeticInstructions<And>((And *) line);
+                break;
+            case Instruction::iXOR:
+                tableArithmeticInstructions<Xor>((Xor *) line);
+                break;
+
+            //desvio
+            case Instruction::iJMP:
+                tableJumpsInstruction<Jmp>((Jmp *) line);
+                break;
+            case Instruction::iJE:
+                tableJumpsInstruction<Je>((Je *) line);
+                break;
+            case Instruction::iJNZ:
+                tableJumpsInstruction<Jnz>((Jnz *) line);
+                break;
+            case Instruction::iJZ:
+                tableJumpsInstruction<Jz>((Jz *) line);
+                break;
+            case Instruction::iJP:
+                tableJumpsInstruction<Jp>((Jp *) line);
+                break;
+            case Instruction::iCALL:
+                tableJumpsInstruction<Call>((Call *) line);
+                break;
+            case Instruction::iINT:
+                tableJumpsInstruction<Int>((Int *) line);
+                break;
+            
+            //movimetação
+            case Instruction::iMOV:
+
+                programCounter += 3;
+                //
+                break;
+
+            case Instruction::iORG:
+                expression = ((Org *) line)->getExpression();
+                //programCounter = line.getValue();
+                
+                break;
+
+            case Instruction::iDW:
+
+                //s = new Symbol(line->getName(), , );
+                //symbolTable.insert(s);
+                break;
+
+            case Instruction::iEQU:
+                //
+                break;
+            
+            case Instruction::iEND:
+                //if (rotulo existe)
+                //  basicoAssemblerStep2();
+                //else
+                //  erro 
+                break;
+
+            
+            default:
+                //
+                break;
+        }
+    }
+
+    /*
     int locationCounter = 0;
     int label;                      //#### template ####
     int opcode;                     //#### template ####
     int operand;                    //#### template ####
     int* entry = NULL;              //#### template ####
     int value, length;
-    
+
     //file == *this->lines
     for(File::iterator line = this->lines->begin(); line != this->lines->end(); ++line)
     {
@@ -58,21 +208,18 @@ int Assembler::basicoAssemblerStep1()
 
         if(entry != NULL)   //Se eh pseudoinstrucao
         {
-            switch (opcode) 
+            switch (opcode)
             {
                 case 'ORG':
-                    // ** LC <-GETOPERANDVALUE (operand) ** 
+                    // ** LC <-GETOPERANDVALUE (operand) **
                     //locationCounter = line->getValue();
                 break;
 
                 case 'END':
                     return basicoAssemblerStep2();
                 break;
-
-                case default:
-                    if(opcode == 'EQU')
-                    {
-                        // ** value <- GETOPERANDVALUE (operand) ** 
+defaultValue
+                        // ** value <- GETOPERANDVALUE (operand) **
                         //value = (operand);
                         length = 0;
                     }else
@@ -81,9 +228,9 @@ int Assembler::basicoAssemblerStep1()
                         //lenght(entry, operand);
                     }
 
-                    if(label != NULL) 
+                    if(label != NULL)
                     {
-                        // ** INSERTTABLE(ST, label, value) ** 
+                        // ** INSERTTABLE(ST, label, value) **
                         //(ST, label, value); //usar this->symbolTable (unordered_map) para ST
                         locationCounter = locationCounter + lenght;
                     }
@@ -99,32 +246,32 @@ int Assembler::basicoAssemblerStep1()
             if(entry != NULL){
                 // ** length <- GETINSTRUCTIONSZE(entry, operand) **
                 length = (entry, operand);
-                
+
                 if(label != NULL)
                     //INSERTTABLE (ST, label, LC)
                     //(ST, label, LC);        //usar this->symbolTable (unordered_map) para ST
-                    
+
                 locationCounter = locationCounter + lenght;
             }
-            else 
+            else
             {
-                //error message, invalid opcode     
+                //error message, invalid opcode
             }
         }
-        
+
     }
 
     */
-    
+
     return 0;
 }
 
-//NECESSÁRIO PARA A ENTREGA 3
+// NECESSÁRIO PARA A ENTREGA 3
 int Assembler::basicoAssemblerStep2()
 {
     /*
 
-    int locationCounter = 0;
+    programCounter = 0; // LC
     int startAddress;
     Instruction instruction;
 
@@ -148,6 +295,9 @@ int Assembler::basicoAssemblerStep2()
             break;
 
             default:
+                switch(instruction) {
+                    case Instruction::iADD:
+                }
                 //if(opcode == 'DC' || opcode == 'DS'){
                     //entry = findtable(POT, opcode);
                 //}else{
@@ -171,424 +321,196 @@ int Assembler::basicoAssemblerStep2()
 
 int Assembler::assemble(int assemblerType)
 {
-    //Switch case com assemblerType
-    //Métodos de assembler devem retornar flags de erro; tratar elas
-    int flag = basicoAssemblerStep1();
+    // Switch case com assemblerType
+    // Métodos de assembler devem retornar flags de erro; tratar elas
+    
+    int flag = basicoAssemblerStep1(); 
     return 0;
 }
-
 
 //=====================================================================
 //                            PREPROCESSOR
 //=====================================================================
 
-std::string Assembler::macroExpandParams(std::vector<Symbol *> params, MacroDef * macroThis) {
+int Assembler::macroExpandParams(MacroCall *macrocall, int k)
+{
 
-    /**Ja definido em Assembler.h:
-    *       std::vector<macroDef *> macroTable;
-    *       std::vector<label *> labelTable;
-    */
+    std::cout << "============ EXPANDS ==========" << std::endl;
 
-   std::vector<Semantic *> macroLines = *(macroThis->getText());
+    RecognitionManager *rm = new RecognitionManager();
 
-   std::string lineThis;
-   std::string outputText = "";
+    std::string input = "", macrocontent, aux;
 
-   std::vector<bool> macroFound;
+    MacroDef *macro = macroTable.find(macrocall->getName())->second;
 
-   int antes, depois;
+    std::vector<std::pair<std::string, std::string> *> * paramValue = macro->getParamValuePairs(macrocall);
 
-   for (int i = 0; i < (int) macroLines.size(); i++)
-   {
+    // ordena os pares (parametro_da_macro, valor) do maior para o menor
+    std::sort(paramValue->begin(), paramValue->end(), 
+        [](std::pair<std::string, std::string> * pair1, std::pair<std::string, std::string> * pair2) {
+            return pair1->first.size() > pair2->first.size();
+    });
 
-        if(macroLines[i]->getType() == Instruction::iMACRO)     //Tabelar a macro
-        {                                                       //MACRO ANINHADA
+    // itera sobre as linhas da macro (MACROCONTENT)
+    for (int i = 0; i < (int)macro->getText()->size(); i++)
+    {
 
-                macroFound.push_back(true);
+        aux = Utils::toLowerCase(macro->getText()->at(i)->getLine());
+        macrocontent = "";
+
+        // insere espaços do lado dos caracteres especiais
+        for(int j = 0; j < aux.size(); j++) {
+            char c = aux[j];
+            if(!Utils::isSpecialCharactere(c)) {
+                macrocontent += c;
+                continue;
+            }
+            macrocontent += std::string(" ") + c + std::string(" ");
         }
-        else if (macroLines[i]->getType() == Instruction::iENDM)
+
+        std::vector<std::string> * macrocontentPieces = Utils::split(macrocontent, ' ');
+
+        macrocontent = "";
+        
+        // para cada linha, itera sobre os pedaços dessa linha
+        for (int j = 0; j < (int) macrocontentPieces->size(); j++)
         {
+            if(Utils::isSpecialCharactere(macrocontentPieces->at(j))) continue;
+
+
+            // tenta substituir o primeiro parametro que bater pelo valor correspondente
+            for (int p = 0; p < (int) paramValue->size(); p++)
+            {
+                aux = macrocontentPieces->at(p);
+                aux = Utils::replaceAll(aux, paramValue->at(p)->first, paramValue->at(p)->second);
+
+                if(aux != macrocontentPieces->at(p)) break;
+
+            }
+
+            macrocontent += aux;
+
+            TEST(std::cout << "macrocontent:  " << macrocontent << std::endl)
+
+        }
+        
+
+        input += macrocontent;
+    }
+
+    return preproccess(rm->analyze(input, false), k);
+}
+
+int Assembler::preproccess(std::vector<Semantic *> *lines, int k)
+{
+
+    std::vector<bool> macroFound; // Pilha de controle das declaracoes de macro
+
+    std::cout << "============ PREPROCESS ==========" << std::endl;
+
+    // tabela
+    for (int i = 0; i < (int)lines->size(); i++, k++)
+    {
+
+        Semantic *item = lines->at(i);
+
+        if (item->getType() == Instruction::iENDM)
+        {
+
+            std::cout << "t) fim de macro: " << item->getLine();
+
             if (macroFound.size() == 0)
             {
                 // Erro
                 std::cout << "Erro: macro mal declarada.";
-                break;
-            }else
-            {
-                macroFound.pop_back();
             }
-        }
-        else     //Nao eh instrucao de definicao de macro
-        {
-            if (macroFound.size() == 0)     //Nao esta dentro de macro aninhada
-            {
-                lineThis = macroLines[i]->getLine();
-
-                for (int iter = 0; iter < (int) params.size(); iter++)
-                {
-                    //antes = ( lineThis.find(params[iter]->name) ) - 1;
-                    //depois = ( lineThis.find(params[iter]->name) ) + 1;
-
-                    if(antes >= -1 && depois <= (int) lineThis.size()+1)       // para validar que é uma posição válida
-                    {
-                        if ((lineThis[antes] == ' ' || lineThis[antes] == ',') && (lineThis[depois] == ' ' || lineThis[depois] == ',' || lineThis[depois] == '\n')){
-                            //lineThis.replace(lineThis.find(params[iter]->name), params[iter]->name.size(), params[iter]->valor);
-                        }
-                    }
-                }
-
-                outputText += lineThis;
-
-            }
-        }
-    }
-
-    return outputText;
-
-}
-
-
-void Assembler::replaceAll(std::string& str, const std::string& from, const std::string& to) {
-
-    if(from.empty())
-        return;
-    size_t start_pos = 0;
-    while((start_pos = str.find(from, start_pos)) != std::string::npos) {
-        str.replace(start_pos, from.length(), to);
-        start_pos += to.length();
-    }
-}
-
-int Assembler::macroExpandParamsDoDaniel(MacroCall * macrocall, int k) {
-
-    std::cout << "============ EXPANDS ==========" << std::endl;
-
-    RecognitionManager * rm = new RecognitionManager();
-
-    std::string input = "", hold;
-
-    MacroDef * macro = macroTable.find(macrocall->getName())->second;
-
-    for(int i = 0; i < (int) macro->getText()->size(); i++) {
-
-        hold = macro->getText()->at(i)->getLine();
-
-        std::transform(hold.begin(), hold.end(), hold.begin(),
-            [](unsigned char c){
-                return std::tolower(c);
-        });
-
-        for(int j = 0; j < (int) macro->getArgs().size(); j++) {
-
-            std::string param = "";
-
-            for(int p = 0; p < (int) macrocall->getParams()->at(j)->size(); p++) {
-                param += macrocall->getParams()->at(j)->at(p)->getToken();
-            }
-
-            std::cout << "param:  " << param << std::endl;
-
-            replaceAll(hold, macro->getArgs()[j], param);
-        }
-
-        input += hold;
-    }
-
-    return preproccessDoDaniel(rm->analyze(input, false), k);
-
-}
-
-int Assembler::preproccessDoDaniel (std::vector<Semantic *> * lines, int k) {
-
-    std::vector<bool> macroFound;   //Pilha de controle das declaracoes de macro
-
-    std::cout << "============ PREPROCESS ==========" << std::endl;
-
-
-    // tabela
-    for(int i = 0; i < (int) lines->size(); i++, k++) {
-
-        Semantic * item = lines->at(i);
-
-
-        if(item->getType() == Instruction::iENDM) {
-
-            std::cout << "t) fim de macro: " << item->getLine();
-
-            if (macroFound.size() == 0){
-                // Erro
-                std::cout << "Erro: macro mal declarada.";
-            }
-
 
             macroList.back()->setText(item);
             macroFound.pop_back();
 
-            //lines->erase(lines->begin()+i);
-            //i--;
+            // lines->erase(lines->begin()+i);
+            // i--;
 
             continue;
-
         }
 
-        if(item->getType() == Instruction::iMACRO) {
+        if (item->getType() == Instruction::iMACRO)
+        {
 
             std::cout << "t) macro: " << item->getLine();
 
-            Macro * itemMacro = (Macro *) item;
-            MacroDef * md = new MacroDef(itemMacro->getName(), *(itemMacro->getParams()));
+            Macro *itemMacro = (Macro *)item;
+            MacroDef *md = new MacroDef(itemMacro->getName(), *(itemMacro->getParams()));
             macroTable[itemMacro->getName()] = md;
             macroList.emplace_back(md);
             macroFound.emplace_back(true);
 
-            //lines->erase(lines->begin()+i);
-            //i--;
+            // lines->erase(lines->begin()+i);
+            // i--;
 
             continue;
         }
 
-        //std::cout << "t) line: " << item->getLine();
+        // std::cout << "t) line: " << item->getLine();
 
-        if(macroFound.size() > 0) {
+        if (macroFound.size() > 0)
+        {
             std::cout << "t) macrocontent: " << item->getLine();
             macroList.back()->setText(item);
-            //lines->erase(lines->begin()+i);
-            //i--;
+            // lines->erase(lines->begin()+i);
+            // i--;
         }
-
     }
 
     // expande
-    for(int i = 0; i < (int) lines->size(); i++) {
+    for (int i = 0; i < (int)lines->size(); i++)
+    {
 
-        Semantic * item = lines->at(i);
+        Semantic *item = lines->at(i);
 
-
-        if(item->getType() == Instruction::iMACRO || item->getType() == Instruction::iENDM || item->getType() == Instruction::iMACROCONTENT) {
+        if (item->getType() == Instruction::iMACRO || item->getType() == Instruction::iENDM || item->getType() == Instruction::iMACROCONTENT)
+        {
             continue;
         }
 
-        if(item->getType() == Instruction::iMACROCALL) {
+        if (item->getType() == Instruction::iMACROCALL)
+        {
 
             std::cout << "c) call: " << item->getLine();
 
-            MacroCall * macroCall = (MacroCall *) item;
+            MacroCall *macroCall = (MacroCall *)item;
 
-            macroExpandParamsDoDaniel(macroCall, k);
+            macroExpandParams(macroCall, k);
 
             continue;
-
         }
 
         std::cout << "c) line: " << item->getLine();
 
         output += item->getLine();
-
     }
 
     return k;
-
 }
 
-void Assembler::init(bool willExecute) {
+void Assembler::init(bool willExecute)
+{
 
     PRODUCTION(double startTime = InterfaceBus::getInstance().getMilliseconds())
-    this->preproccessDoDaniel(lines, 0);
+    this->preproccess(lines, 0);
     PRODUCTION(double totalTime = (InterfaceBus::getInstance().getMilliseconds() - startTime) / 1000)
 
     TEST(std::cout << "============ INIT ==========" << std::endl)
     TEST(std::cout << output << std::endl)
     TEST(std::cout << "============ INIT ==========" << std::endl)
 
-    if(willExecute) return;
+    if (willExecute)
+        return;
 
     PRODUCTION(InterfaceBus::getInstance().dispatchMacroExpanded(output))
     PRODUCTION(InterfaceBus::getInstance().dispatchLog("Macros expandidas com sucesso!", LogStatus::SUCCESS))
     PRODUCTION(
         InterfaceBus::getInstance().dispatchLog(
             std::string("Tempo:    ") + std::to_string(totalTime) + std::string(" segundos"),
-            LogStatus::INFO
-    ))
-}
-
-std::string Assembler::preproccess() {
-
-    /**Ja definido em Assembler.h:
-     *       std::vector<macroDef *> macroTable;
-     *       std::vector<label *> labelTable;
-     */
-    std::string outputResult = "";
-
-    RecognitionManager * rm = new RecognitionManager();
-
-    std::vector<bool> macroFound;   //Pilha de controle das declaracoes de macro
-
-
-    for (int i = 0; i < (int) lines->size(); i++)   //Leitura principal do arquivo
-    {
-        Semantic *Item = (*lines)[i];
-        std::cout << "-> " << Item->getLine() << std::endl;
-
-        if (Item->getType() == iMACRO) {          //Definição de macro
-
-            if (macroFound.size() == 0)
-            {
-
-                Macro * itemMacro = (Macro *)((*lines)[i]);
-                macroList.push_back(new MacroDef(itemMacro->getName(), *(itemMacro->getParams())));
-                macroFound.push_back(true);
-            }
-            else
-            {
-                macroList.back()->setText(Item);
-                macroFound.push_back(true);
-            }
-        }
-
-        else if (Item->getType() == iENDM) {  //eu acho que ele não ta reconhecendo o iENDM como fim de macro
-
-            if (macroFound.size() == 0){
-                // Erro
-                std::cout << "Erro: macro mal declarada.";
-                break;
-            } else {
-
-                macroList.back()->setText(Item);
-                macroFound.pop_back();
-
-            }
-
-        }
-        else if (Item->getType() == Instruction::iMACROCALL){
-
-            if (macroFound.size() == 0) //Nao esta no processo de tabelamento
-            {                           //Inicia passo 1; salvar os parametros da chamada
-                bool macroExists = false;
-
-                MacroCall * itemMacroCall = (MacroCall *)((*lines)[i]);
-
-                MacroDef *macroThis;    //Macro que estava na tabela
-
-                for (std::vector<MacroDef*>::iterator it = macroList.begin(); it != macroList.end(); it++)   //Procura macro na tabela
-                {
-                    if( itemMacroCall->getName() == (*it)->getName() )
-                    {
-                        macroThis = *it;
-                        macroExists = true;
-                        std::cout << "passou por aqui no teste, busca na tabela" << std::endl;
-                    }
-                }
-                if (!macroExists)
-                {
-                    std::cout << "Erro: macro nao encontrada na tabela." << std::endl;
-                    break;
-                }
-
-                std::vector<Symbol *> params;
-
-                for (int iter = 0; iter < (int) macroThis->getArgs().size(); iter++)   //Criando a lista de parâmetros
-                {
-                    //params.push_back(new Label);
-                    //params.back()->name = macroThis->getArgs()[iter];
-                    for (int iterToken = 0; iterToken < (int) ((MacroCall*) Item)->getParams()->at(iter)->size(); iterToken++)
-                    {
-                        std::string tokenResult;
-
-                        //params.back()->valor = tokenResult;
-                    }
-                }
-                std::cout << "passou por aqui no teste" << std::endl;
-
-                //Começar expansão
-
-                std::string textOnExpansion = "";
-                //std::string lineResult;
-
-                //for (int iter = 0; iter < macroThis->getText().size(); iter++)
-                //{
-                    //Percorrer cada linha de string da macro e substituir as palavras com os parametros
-                    //Guardar a macro com as palavras substituidas em lineResult
-
-                //lineResult = macroExpandParams(params, macroThis);
-
-                textOnExpansion = macroExpandParams(params, macroThis);
-
-                //textOnExpansion += lineResult + '\n';
-                //}
-
-                //std::vector<Semantic *> * s_array = rm->analyze(textOnExpansion, false);
-                //std::vector<Semantic *> * prior = new std::vector(lines->begin(), lines->begin()+i-1);
-                //std::vector<Semantic *> * after = new std::vector(lines->begin()+i+1, lines->end());
-                //std::vector<Semantic *> * tempDelete = lines;
-                //delete tempDelete;
-                //std::copy(prior->begin(),prior->end(),lines->begin());
-                //std::copy(s_array->begin(),s_array->end(),lines->end());
-                //std::copy(after->begin(),after->end(),lines->end());
-
-                //for(int x=0; x < (*s_array).size(); x++)
-                //{
-                //    (*lines)[i] = (*s_array)[x];
-                //}
-
-                std::vector<Semantic *> * s_array = rm->analyze(textOnExpansion, false);
-
-                std::vector<Semantic *>::iterator linesIter = lines->begin()+i;
-                for (int iter = 0; iter < (int) s_array->size(); iter++)
-                    linesIter = lines->insert(linesIter, (*s_array)[iter]);
-                lines->erase(lines->begin()+i);
-
-            }
-            else
-            {
-                macroList.back()->setText(Item);
-            }
-
-        }
-        else
-        {
-            if (macroFound.size() != 0)
-            {
-                macroList.back()->setText(Item);
-            }
-        }
-    }
-
-    if (macroFound.size() != 0)
-    {
-        std::cout << "Erro: macro n foi definida direito (FIM DO ARQUIVO)" << std::endl;
-    }
-
-    for (int i = 0; i < (int) lines->size(); i++)
-    {
-        Semantic *Item = (*lines)[i];
-
-        if (Item->getType() == Instruction::iMACRO)
-        {
-            macroFound.push_back(true);
-        }
-        if (Item->getType() == Instruction::iENDM)
-        {
-            macroFound.pop_back();
-        }
-
-        if (macroFound.size() == 0)
-        {
-            if (Item->getType() != Instruction::iMACROCALL)
-            {
-                outputResult += Item->getLine();
-            }
-        }
-    }
-
-    //Teste das macros tabeladas
-
-    //std::cout << "Total: " << macroTable.size() << std::endl << std::endl;
-    //for (int i = 0; i < (int) macroTable.size(); i++)
-    //{
-    //    macroDef * item = macroTable[i];
-    //    std::cout << item << std::endl;
-    //}
-
-    return outputResult;
-
+            LogStatus::INFO))
 }
