@@ -5,6 +5,9 @@
 #include <vector>
 #include <string>
 #include <cstring>
+#include <utility>
+
+#include "../Utils.h"
 #include "../analyzer/Semantic.h"
 
 class MacroDef
@@ -29,6 +32,8 @@ public:
     // métodos
     std::string macroLine();
     void updateMacro(std::vector<std::string> args);
+
+    std::vector<std::pair<std::string, std::string> *> * getParamValuePairs(MacroCall * macrocall);
 
 };
 

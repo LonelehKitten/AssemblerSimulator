@@ -5,10 +5,9 @@
 #include <vector>
 #include <iostream>
 #include <string>
-#include <algorithm>
-#include <cctype>
 #include "MacroDef.h"
 #include "Symbol.h"
+#include "../Utils.h"
 
 class Assembler
 {
@@ -29,8 +28,9 @@ private:
     int assemblerError;
 
     int macroExpandParams(MacroCall * macrocall, int k);
-
-    void replaceAll(std::string& str, const std::string& from, const std::string& to);
+    
+    template <class T> void tableArithmeticInstructions(T *t);
+    template <class T> void tableJumpsInstruction(T *t);
 
     int basicoAssemblerStep1();         //Está presente em Assembler.cpp
     int basicoAssemblerStep2();         //Está presente em Assembler.cpp
@@ -45,10 +45,8 @@ private:
     //POSIÇÃO AINDA NÃO ESTÁ DETECTÁVEL NO MÉTODO, PRECISA ADICIONAR O ÍNDICE COMO PARÂMETRO AQUI
     std::vector<unsigned char> assembleByteCode(Semantic * line);
 
-
 public:
     Assembler(std::vector<Semantic *> * lines);
-
     //Método principal para chamar o montador (PRÉPROCESSADOR PRECISA SER CHAMADO ANTES)
     //Recebe como parâmetro o tipo de montador que será executado
     //"0" para montador simples de 1 passo
