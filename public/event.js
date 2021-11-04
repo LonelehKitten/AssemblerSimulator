@@ -194,6 +194,31 @@ ipcMain.on('invoke_open_file', async (event, data) => {
     }
 });
 
+ipcMain.on("windowsAction",(event,name) => {
+    const win = getCurrentBrowser();
+
+    switch(name){
+        case "minimize":
+            win.minimize();
+        break;
+        case "maximize":
+        case "restore":
+            let result;
+            if(win.isMaximized()){
+                win.restore();
+                result = false;
+            }else{
+                win.maximize();
+                result = true;
+            }
+            event.sender.send('windowsAction',result);
+        break;
+        case "close":
+            win.close();
+        break;
+    }
+})
+
 const ASMRFinish = () => {
     if(isAsmr) asmr.finish();
     clearInterval(LogEventObserver);
