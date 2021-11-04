@@ -1,12 +1,7 @@
 import React, { useRef, useState } from 'react';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
+
 import { makeStyles } from '@material-ui/core/styles';
 import TabContainer from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
-import Tooltip from '@material-ui/core/Tooltip';
-
-import AddIcon from '@material-ui/icons/Add';
 
 import { useContext } from '../../utils/context';
 
@@ -14,7 +9,7 @@ import Item from './item';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    backgroundColor: '#282a36 ',
+    backgroundColor: '#21222c ',
     color: '#fff',
     minHeight: '2rem',
     '& 	.MuiTab-root': {
@@ -31,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
 const { ipcRenderer } = window.electron;
 
 const Tabs = ({ value, onChange, listFiles }) => {
-  const { addFile, currentID, alertShow } = useContext();
+  const { addFile, currentFile, alertShow } = useContext();
   const classes = useStyles();
 
   const inputFile = useRef(null);
@@ -53,6 +48,8 @@ const Tabs = ({ value, onChange, listFiles }) => {
     event.target.value = '';
   };
 
+  const handleSelected = (fileId) => {};
+
   return (
     <div
       style={{
@@ -60,7 +57,7 @@ const Tabs = ({ value, onChange, listFiles }) => {
       }}
     >
       <TabContainer
-        value={currentID || ''}
+        value={currentFile?.id || ''}
         indicatorColor='secondary'
         textColor='inherit'
         onChange={onChange}
@@ -68,6 +65,7 @@ const Tabs = ({ value, onChange, listFiles }) => {
         variant='scrollable'
         scrollButtons='auto'
         className={classes.root}
+        onDoubleClick={() => addFile('', '', 'Novo Arquivo')}
       >
         {Object.entries(listFiles).map(([id, file], key) => (
           <Item

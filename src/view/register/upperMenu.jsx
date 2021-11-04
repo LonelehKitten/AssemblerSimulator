@@ -82,7 +82,7 @@ const UpperMenu = ({ register }) => {
     register.SR.asFlags[0]
   ], [register]);
 
-  console.log(register)
+//  console.log(register)
 
   return (
     <>

@@ -29,6 +29,26 @@ Essa é a definição dos times, mas no meio do trabalho também houve revesamen
 Para iniciar o aplicativo em modo de desenvolvimento, utilize o comando _npm run dev_.
 Para complicar o aplicativo, utilize o comando _npm run electron:build_
 
+## Comandos
+
+### Padrão
+* __npm run dev__ - Inicia o ReactJS + Electron
+* __npm run deploy__ - Build o ReactJS + Electron, e Deploy
+* __npm run c++:build__ - Re-Build o C++
+
+### ReactJS
+* __npm run react:start__ - Inicia o ReactJS
+* __npm run react:build__ - Build o ReactJS
+* __npm run react:test__ - Testa o ReactJS
+* __npm run react:eject__ - Ejeta o ReactJS
+
+#### Electron
+* __npm run electron:serve__ - Inicia o Reactjs + Electron
+* __npm run electron:build__ - Build Reactjs + Electron
+* __npm run electron:start__ - Inicia o Electron
+* __npm run electron:deploy__ - Build o Electron e Deploy
+
+
 ### Organização na pasta
 
 - **Bin**: Referente ao código C++.
