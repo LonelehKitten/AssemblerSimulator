@@ -37,7 +37,7 @@ Para iniciar o ambiente, utilize o comando `npm install`
 
 Para iniciar o aplicativo em modo de desenvolvimento, utilize o comando `npm run dev`
 
-Para complicar o aplicativo, utilize o comando `npm run electron:build`
+Para empacotar o aplicativo, utilize o comando `npm run electron:build`
 
 ## Comandos
 
