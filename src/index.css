@@ -1,5 +1,8 @@
 /* test */
-
+@font-face {
+  font-family: 'Segoe UI';
+  src: url(./SegMDL2.ttf);
+}
 body {
   margin: 0;
   font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Segoe UI',
@@ -14,6 +17,7 @@ body {
 #root {
   width: 100vw;
   height: 100vh;
+  overflow: hidden;
 }
 
 code {

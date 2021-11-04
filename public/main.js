@@ -8,13 +8,13 @@ const {ASMRFinish} = require('./event');
 function createWindow() {
   // Create the browser window.
   const window = new BrowserWindow({
-    webPreferences: {},
     width: 1200,
     height: 800,
     minHeight: 600,
     minWidth: 800,
     useContentSize: true,
     resizable: true,
+    frame: false,
     webPreferences: {
       contextIsolation: false,
       enableRemoteModule: true,

@@ -6,11 +6,11 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import Ace from './ace';
 import Tabs from './tabs';
-import Memory from './memory';
+import Memory from '../memory';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    backgroundColor: '#282a36 ',
+    backgroundColor: '#21222c',
     color: '#fff',
     minHeight: '2rem',
     '& 	.MuiTab-root': {
@@ -18,19 +18,38 @@ const useStyles = makeStyles((theme) => ({
       padding: '0 12px',
       minHeight: '2rem',
     },
+    '& .MuiTab-textColorInherit.Mui-selected': {
+      backgroundColor: '#282a36 !important',
+      borderTop: '1px solid hotpink !important',
+    },
   },
   plus: {
     minWidth: 'auto',
   },
 }));
+/*
+const Editor = () => {
+  const { listFiles, changeFile } = useContext();
+  const [menu, setMenu] = useState('');
 
+  const handleChange = (event, newValue) => {
+    setMenu(newValue);
+    changeFile(newValue);
+  };
+  return (
+    <>
+      <Tabs value={menu} onChange={handleChange} listFiles={listFiles} />
+
+      <Ace onChange={() => console.log('aa')} />
+    </>
+  )
+}
+*/
 const Editor = (props) => {
   const classes = useStyles();
-  const { listFiles, changeFile, EtoC } = useContext();
+  const { listFiles, changeFile } = useContext();
   const [menu, setMenu] = useState('editor');
   const [value, setValue] = useState('');
-
-  const aceRef = useRef();
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -53,20 +72,19 @@ const Editor = (props) => {
         scrollButtons='auto'
         className={classes.root}
       >
-        <Tab value='editor' label='Editor' />
+        <Tab className={classes.selected} value='editor' label='Editor' />
         <Tab value='memory' label='Memoria' />
       </TabContainer>
       {menu == 'editor' && (
         <>
-          <Tabs value={value} onChange={handleChange} listFiles={listFiles} />
+          <Tabs onChange={handleChange} listFiles={listFiles} />
 
-          <Ace ref={aceRef} onChange={() => console.log('aa')} />
+          <Ace onChange={() => console.log('aa')} />
         </>
       )}
       {menu == 'memory' && <Memory />}
     </div>
   );
 };
-//<Memory />
 
 export default Editor;
