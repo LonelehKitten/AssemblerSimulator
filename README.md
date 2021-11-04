@@ -1,4 +1,5 @@
 # Sobre o Trabalho
+
 ...
 
 # Equipe
@@ -7,18 +8,24 @@
 **Vice-Líder**: KEVIN SOARES PEREIRA
 
 ### Time A
+
 Na primeira parte do trabalho, o **Time A** foi responsável pelo **Analyzer** e a **Semantica** do código Assembly.
+
 - DANIEL NOGUES DE OLIVEIRA
 
 ### Time B
-Responsável pelo **Assembler** e **Maquina Virtual** 
+
+Responsável pelo **Assembler** e **Maquina Virtual**
+
 - KEVIN SOARES PEREIRA
 - JULIANO STRELOW BUSS
 - EMERSON DE VASCONCELOS VIEIRA
 - MATHEUS AUGUSTO CEZAR FUKUDA
 
 ### Time C
-Responsável pelo Front-end
+
+Responsável pelo **Front-end**
+
 - FERNANDO RIBEIRO OLLE
 - LUCAS ALVIENE PEREIRA
 
@@ -26,28 +33,33 @@ Essa é a definição dos times, mas no meio do trabalho também houve revesamen
 
 # Como rodar o Electron em desenvolvimento
 
-Para iniciar o aplicativo em modo de desenvolvimento, utilize o comando _npm run dev_.
-Para complicar o aplicativo, utilize o comando _npm run electron:build_
+Para iniciar o ambiente, utilize o comando `npm install`
+
+Para iniciar o aplicativo em modo de desenvolvimento, utilize o comando `npm run dev`
+
+Para complicar o aplicativo, utilize o comando `npm run electron:build`
 
 ## Comandos
 
 ### Padrão
-* __npm run dev__ - Inicia o ReactJS + Electron
-* __npm run deploy__ - Build o ReactJS + Electron, e Deploy
-* __npm run c++:build__ - Re-Build o C++
+
+- **npm run dev** - Inicia o ReactJS + Electron
+- **npm run deploy** - Build o ReactJS + Electron, e Deploy
+- **npm run c++:build** - Re-Build o C++
 
 ### ReactJS
-* __npm run react:start__ - Inicia o ReactJS
-* __npm run react:build__ - Build o ReactJS
-* __npm run react:test__ - Testa o ReactJS
-* __npm run react:eject__ - Ejeta o ReactJS
+
+- **npm run react:start** - Inicia o ReactJS
+- **npm run react:build** - Build o ReactJS
+- **npm run react:test** - Testa o ReactJS
+- **npm run react:eject** - Ejeta o ReactJS
 
 #### Electron
-* __npm run electron:serve__ - Inicia o Reactjs + Electron
-* __npm run electron:build__ - Build Reactjs + Electron
-* __npm run electron:start__ - Inicia o Electron
-* __npm run electron:deploy__ - Build o Electron e Deploy
 
+- **npm run electron:serve** - Inicia o Reactjs + Electron
+- **npm run electron:build** - Build Reactjs + Electron
+- **npm run electron:start** - Inicia o Electron
+- **npm run electron:deploy** - Build o Electron e Deploy
 
 ### Organização na pasta
 

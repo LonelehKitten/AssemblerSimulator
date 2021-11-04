@@ -17,7 +17,7 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: 5,
   },
   selected: {
-    backgroundColor: '#21222c !important',
+    backgroundColor: '#282a36 !important',
     borderTop: '1px solid hotpink !important',
     '& .MuiTab-textColorInherit.Mui-selected': {},
   },
@@ -37,8 +37,8 @@ const Item = (
   const handleClose = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    file.close({setListFiles,changeFile,currentFile});
-/*    if (!isSave || confirm('Você não salvou esse arquivo, deseja continua?')) {
+    file.close({ setListFiles, changeFile, currentFile });
+    /*    if (!isSave || confirm('Você não salvou esse arquivo, deseja continua?')) {
       const newListFiles = { ...listFiles };
       delete newListFiles[value];
       setListFiles(newListFiles);
