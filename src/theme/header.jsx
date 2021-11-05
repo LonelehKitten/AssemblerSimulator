@@ -109,7 +109,7 @@ const Header = () => {
     };
     const handleClose = () => {
         setAnchorEl(null);
-        setType("");
+        //setType("");
     };
 
     const handleButton = (name) => () => {
@@ -120,8 +120,8 @@ const Header = () => {
 
     return (
         <div className={classes.root}>
-            <AppBar position='static' style={{ backgroundColor: '#191a21' }}>
-                <Toolbar variant='dense' className={classes.toolbar} onDoubleClick={handleButton("restore")}>
+            <AppBar position='static' style={{ backgroundColor: '#191a21' }} onDoubleClick={handleButton("restore")}>
+                <Toolbar variant='dense' className={classes.toolbar}>
                     <div style={{ flexGrow: 1 }}>
                         <Typography variant="p" className={classes.title}>
                             ASMR
