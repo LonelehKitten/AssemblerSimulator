@@ -2,9 +2,19 @@
 #define EXPRESSION_EVALUATOR_H
 
 #include <vector>
-#include "../analyzer/Token.h"
+#include <string>
+#include <unordered_map>
+#include "Symbol.h"
+#include "../Enums.h"
 
-typedef std::vector<Token *> Expression;
+class PseudoToken : public Token {
+
+    private:
+        USint resolvedValue;
+
+    public:
+        PseudoToken(USint resolvedValue);
+};
 
 /*
 
@@ -18,8 +28,12 @@ typedef std::vector<Token *> Expression;
         3.4 se o operando for literal, traduzir para um literal processável (a + 2)
         3.5 se o operando for um valor já resolvido, reutilizá-lo
         3.6 efetuar operação
-        3.7 substituir os tokens envolvidos na operação por um pseudo-token que indique o valor resolvido
-    4. repetir o processo até que todos os parenteses estejam resolvidos
+        3.7 substituir os tokens envolvidos na operação por um pseudo-token que 
+        indique o valor resolvido
+    4. remover parenteses que envolvem valor resolvido
+    5. se ainda houver parenteses voltar ao passo 1
+    6. se não houver parenteses, resolver as operações na raiz da expressão
+    7. guardar resultado final
 
 
     ORDEM DE PRIORIDADE
@@ -34,8 +48,11 @@ class ExpressionEvaluator {
     private:
         bool priority1, priority2, priority3, priority4;
         Expression * expression;
+        SymbolTable * symbolTable;
 
-        int parenthesesCount;
+        USint value;
+
+        void solve();
 
         void solvePriority1();
         void solvePriority2();
@@ -43,7 +60,9 @@ class ExpressionEvaluator {
         void solvePriority4();
 
     public:
-        ExpressionEvaluator(Expression * expression);
+        ExpressionEvaluator(Expression * expression, SymbolTable * symbolTable);
+
+        USint getValue();
 };
 
 #endif /* EXPRESSION_EVALUATOR_H */
