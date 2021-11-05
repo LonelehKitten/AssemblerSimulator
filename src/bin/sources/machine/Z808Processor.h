@@ -21,21 +21,6 @@ typedef long int Z808Operation;     //Operaçoes dentro da VM
 class Z808Processor
 {
 private:
-    enum R                                  //Para usar de indice na tabela de registradores
-    {
-        //Registrador acumulador AX
-        AX,
-        //Registrador de dados DX
-        DX,
-        //Registrador de pilha SP
-        SP,
-        //Registrador de indice SI
-        SI,
-        //Registrador contador de programa IP
-        IP,
-        //Registrador das flags de estado SR
-        SR
-    };
     enum SRFlags
     {
         //Carry flag
@@ -75,9 +60,11 @@ private:
     Z808Word storeValue;
 
     //Indica o tipo de interrupção
-    //"false" para read
-    //"true" para write
-    bool interruptionMode;
+    //"0" para read
+    //"1" para write
+    //"2" para busca do segmento de dados
+    //"3" para busca do segmento de pilha
+    int interruptionMode;
 
     //Flag para caso alguma instrução esteja errada
     bool errorInstruction;
@@ -93,6 +80,28 @@ private:
 
 public:
     Z808Processor();
+
+    enum R                                  //Para usar de indice na tabela de registradores
+    {
+        //Registrador acumulador AX
+        AX,
+        //Registrador de dados DX
+        DX,
+        //Registrador de pilha SP
+        SP,
+        //Registrador de segmento de código CS
+        CS,
+        //Registrador de segmento de Dados DS
+        DS,
+        //Registrador de segmento de pilha SS
+        SS,
+        //Registrador de indice SI
+        SI,
+        //Registrador contador de programa IP
+        IP,
+        //Registrador das flags de estado SR
+        SR
+    };
 
     //Pega os registradores
     std::vector<Z808Word> &getRegisters();
@@ -111,7 +120,7 @@ public:
     //Pega o valor da memória da última instrução de escrita
     Z808Word getStoreValue();
     //Pega o tipo de interrupção
-    bool getInterruptionMode();
+    int getInterruptionMode();
     //Reseta os valores do processador
     void reset();
     //Reseta a flag de interrupção

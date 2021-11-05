@@ -2,7 +2,8 @@
 
 Z808Processor::Z808Processor()
 {
-    Z808Registers = std::vector<Z808Word>(6,0);
+    Z808Registers = std::vector<Z808Word>(9,0);
+    Z808Registers[SS] = SP_BASEADDR;
     Z808Registers[SP] = SP_BASEADDR;
     interruptionMode = false;
     storeAddr = 0;
@@ -36,7 +37,7 @@ bool Z808Processor::isInterrupt()
     return Z808Registers[SR].test(IF);
 }
 
-bool Z808Processor::getInterruptionMode() 
+int Z808Processor::getInterruptionMode() 
 {
     return interruptionMode;
 }
@@ -581,6 +582,10 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
                 //Atualizando registrador de flags
                 setSR(operator1, operator2, AND);
             break;
+
+            default:
+                errorInstruction = true;
+            break;
         }
 
     }
@@ -670,6 +675,10 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
                 //Atualizando registrador de flags
                 setSR(operator1, operator2, OR);
             break;
+
+            default:
+                errorInstruction = true;
+            break;
         }
     }
     break;
@@ -736,6 +745,10 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
             
                 //Atualizando registrador de flags
                 setSR(operator1, operator2, XOR);
+            break;
+
+            default:
+                errorInstruction = true;
             break;
         }
     }
@@ -971,6 +984,10 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
                 Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
 
             break;
+
+            default:
+                errorInstruction = true;
+            break;
         }
     }                                                                                                               
     break;
@@ -1098,6 +1115,10 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
 
                 Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
             break;
+            
+            default:
+                errorInstruction = true;
+            break;
         }
     }
     break;
@@ -1193,6 +1214,12 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
 
         break;
 
+        case 0x04 :             //mov AX, [SI]
+            Z808Registers[AX] = Z808Registers[memory[SI]];
+
+            Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
+        break;
+
         case 0xD0 :             //mov DX, AX
             Z808Registers[DX] = Z808Registers[AX];
 
@@ -1200,14 +1227,235 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
 
         break;
 
+        case 0xC6:              //mov AX, SI
+            Z808Registers[AX] = Z808Registers[SI];
+
+            Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
+        break;
+
         case 0xC4:              //mov AX, SP
+            Z808Registers[AX] = Z808Registers[SP];
+
+            Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
+        break;
+
+        case 0xE0:              //mov SP, AX
+            Z808Registers[SP] = Z808Registers[AX];
+
+            Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
+        break;
+
+        case 0x84:              //mov AX, mem[SI]
+                                //AX = memoria(mem + SI.to_ulong())
+        {
+            opbytes += 2;
+            
+            if (i+opbytes > memory.size())
+            {
+                errorInstruction = true;
+                break;
+            }
+
+            operator1 = Z808Registers[SI].to_ulong();
+
+            operator2 = 0;
+            operator2 |= memory[i+3];           //pegando opd
+            operator2 <<= 8;
+            operator2 |= memory[i+2];
+            
+            Z808Registers[AX] = operator1 + operator2;
+
+            Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
             break;
-        //Bastante coisa pra implementar...
+        }
+        
+        default:
+            errorInstruction = true;
+        break;
         }
     }
     break;
-    
 
+    case 0x89:
+    {
+        opbytes = 2;               
+
+        if (i+opbytes > memory.size())
+        {
+            errorInstruction = true;
+            break;
+        }
+
+        Z808Byte op = memory[i+1];
+        
+        switch(op)
+        {
+
+        case 0x84: //mov [SI], AX
+            operator1 = Z808Registers[AX].to_ulong();
+            memory[Z808Registers[SI].to_ulong()+1] = operator1;
+            operator1 <<= 8;
+            memory[Z808Registers[SI].to_ulong()] = operator1;
+
+            Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
+
+        break;
+        
+        case 0x04: //mov mem[SI], AX
+        {
+            opbytes += 2;
+
+            if (i+opbytes > memory.size())
+            {
+                errorInstruction = true;
+                break;
+            }
+            
+
+            operator1 = Z808Registers[SI].to_ulong();
+
+            operator2 = 0;
+            operator2 |= memory[i+3];           //pegando opd
+            operator2 <<= 8;
+            operator2 |= memory[i+2];
+
+            Z808Operation operator3 = Z808Registers[AX].to_ulong();
+
+            memory[operator1 + operator2 + 1] = operator3;
+            operator3 <<= 8;
+            memory[operator1 + operator2] = operator3;
+
+            Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);                
+        }
+        break;
+
+        default:
+            errorInstruction = true;
+        break;
+        }
+
+    }
+    break;
+
+    case 0xA1: // mov AX, mem
+    {
+        opbytes = 3;               
+
+        if (i+opbytes > memory.size())
+        {
+            errorInstruction = true;
+            break;
+        }
+
+        operator1 |= memory[i+2];           //pegando mem
+        operator1 <<= 8;
+        operator1 |= memory[i+1];
+        operator1 *= 2;
+
+        operator2 |= memory[operator1+1];
+        operator2 <<= 8;
+        operator2 |= memory[operator1];
+
+        Z808Registers[AX] = operator2;
+
+        Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
+    }
+
+    case 0xB8:  //mov AX, cte
+    {
+        opbytes = 3;               
+
+        if (i+opbytes > memory.size())
+        {
+            errorInstruction = true;
+            break;
+        }
+
+        operator1 |= memory[i+2];   //memória vai ser little endian
+        operator1 <<= 8;
+        operator1 |= memory[i+1];
+
+        Z808Registers[AX] = operator1;
+
+        Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
+    }
+    break;
+
+    case 0x8E: // mov SD e mov DS
+    {    
+        opbytes = 2;               
+
+        if (i+opbytes > memory.size())
+        {
+            errorInstruction = true;
+            break;
+        }
+
+        Z808Byte op = memory[i+1];
+        
+        switch(op)
+        {
+        case 0xD0 :             //mov SS, AX
+            Z808Registers[SS] = Z808Registers[AX];
+
+            Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
+
+        break;
+        
+        case 0xD8 :             //mov DS, AX
+            Z808Registers[DS] = Z808Registers[AX];
+
+            Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
+
+        break;
+
+        default:
+            errorInstruction = true;
+        break;
+        }
+    }
+    break;
+
+    case 0x8C: // mov AX, reg_segmento
+    {    
+        opbytes = 2;               
+
+        if (i+opbytes > memory.size())
+        {
+            errorInstruction = true;
+            break;
+        }
+
+        Z808Byte op = memory[i+1];
+        
+        switch(op)
+        {
+        case 0xD0 :             //mov AX, SS
+            Z808Registers[AX] = Z808Registers[SS];
+
+            Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
+
+        break;
+        
+        case 0xD8 :             //mov AX, DS
+            Z808Registers[AX] = Z808Registers[DS];
+
+            Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
+
+        break;
+
+        case 0xC8 :             //mov AX, CS
+            Z808Registers[AX] = Z808Registers[CS];
+
+            Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
+
+        break;
+
+        default:
+            errorInstruction = true;
+        break;
+        }
+    }
     break;
 
     case 0xCD:         //int opd
@@ -1238,6 +1486,20 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
                 Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
             break;
             
+            case 5:                         // int 5 - mudança de segmento de dados (registrador DS)
+                interruptionMode = true;
+                Z808Registers[SR].set(IF);    //Seta o bit para interrupcao
+                Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
+            
+            break;
+            
+            case 6:                         // int 6 - mudança de segmento de pilha (registrador SS)
+                interruptionMode = true;
+                Z808Registers[SR].set(IF);    //Seta o bit para interrupcao
+                Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
+
+            break;
+
             default:
                 errorInstruction = true;
             break;

@@ -14,9 +14,11 @@ class Z808Machine
 private:
     IO_T ioData;
     unsigned short ioAddr;
-    //"false" para read
-    //"true" para write
-    bool ioMode = false;
+    //"0" para read
+    //"1" para write
+    //"2" para busca do segmento de dados
+    //"3" para busca do segmento de pilha
+    int ioMode;
 
     bool programEnd;
 
