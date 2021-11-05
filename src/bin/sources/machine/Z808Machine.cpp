@@ -1,6 +1,6 @@
 #include "Z808Machine.h"
 #include "Z808Response.h"
-#include "../InterfaceBus.h"
+//#include "../InterfaceBus.h"
 #include <iostream>
 #include <cstdlib>
 #include <thread>
@@ -15,7 +15,7 @@ Z808Machine::Z808Machine()
 
     this->ioAddr = 0;
     this->ioData = 0;
-    this->ioMode = false;
+    this->ioMode = 0;
 }
 
 void Z808Machine::memoryUpdate(std::vector<Z808Byte> *memory, std::vector<unsigned char> *programBytes)
@@ -131,11 +131,14 @@ int Z808Machine::run(bool isBySteps)
         registradores = processor->getRegisters();
 
         //************Setters do Z808Response
-        Format->setAx(registradores[0].to_ulong());
-        Format->setDx(registradores[1].to_ulong());
-        Format->setSp(registradores[2].to_ulong());        //sp
-        Format->setSi(registradores[3].to_ulong());
-        Format->setPc(registradores[4].to_ulong());        //ip
+        Format->setAx(registradores[R::AX].to_ulong());
+        Format->setDx(registradores[R::DX].to_ulong());
+        Format->setSp(registradores[R::SP].to_ulong());        //sp
+        Format->setSi(registradores[R::SI].to_ulong());
+        Format->setPc(registradores[R::IP].to_ulong());        //ip
+        Format->setCs(registradores[R::CS].to_ulong());
+        Format->setDs(registradores[R::DS].to_ulong());
+        Format->setSs(registradores[R::SS].to_ulong());
         Format->setSr(&(processor->getRegisters()[5]));
 
         if (processor->isStore())
@@ -146,7 +149,7 @@ int Z808Machine::run(bool isBySteps)
 
         if (processor->isInterrupt())
         {
-            if (ioMode)
+            if (ioMode == 0)
             {
                 ioData = 0;
                 ioData |= memory->at(2*ioAddr+1);
@@ -156,7 +159,7 @@ int Z808Machine::run(bool isBySteps)
                 Format->setStandardInput(false);
                 processor->resetInterruption();
             }
-            else
+            else if (ioMode == 1)
             {
                 Format->setStandardInput(true);
                 std::cout << "REQUESTED INPUT FROM USER" << std::endl;
