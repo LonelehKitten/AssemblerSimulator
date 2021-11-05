@@ -1,4 +1,5 @@
 # Sobre o Trabalho
+
 ...
 
 # Equipe
@@ -7,18 +8,24 @@
 **Vice-Líder**: KEVIN SOARES PEREIRA
 
 ### Time A
+
 Na primeira parte do trabalho, o **Time A** foi responsável pelo **Analyzer** e a **Semantica** do código Assembly.
+
 - DANIEL NOGUES DE OLIVEIRA
 
 ### Time B
-Responsável pelo **Assembler** e **Maquina Virtual** 
+
+Responsável pelo **Assembler** e **Maquina Virtual**
+
 - KEVIN SOARES PEREIRA
 - JULIANO STRELOW BUSS
 - EMERSON DE VASCONCELOS VIEIRA
 - MATHEUS AUGUSTO CEZAR FUKUDA
 
 ### Time C
-Responsável pelo Front-end
+
+Responsável pelo **Front-end**
+
 - FERNANDO RIBEIRO OLLE
 - LUCAS ALVIENE PEREIRA
 
@@ -26,8 +33,33 @@ Essa é a definição dos times, mas no meio do trabalho também houve revesamen
 
 # Como rodar o Electron em desenvolvimento
 
-Para iniciar o aplicativo em modo de desenvolvimento, utilize o comando _npm run dev_.
-Para complicar o aplicativo, utilize o comando _npm run electron:build_
+Para iniciar o ambiente, utilize o comando `npm install`
+
+Para iniciar o aplicativo em modo de desenvolvimento, utilize o comando `npm run dev`
+
+Para empacotar o aplicativo, utilize o comando `npm run electron:build`
+
+## Comandos
+
+### Padrão
+
+- **npm run dev** - Inicia o ReactJS + Electron
+- **npm run deploy** - Build o ReactJS + Electron, e Deploy
+- **npm run c++:build** - Re-Build o C++
+
+### ReactJS
+
+- **npm run react:start** - Inicia o ReactJS
+- **npm run react:build** - Build o ReactJS
+- **npm run react:test** - Testa o ReactJS
+- **npm run react:eject** - Ejeta o ReactJS
+
+#### Electron
+
+- **npm run electron:serve** - Inicia o Reactjs + Electron
+- **npm run electron:build** - Build Reactjs + Electron
+- **npm run electron:start** - Inicia o Electron
+- **npm run electron:deploy** - Build o Electron e Deploy
 
 ### Organização na pasta
 

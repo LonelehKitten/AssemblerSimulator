@@ -3,8 +3,10 @@
 
 #include <string>
 #include <vector>
+#include <set>
 
 #include "Token.h"
+#include "../Enums.h"
 
 /*
  * tipo e linha
@@ -66,19 +68,20 @@ class Semantic {
     private:
         std::string line;      //linha do arquivo
         Instruction type;
-        int opcode;
 
     protected:
+        std::vector<byte> * opcode;
         Semantic(std::string line, Instruction type);
     public:
-    // ========== ONLY FOR TEST
-        //Semantic(std::string line, Instruction type);
-        //Semantic(std::string line, std::string name, Instruction type);
-        //Semantic(std::string line, std::string name, Instruction type, std::vector<std::string> * params);
-    // ==========
 
         std::string getLine();
         Instruction getType();
+        std::vector<byte> * getOpCode();
+
+};
+
+struct ISemantic {
+    virtual std::set<std::string> * getSymbolSet() = 0;
 };
 
 class Invalid : public Semantic {
@@ -112,7 +115,7 @@ class MacroContent : public Semantic {
         MacroContent(const std::string line);
 };
 
-class MacroCall : public Semantic{
+class MacroCall : public Semantic {
     private:
         std::string name;
         std::vector<std::vector<Token *> *> * params;
@@ -125,7 +128,7 @@ class MacroCall : public Semantic{
 
 // aritmeticas
 
-class Add : public Semantic {
+class Add : public Semantic, ISemantic {
     private:
         //primeiro operand : registrador AX
         std::string operand2; //registrador AX, DX ou cte
@@ -138,9 +141,11 @@ class Add : public Semantic {
         std::string getOperand2();
         std::vector<Token *> *getExpression() const;
 
+        std::set<std::string> * getSymbolSet();
+
 };
 
-class Sub : public Semantic {
+class Sub : public Semantic, ISemantic {
     private:
         //primeiro operand : registrador AX
         std::string operand2; //AX, DX ou cte
@@ -151,6 +156,8 @@ class Sub : public Semantic {
 
         std::string getOperand2();
         std::vector<Token *> *getExpression() const;
+
+        std::set<std::string> * getSymbolSet();
 
 };
 
@@ -170,7 +177,7 @@ class Mul : public Semantic {
         std::string getOperand();
 };
 
-class Cmp : public Semantic {
+class Cmp : public Semantic, ISemantic {
     private:
         //primeiro operand : regitrador AX
         std::string operand2; //DX ou cte
@@ -181,11 +188,13 @@ class Cmp : public Semantic {
 
         std::string getOperand2();
         std::vector<Token *> *getExpression() const;
+
+        std::set<std::string> * getSymbolSet();
 };
 
 // logicas
 
-class Or : public Semantic {
+class Or : public Semantic, ISemantic {
     private:
         //primeiro operand : registrador AX
         std::string operand2; //registrador AX, DX ou cte
@@ -196,9 +205,11 @@ class Or : public Semantic {
 
         std::string getOperand2();
         std::vector<Token *> *getExpression() const;
+
+        std::set<std::string> * getSymbolSet();
 };
 
-class And : public Semantic {
+class And : public Semantic, ISemantic {
     private:
         //primeiro operand : registrador AX
         std::string operand2; //registrador AX, DX ou cte
@@ -210,9 +221,11 @@ class And : public Semantic {
 
         std::string getOperand2();
         std::vector<Token *> *getExpression() const;
+
+        std::set<std::string> * getSymbolSet();
 };
 
-class Xor : public Semantic {
+class Xor : public Semantic, ISemantic {
     private:
     //primeiro operand : registrador AX
     std::string operand2; //registrador AX, DX ou cte
@@ -224,9 +237,11 @@ class Xor : public Semantic {
 
         std::string getOperand2();
         std::vector<Token *> *getExpression() const;
+
+        std::set<std::string> * getSymbolSet();
 };
 
-class Not : public Semantic {
+class Not : public Semantic{
     private:
         //int opcodeAX;         //regitrador AX
     public:
@@ -237,7 +252,7 @@ class Not : public Semantic {
 
 // movimentação
 
-class Mov : public Semantic {
+class Mov : public Semantic, ISemantic {
     private:
         std::string operand1, operand2;
         std::vector<Token *> * expression1, * expression2;
@@ -255,6 +270,8 @@ class Mov : public Semantic {
         std::vector<Token *> * getExpression2() const;
 
         bool isIndexed() const;
+
+        std::set<std::string> * getSymbolSet();
 };
 
 // desvio
@@ -269,103 +286,99 @@ Call(std::string line);
 Ret(std::string line);
 
 */
-class Jmp : public Semantic {
+class Jmp : public Semantic, ISemantic {
     private:
         std::vector<Token *> * expression;         //endereço
     public:
         Jmp(std::string line, std::vector<Token *> * expression);
         std::vector<Token *> * getExpression() const;
-        //opcode = EB
+        
+        std::set<std::string> * getSymbolSet();
 };
 
-class Je : public Semantic {
+class Je : public Semantic, ISemantic {
     private:
         std::vector<Token *> * expression;         //endereço
     public:
         Je(std::string line, std::vector<Token *> * expression);
         std::vector<Token *> * getExpression() const;
-        //opcode = 74
+        
+        std::set<std::string> * getSymbolSet();
 };
 
-class Jnz : public Semantic {
+class Jnz : public Semantic, ISemantic {
     private:
         std::vector<Token *> * expression;         //endereço
     public:
         Jnz(std::string line, std::vector<Token *> * expression);
         std::vector<Token *> * getExpression() const;
-        //opcode = 75
+
+        std::set<std::string> * getSymbolSet();
 };
 
-class Jz : public Semantic {
+class Jz : public Semantic, ISemantic {
     private:
         std::vector<Token *> * expression;         //endereço
     public:
         Jz(std::string line, std::vector<Token *> * expression);
         std::vector<Token *> * getExpression() const;
-        //opcode = 74
+        
+        std::set<std::string> * getSymbolSet();
 };
 
-class Jp : public Semantic {
+class Jp : public Semantic, ISemantic {
     private:
         std::vector<Token *> * expression;         //endereço
     public:
         Jp(std::string line, std::vector<Token *> * expression);
         std::vector<Token *> * getExpression() const;
-        //opcode = 7A
+        
+        std::set<std::string> * getSymbolSet();
 };
 
-class Call : public Semantic {
+class Call : public Semantic, ISemantic {
     private:
         std::vector<Token *> * expression;         //endereço
     public:
         Call(std::string line, std::vector<Token *> * expression);
         std::vector<Token *> * getExpression() const;
-        //opcode = E8
+        
+        std::set<std::string> * getSymbolSet();
 };
 
-class Int : public Semantic {
+class Int : public Semantic, ISemantic {
     private:
-        std::vector<Token *> * expression;         //sei la oq é cte
+        std::vector<Token *> * expression; 
     public:
         Int(std::string line, std::vector<Token *> * expression);
         std::vector<Token *> * getExpression() const;
-        //opcode = CD
+        
+        std::set<std::string> * getSymbolSet();
 };
 
-class Ret : public Semantic {
-    private:
-
+class Ret : public Semantic{
     public:
         Ret(std::string line);
-        //opcode = C3
 };
 
 // pilha
 
 class Pop : public Semantic {
-    private:
-        //o pop só recebe como operand o registrador AX
     public:
         Pop(std::string line);
 };
 
 class Push : public Semantic {
-    private:
-        //o push só recebe como operand o registrador AX
     public:
         Push(std::string line);
 };
 
 class Popf : public Semantic {
-    private:
-        //o poft não recebe nenhum operand
     public:
         Popf(std::string line);
 };
 
 class Pushf : public Semantic {
-    private:
-        //o pushf não recebe nenhum operand
     public:
         Pushf(std::string line);
 };
@@ -397,7 +410,7 @@ class EndS : public Semantic {
 };
 
 // declaração de variavel do tamanho de uma word, pode ser inteiro, uma constante, end de expressao, ...
-class Dw : public Semantic {
+class Dw : public Semantic, ISemantic {
     private:
         std::string name;
         std::vector<Token *> * defaultValue, * length; //por enquanto ta só int porque é o que tem no exemplo de entrada do trabalho
@@ -412,10 +425,12 @@ class Dw : public Semantic {
         std::vector<Token *> *getLength() const;
 
         bool isArray() const;
+
+        std::set<std::string> * getSymbolSet();
 };
 
 // declaração de constante
-class Equ : public Semantic {
+class Equ : public Semantic, ISemantic {
     private:
         std::string name;
         std::vector<Token *> * expression;     //essa expressão eu não sei como funciona, então fica assim por enquanto
@@ -423,6 +438,8 @@ class Equ : public Semantic {
         Equ(std::string line, std::string name, std::vector<Token *> *  expression);
         std::string getName();
         std::vector<Token *> * getExpression();
+
+        std::set<std::string> * getSymbolSet();
 };
 
 class Assume : public Semantic {
@@ -461,6 +478,7 @@ class Label : public Semantic {
         Semantic * getSemantic();
 };
 
+
 class Halt : public Semantic {
     public:
         Halt(std::string line);
@@ -468,25 +486,14 @@ class Halt : public Semantic {
 
 
 
-class Org : Semantic {
+class Org : public Semantic, ISemantic {
     private:
         std::vector<Token *> * expression;
     public:
         Org(std::string line, std::vector<Token *> *  expression);
         std::vector<Token *> * getExpression() const;
+
+        std::set<std::string> * getSymbolSet();
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 #endif // SEMANTIC_H

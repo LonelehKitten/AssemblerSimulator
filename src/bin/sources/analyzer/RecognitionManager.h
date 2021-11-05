@@ -7,20 +7,22 @@
 
 #include "SyntaxAnalyzer.h"
 #include "Semantic.h"
+#include "../Utils.h"
 
 
 class RecognitionManager {
 
     private:
+    
         SyntaxAnalyzer * analyzer;
 
         std::vector<std::string> * split(std::string& text);
 
     public:
+
         RecognitionManager();
 
-    std::vector<Semantic *> * analyze(std::string text, bool strict);
-
+        std::vector<Semantic *> * analyze(std::string text, bool strict);
 
 };
 

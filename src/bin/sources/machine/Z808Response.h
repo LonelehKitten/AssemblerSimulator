@@ -6,8 +6,7 @@
 #include <utility>
 #include <iostream>
 
-typedef unsigned short int USint;
-typedef std::string JSON;
+#include "../Enums.h"
 
 class Z808Response {
     private:
