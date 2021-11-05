@@ -20,7 +20,7 @@ private:
 
     std::string output;
 
-    std::vector<unsigned char> assembleCode;
+    std::vector<unsigned char> assemblyCode;
 
     int lineCounter;
     int programCounter;
@@ -41,9 +41,10 @@ private:
     int completoAssemblerStep2();       //Não está presente em Assembler.cpp
 
     int loadandgoAssembler();           //Não está presente em Assembler.cpp
+    //Concatenar com assemblyCode
     //FAZER: Usar line->getOpcode() e concatenar com o vetor de bytecodes na posição
     //POSIÇÃO AINDA NÃO ESTÁ DETECTÁVEL NO MÉTODO, PRECISA ADICIONAR O ÍNDICE COMO PARÂMETRO AQUI
-    std::vector<unsigned char> assembleByteCode(Semantic * line);
+    void generateAssembly(std::vector<unsigned char> bytecode);
 
 public:
     Assembler(std::vector<Semantic *> * lines);

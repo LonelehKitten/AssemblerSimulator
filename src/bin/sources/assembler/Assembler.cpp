@@ -28,12 +28,10 @@ Assembler::Assembler(std::vector<Semantic *> *lines) : lines(lines)
  * getType - retorna um enum, com base nele podemos pegar o código de máquina referente
  */
 
-std::vector<unsigned char> Assembler::assembleByteCode(Semantic *line)
+void Assembler::generateAssembly(std::vector<unsigned char> bytecode)
 {
-    std::vector<unsigned char> bytecode;
-    // bytecode.push_back(bytecode(line->getType()));
-    // bytecode.push_back(bytecode(line->getOperands()));
-    return bytecode;
+    //Concatenar bytecode no final de assemblyCode
+    return;
 }
 
 template <class T>
@@ -159,14 +157,35 @@ int Assembler::basicoAssemblerStep1()
                 break;
 
             case Instruction::iORG:
+
                 expression = ((Org *) line)->getExpression();
                 //programCounter = line.getValue();
-                
+
                 break;
 
             case Instruction::iDW:
+/*
+                if(line){
+                    if( symbolTable.find(line) != symbolTable.end()){
+                        // coloca rótulo na TS
+                        symbolTable.insert(line->getLine(), line->getType());
+                        programCounter += 2;
+                    }else{
+                        programCounter =  int( expression = ((Dw *) line)->getLength() );
+                    }
+                }
+// if Instrucao contém rotulo
+// then if rotulo não está em TS
+// coloca rótulo na TS com PC
+//		pc += 2
+  // else if Instrucao é instrucao de máquina (pesquisar na TIM)
+	//then pc += Tamanho da inst
+*/
+
+
 
                 //s = new Symbol(line->getName(), , );
+
                 //symbolTable.insert(s);
                 break;
 
@@ -176,9 +195,9 @@ int Assembler::basicoAssemblerStep1()
             
             case Instruction::iEND:
                 //if (rotulo existe)
-                //  basicoAssemblerStep2();
+                  //basicoAssemblerStep2();
                 //else
-                //  erro 
+                  //std::cout << ("ERROR"); 
                 break;
 
             
@@ -269,6 +288,81 @@ defaultValue
 // NECESSÁRIO PARA A ENTREGA 3
 int Assembler::basicoAssemblerStep2()
 {
+    Semantic * line;
+    Instruction instruction;
+    programCounter = 0;
+    
+    for (int i = 0; i < lines->size(); ++i)
+    {
+
+        instruction = line->getType();
+        switch (instruction)
+        {
+            case Instruction::iEQU:
+            break;
+            //
+            case Instruction::iORG:
+            //std::vector<Token *> * getExpression() const;
+            //std::set<std::string> * getSymbolSet();
+
+                //programCounter = processarExpressao;
+ 
+            break;
+
+            case Instruction::iEND:
+
+            break;
+
+            //default:
+            //DC e DS tem no Z808? C.c ignorar
+
+            //aritmeticas e logicas
+            case Instruction::iADD:
+                //generateAssembly(processarExpressao<Add>((Add *) line));
+            break;
+            case Instruction::iSUB:
+                //generateAssembly(processarExpressao<Sub>((Sub *) line));
+            break;
+            case Instruction::iCMP:
+                //generateAssembly(processarExpressao<Cmp>((Cmp *) line));
+            break;
+            case Instruction::iOR:
+                //generateAssembly(processarExpressao<Or>(Or *) line));
+            break;
+            case Instruction::iAND:
+                //generateAssembly(processarExpressao<And>((And *) line));
+            break;
+            case Instruction::iXOR:
+                //generateAssembly(processarExpressao<Xor>((Xor *) line));
+                break;
+
+            //desvio
+            case Instruction::iJMP:
+                //tableJumpsInstruction<Jmp>((Jmp *) line);
+                
+                //generateAssembly(processarExpressao<Jmp>((Jmp *) line));
+                break;
+            case Instruction::iJE:
+                 //generateAssembly(processarExpressao<Je>((Je *) line));
+                break;
+            case Instruction::iJNZ:
+                 //generateAssembly(processarExpressao<Jnz>((Jnz *) line));
+                break;
+            case Instruction::iJZ:
+                 //generateAssembly(processarExpressao<Jz>((Jz *) line));
+                break;
+            case Instruction::iJP:
+                 //generateAssembly(processarExpressao<Jp>((Jp *) line));
+                break;
+            case Instruction::iCALL:
+                 //generateAssembly(processarExpressao<Call>((Call *) line));
+                break;
+            case Instruction::iINT:
+                tableJumpsInstruction<Int>((Int *) line);
+                break;
+        }
+    }
+
     /*
 
     programCounter = 0; // LC
@@ -308,8 +402,8 @@ int Assembler::basicoAssemblerStep2()
                 //code = assembleByteCode(line);
                 //code = gerenatemachinecode(entry, operand);
 
-                //Concatena os vetores code e this->assembleCode
-                //assemblemachinecode(locationCounter, code);    //Usa this->assembleCode, std::vector<unsigned char>
+                //Concatena os vetores code e this->assemblyCode
+                //assemblemachinecode(locationCounter, code);    //Usa this->assemblyCode, std::vector<unsigned char>
                 //locationCounter = locationCounter + length;
 
             break;
