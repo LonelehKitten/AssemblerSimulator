@@ -52,7 +52,7 @@ class ExpressionEvaluator {
 
         USint value;
 
-        void solve();
+        void solve(int precedenceBegin);
 
         void solvePriority1();
         void solvePriority2();

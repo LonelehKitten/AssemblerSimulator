@@ -31,27 +31,13 @@ ExpressionEvaluator::ExpressionEvaluator(Expression * expression, SymbolTable * 
     7. guardar resultado final
 
 */
-void ExpressionEvaluator::solve() {
+void ExpressionEvaluator::solve(int precedenceBegin) {
 
-    int lastParenthesisOpening;
-    int parenthesisCount = 0;
-    int i = 0;
-
-    do {
-
-        // 1. procurar o parenteses mais interno
+    for(int i = precedenceBegin; i < (int) expression->size(); i++) {
         if(expression->at(i)->getType() == TokenTypes::tExpPRECEDENCE_OP) {
-            lastParenthesisOpening = i;
-            parenthesisCount++;
+            solve(i);
         }
-
-        if(expression->at(i)->getType() == TokenTypes::tExpPRECEDENCE_ED) {
-
-        }
-
-
-
-    } while((int) expression->size() > 1);
+    }
 
 }
 
