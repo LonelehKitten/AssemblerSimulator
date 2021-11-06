@@ -51,6 +51,7 @@ typedef struct InputReport {
     std::vector<byte> memory;
     std::string input;
     int clock;
+    int modeAssembler;
 } InputReport;
 
 typedef struct OutputReport {
@@ -206,6 +207,12 @@ class InterfaceBus {
           * @param frequencia em int
           */
          void serviceClockChange(NodeInfo * info, V8Var clock);
+
+         /**
+          * Requisita mudança no modo do Montador
+          * @param tipo em int
+          */
+         void serviceModeAssembler(NodeInfo * info, V8Var tipo);
 
          /**
           * Envio de input para o Z808.

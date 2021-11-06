@@ -82,6 +82,14 @@ void requestClockChange(const Nan::FunctionCallbackInfo<v8::Value> & info) {
 }
 
 /**
+ * Requisita mudança no modo do Montador
+ * @param tipo em int
+ */
+void requestModeAssembler(const Nan::FunctionCallbackInfo<v8::Value> & info) {
+    InterfaceBus::getInstance().serviceModeAssembler((NodeInfo *) &info, info[0]);
+}
+
+/**
  * Requisita parada forçada da execução
  */
 void requestKillProcess(const Nan::FunctionCallbackInfo<v8::Value> & info) {
@@ -182,6 +190,12 @@ void moduleExports(v8::Local<v8::Object> exports) {
   exports->Set(context,
                Nan::New("requestClockChange").ToLocalChecked(),
                Nan::New<v8::FunctionTemplate>(requestClockChange)
+                   ->GetFunction(context)
+                   .ToLocalChecked());
+
+  exports->Set(context,
+               Nan::New("requestModeAssembler").ToLocalChecked(),
+               Nan::New<v8::FunctionTemplate>(requestModeAssembler)
                    ->GetFunction(context)
                    .ToLocalChecked());
 

@@ -7,6 +7,7 @@
 #include <string>
 #include "MacroDef.h"
 #include "Symbol.h"
+#include "ExpressionEvaluator.h"
 #include "../Utils.h"
 
 class Assembler
@@ -45,6 +46,8 @@ private:
     //FAZER: Usar line->getOpcode() e concatenar com o vetor de bytecodes na posição
     //POSIÇÃO AINDA NÃO ESTÁ DETECTÁVEL NO MÉTODO, PRECISA ADICIONAR O ÍNDICE COMO PARÂMETRO AQUI
     void generateAssembly(std::vector<unsigned char> bytecode);
+
+    std::vector<byte> * evaluate(Expression * expression);
 
 public:
     Assembler(std::vector<Semantic *> * lines);

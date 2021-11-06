@@ -14,6 +14,8 @@ class PseudoToken : public Token {
 
     public:
         PseudoToken(USint resolvedValue);
+
+        USint getSolvedValue();
 };
 
 /*
@@ -54,10 +56,13 @@ class ExpressionEvaluator {
 
         void solve(int precedenceBegin);
 
-        void solvePriority1();
-        void solvePriority2();
-        void solvePriority3();
-        void solvePriority4();
+        USint solvePriority1(int k, int max);
+        USint solvePriority2(int k, int max);
+        USint solvePriority3(int k, int max);
+        USint solvePriority4(int k, int max);
+
+        USint solveSymbol(Token * token);
+        bool isOperand(Token * token);
 
     public:
         ExpressionEvaluator(Expression * expression, SymbolTable * symbolTable);
