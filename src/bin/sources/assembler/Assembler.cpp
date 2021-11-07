@@ -31,6 +31,8 @@ Assembler::Assembler(std::vector<Semantic *> *lines) : lines(lines)
 void Assembler::generateAssembly(std::vector<unsigned char> bytecode)
 {
     //Concatenar bytecode no final de assemblyCode
+        
+
     return;
 }
 
@@ -164,7 +166,7 @@ int Assembler::basicoAssemblerStep1()
                 break;
 
             case Instruction::iDW:
-
+                /*
                 if(line){
                     if( symbolTable.find(line) != symbolTable.end()){
                         // coloca rótulo na TS
@@ -174,6 +176,8 @@ int Assembler::basicoAssemblerStep1()
                         programCounter =  int( expression = ((Dw *) line)->getLength() );
                     }
                 }
+                */
+                
                 // if Instrucao contém rotulo
                 // then if rotulo não está em TS
                 // coloca rótulo na TS com PC

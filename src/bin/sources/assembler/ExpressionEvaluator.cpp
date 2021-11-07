@@ -18,9 +18,10 @@ ExpressionEvaluator::ExpressionEvaluator(Expression * expression, SymbolTable * 
     priority3(false),
     priority4(false),
     expression(expression),
-    symbolTable(symbolTable)
+    symbolTable(symbolTable),
+    symbolCouldNotBeResolved(false)
 {
-
+    solve(0, true);
 }
 
 /*
@@ -49,14 +50,14 @@ ExpressionEvaluator::ExpressionEvaluator(Expression * expression, SymbolTable * 
     4. 'eq' 'ne' 'lt' 'le' 'gt' 'ge'
 
 */
-void ExpressionEvaluator::solve(int precedenceBegin) {
+void ExpressionEvaluator::solve(int precedenceBegin, bool root) {
 
     int precedenceEnd = -1;
-    USint value;
 
     for(int i = precedenceBegin; i < (int) expression->size(); i++) {
         if(expression->at(i)->getType() == TokenTypes::tExpPRECEDENCE_OP) {
-            solve(i);
+            solve(i, false);
+            if(symbolCouldNotBeResolved) return;
             continue;
         }
         if(expression->at(i)->getType() == TokenTypes::tExpPRECEDENCE_ED) {
@@ -66,7 +67,12 @@ void ExpressionEvaluator::solve(int precedenceBegin) {
     }
 
     int i = precedenceBegin+1;
-    while(precedenceBegin+2 < precedenceEnd) {
+    if(root) {
+        i = 0;
+        precedenceEnd = (int) expression->size();
+    }
+
+    while(precedenceBegin+(root ? 1 : 2) < precedenceEnd) {
 
         if(!priority1) {
             if(
@@ -75,7 +81,13 @@ void ExpressionEvaluator::solve(int precedenceBegin) {
                     expression->at(i)->getName() == TokenNames::nExpNOT
             ) {
                 if(i-1 >= 0 && !isOperand(expression->at(i-1)) && isOperand(expression->at(i+1))) {
-                    value = solvePriority1(i, precedenceEnd);
+                    solveSymbol(i+1);
+                    if(symbolCouldNotBeResolved) return;
+                    swap(i, (Token *) solvePriority1(i, precedenceEnd));
+                    delete expression->at(i+1);
+                    expression->erase(expression->begin()+i+1);
+                    i--;
+                    precedenceEnd--;
                 }
             }
         }
@@ -87,7 +99,17 @@ void ExpressionEvaluator::solve(int precedenceBegin) {
                     expression->at(i)->getName() == TokenNames::nExpAND
             ) {
                 if(i-1 >= 0 && isOperand(expression->at(i-1)) && isOperand(expression->at(i+1))) {
-                    value = solvePriority2(i, precedenceEnd);
+                    solveSymbol(i-1);
+                    if(symbolCouldNotBeResolved) return;
+                    solveSymbol(i+1);
+                    if(symbolCouldNotBeResolved) return;
+                    swap(i, (Token *) solvePriority2(i, precedenceEnd));
+                    delete expression->at(i+1);
+                    expression->erase(expression->begin()+i+1);
+                    delete expression->at(i-1);
+                    expression->erase(expression->begin()+i-1);
+                    i -= 2;
+                    precedenceEnd -= 2;
                 }
             }
         }
@@ -99,7 +121,17 @@ void ExpressionEvaluator::solve(int precedenceBegin) {
                     expression->at(i)->getName() == TokenNames::nExpXOR
             ) {
                 if(i-1 >= 0 && isOperand(expression->at(i-1)) && isOperand(expression->at(i+1))) {
-                    value = solvePriority3(i, precedenceEnd);
+                    solveSymbol(i-1);
+                    if(symbolCouldNotBeResolved) return;
+                    solveSymbol(i+1);
+                    if(symbolCouldNotBeResolved) return;
+                    swap(i, (Token *) solvePriority3(i, precedenceEnd));
+                    delete expression->at(i+1);
+                    expression->erase(expression->begin()+i+1);
+                    delete expression->at(i-1);
+                    expression->erase(expression->begin()+i-1);
+                    i -= 2;
+                    precedenceEnd -= 2;
                 }
             }
         }
@@ -113,28 +145,44 @@ void ExpressionEvaluator::solve(int precedenceBegin) {
                     expression->at(i)->getName() == TokenNames::nExpGE
             ) {
                 if(i-1 >= 0 && isOperand(expression->at(i-1)) && isOperand(expression->at(i+1))) {
-                    value = solvePriority4(i, precedenceEnd);
+                    solveSymbol(i-1);
+                    if(symbolCouldNotBeResolved) return;
+                    solveSymbol(i+1);
+                    if(symbolCouldNotBeResolved) return;
+                    swap(i, (Token *) solvePriority4(i, precedenceEnd));
+                    delete expression->at(i+1);
+                    expression->erase(expression->begin()+i+1);
+                    delete expression->at(i-1);
+                    expression->erase(expression->begin()+i-1);
+                    i -= 2;
+                    precedenceEnd -= 2;
                 }
             }
         }
 
         i++;
 
-        if(i == (int) expression->size() && !priority1) {
+        if(i == precedenceEnd && !priority1) {
             priority1 = true;
             i = precedenceBegin;
-        } else if(i == (int) expression->size() && !priority2) {
+        } else if(i == precedenceEnd && !priority2) {
             priority2 = true;
             i = precedenceBegin;
-        } else if(i == (int) expression->size() && !priority3) {
+        } else if(i == precedenceEnd && !priority3) {
             priority3 = true;
             i = precedenceBegin;
-        } else if(i == (int) expression->size() && !priority4) {
+        } else if(i == precedenceEnd && !priority4) {
             priority4 = true;
-            i = precedenceBegin;
         }
 
     }
+
+    delete expression->at(precedenceEnd);
+    expression->erase(expression->begin()+precedenceEnd);
+    delete expression->at(precedenceBegin);
+    expression->erase(expression->begin()+precedenceBegin);
+
+    priority1 = priority2 = priority3 = priority4 = false;
 
 }
 
@@ -145,59 +193,176 @@ bool ExpressionEvaluator::isOperand(Token * token) {
         token->getType() == TokenTypes::tDECIMAL ||
         token->getType() == TokenTypes::tHEXADECIMAL ||
         token->getType() == TokenTypes::tBINARY ||
-        token->getType() == TokenTypes::tBINARY
+        token->getType() == TokenTypes::tCHARACTERE
     );
+}
+
+void ExpressionEvaluator::solveSymbol(int k) {
+    if(expression->at(k)->getType() == TokenTypes::tNULL_TYPE) return;
+    Token * solvedSymbol = (Token *) solveSymbol(expression->at(k));
+    if(symbolCouldNotBeResolved) return;
+    swap(k, solvedSymbol);
+}
+
+void ExpressionEvaluator::swap(int k, Token * token) {
+    expression->insert(expression->begin()+k, token);
+    delete expression->at(k+1);
+    expression->erase(expression->begin()+k+1);
 }
 
 PseudoToken * ExpressionEvaluator::solveSymbol(Token * token) {
 
+    std::string v;
+
     switch(token->getType()) {
         case TokenTypes::tIDENTIFIER:
             if(symbolTable->find(token->getToken()) != symbolTable->end()) {
-                return new PseudoToken(std::stoi(symbolTable->find(token->getToken())->second->value));
+                return new PseudoToken((USint) std::stoi(
+                    symbolTable->find(token->getToken())->second->value
+                ));
             }
+            symbolCouldNotBeResolved = true;
             return nullptr;
         case TokenTypes::tDECIMAL:
-            //USint
+            v = token->getToken();
+            char d = v[v.size() - 1];
+            return new PseudoToken((USint) std::stoi(
+                d == 'd' || d == 'D' ?
+                    v.substr(0, v.size() - 1) :
+                    v
+            ));
         case TokenTypes::tHEXADECIMAL:
-            return ~ solvedValue->getSolvedValue();
+            v = token->getToken();
+            return new PseudoToken((USint) std::stoul(v.substr(0, v.size() - 1), nullptr, 16));
         case TokenTypes::tBINARY:
+            v = token->getToken();
+            return new PseudoToken((USint) std::stoul(v.substr(0, v.size() - 1), nullptr, 2));
         case TokenTypes::tCHARACTERE:
+            v = token->getToken();
+            if(v.size() == 4) {
+                switch(v[1]) {
+                    case '0': new PseudoToken((USint) '\0');
+                    case 'a': new PseudoToken((USint) '\a');
+                    case 'b': new PseudoToken((USint) '\b');
+                    case 't': new PseudoToken((USint) '\t');
+                    case 'n': new PseudoToken((USint) '\n');
+                    case 'v': new PseudoToken((USint) '\v');
+                    case 'f': new PseudoToken((USint) '\f');
+                    case 'r': new PseudoToken((USint) '\r');
+                    case '\"': new PseudoToken((USint) '\"');
+                    case '\'': new PseudoToken((USint) '\'');
+                    case '?': new PseudoToken((USint) '\?');
+                    case '\\': new PseudoToken((USint) '\\');
+                    default: return nullptr;
+                }
+            }
+            return new PseudoToken((USint) v[1]);
     }
 
-    return 0;
+    return nullptr;
 
 }
 
-USint ExpressionEvaluator::solvePriority1(int k, int max) {
+PseudoToken * ExpressionEvaluator::solvePriority1(int k, int max) {
 
-    PseudoToken * solvedValue = (PseudoToken *) expression->at(k+1);
+    PseudoToken * operand = (PseudoToken *) expression->at(k+1);
 
     switch(expression->at(k)->getName()) {
         case TokenNames::nExpADD:
-            return + solvedValue->getSolvedValue();
+            return new PseudoToken( + operand->getSolvedValue());
         case TokenNames::nExpSUB:
-            return - solvedValue->getSolvedValue();
+            return new PseudoToken( - operand->getSolvedValue());
         case TokenNames::nExpNOT:
-            return ~ solvedValue->getSolvedValue();
+            return new PseudoToken( ~ operand->getSolvedValue());
     }
 
-    return 0;
+    return nullptr;
 
 }
 
-USint ExpressionEvaluator::solvePriority2(int k, int max) {
-    return 0;
+PseudoToken * ExpressionEvaluator::solvePriority2(int k, int max) {
+
+    PseudoToken * operand1 = (PseudoToken *) expression->at(k-1);
+    PseudoToken * operand2 = (PseudoToken *) expression->at(k+1);
+
+    switch(expression->at(k)->getName()) {
+        case TokenNames::nExpMUL:
+            return new PseudoToken( 
+                operand1->getSolvedValue() * operand2->getSolvedValue());
+        case TokenNames::nExpDIV:
+            return new PseudoToken(
+                 operand1->getSolvedValue() / operand2->getSolvedValue());
+        case TokenNames::nExpMOD:
+            return new PseudoToken(
+                operand1->getSolvedValue() % operand2->getSolvedValue());
+        case TokenNames::nExpAND:
+            return new PseudoToken(
+                operand1->getSolvedValue() & operand2->getSolvedValue());
+    }
+
+    return nullptr;
+
 }
 
-USint ExpressionEvaluator::solvePriority3(int k, int max) {
-    return 0;
+PseudoToken * ExpressionEvaluator::solvePriority3(int k, int max) {
+    
+    PseudoToken * operand1 = (PseudoToken *) expression->at(k-1);
+    PseudoToken * operand2 = (PseudoToken *) expression->at(k+1);
+
+    switch(expression->at(k)->getName()) {
+        case TokenNames::nExpADD:
+            return new PseudoToken( 
+                operand1->getSolvedValue() + operand2->getSolvedValue());
+        case TokenNames::nExpSUB:
+            return new PseudoToken(
+                 operand1->getSolvedValue() - operand2->getSolvedValue());
+        case TokenNames::nExpOR:
+            return new PseudoToken( 
+                operand1->getSolvedValue() | operand2->getSolvedValue());
+        case TokenNames::nExpXOR:
+            return new PseudoToken(
+                 operand1->getSolvedValue() ^ operand2->getSolvedValue());
+    }
+
+    return nullptr;
+
 }
 
-USint ExpressionEvaluator::solvePriority4(int k, int max) {
-    return 0;
+// 4. 'eq' 'ne' 'lt' 'le' 'gt' 'ge'
+PseudoToken * ExpressionEvaluator::solvePriority4(int k, int max) {
+    
+    PseudoToken * operand1 = (PseudoToken *) expression->at(k-1);
+    PseudoToken * operand2 = (PseudoToken *) expression->at(k+1);
+
+    switch(expression->at(k)->getName()) {
+        case TokenNames::nExpEQ:
+            return new PseudoToken(
+                operand1->getSolvedValue() == operand2->getSolvedValue() ? 0b1111111111111111 : 0);
+        case TokenNames::nExpNE:
+            return new PseudoToken(
+                operand1->getSolvedValue() != operand2->getSolvedValue() ? 0b1111111111111111 : 0);
+        case TokenNames::nExpLT:
+            return new PseudoToken(
+                operand1->getSolvedValue() < operand2->getSolvedValue() ? 0b1111111111111111 : 0);
+        case TokenNames::nExpLE:
+            return new PseudoToken(
+                operand1->getSolvedValue() <= operand2->getSolvedValue() ? 0b1111111111111111 : 0);
+        case TokenNames::nExpGT:
+            return new PseudoToken(
+                operand1->getSolvedValue() > operand2->getSolvedValue() ? 0b1111111111111111 : 0);
+        case TokenNames::nExpGE:
+            return new PseudoToken(
+                operand1->getSolvedValue() >= operand2->getSolvedValue() ? 0b1111111111111111 : 0);
+    }
+
+    return nullptr;
+
 }
 
 USint ExpressionEvaluator::getValue() {
-    return value;
+    return ((PseudoToken *) expression->at(0))->getSolvedValue();
+}
+
+bool ExpressionEvaluator::isSymbolCouldNotBeResolved() {
+    return symbolCouldNotBeResolved;
 }

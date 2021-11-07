@@ -51,23 +51,25 @@ class ExpressionEvaluator {
         bool priority1, priority2, priority3, priority4;
         Expression * expression;
         SymbolTable * symbolTable;
+        bool symbolCouldNotBeResolved;
 
-        USint value;
+        void solve(int precedenceBegin, bool root);
 
-        void solve(int precedenceBegin);
+        PseudoToken * solvePriority1(int k, int max);
+        PseudoToken * solvePriority2(int k, int max);
+        PseudoToken * solvePriority3(int k, int max);
+        PseudoToken * solvePriority4(int k, int max);
 
-        USint solvePriority1(int k, int max);
-        USint solvePriority2(int k, int max);
-        USint solvePriority3(int k, int max);
-        USint solvePriority4(int k, int max);
-
-        USint solveSymbol(Token * token);
+        void swap(int k, Token * token);
+        void solveSymbol(int k);
+        PseudoToken * solveSymbol(Token * token);
         bool isOperand(Token * token);
 
     public:
         ExpressionEvaluator(Expression * expression, SymbolTable * symbolTable);
 
         USint getValue();
+        bool isSymbolCouldNotBeResolved();
 };
 
 #endif /* EXPRESSION_EVALUATOR_H */
