@@ -31,6 +31,8 @@ Assembler::Assembler(std::vector<Semantic *> *lines) : lines(lines)
 void Assembler::generateAssembly(std::vector<unsigned char> bytecode)
 {
     //Concatenar bytecode no final de assemblyCode
+        
+
     return;
 }
 
@@ -164,7 +166,7 @@ int Assembler::basicoAssemblerStep1()
                 break;
 
             case Instruction::iDW:
-/*
+                /*
                 if(line){
                     if( symbolTable.find(line) != symbolTable.end()){
                         // coloca rótulo na TS
@@ -174,13 +176,14 @@ int Assembler::basicoAssemblerStep1()
                         programCounter =  int( expression = ((Dw *) line)->getLength() );
                     }
                 }
-// if Instrucao contém rotulo
-// then if rotulo não está em TS
-// coloca rótulo na TS com PC
-//		pc += 2
-  // else if Instrucao é instrucao de máquina (pesquisar na TIM)
-	//then pc += Tamanho da inst
-*/
+                */
+                
+                // if Instrucao contém rotulo
+                // then if rotulo não está em TS
+                // coloca rótulo na TS com PC
+                //		pc += 2
+                // else if Instrucao é instrucao de máquina (pesquisar na TIM)
+                    //then pc += Tamanho da inst
 
 
 
@@ -285,6 +288,13 @@ defaultValue
     return 0;
 }
 
+/*
+    lida com o ExpressionEvaluator e retorna o vetor de bytes do valor resultante
+*/
+std::vector<byte> * Assembler::evaluate(Expression * expression) {
+    return nullptr;
+}
+
 // NECESSÁRIO PARA A ENTREGA 3
 int Assembler::basicoAssemblerStep2()
 {
@@ -300,7 +310,7 @@ int Assembler::basicoAssemblerStep2()
         {
             case Instruction::iEQU:
             break;
-            //
+            //Nada
             case Instruction::iORG:
             //std::vector<Token *> * getExpression() const;
             //std::set<std::string> * getSymbolSet();
@@ -341,25 +351,26 @@ int Assembler::basicoAssemblerStep2()
                 //tableJumpsInstruction<Jmp>((Jmp *) line);
                 
                 //generateAssembly(processarExpressao<Jmp>((Jmp *) line));
-                break;
+            break;
             case Instruction::iJE:
                  //generateAssembly(processarExpressao<Je>((Je *) line));
-                break;
+            break;
             case Instruction::iJNZ:
                  //generateAssembly(processarExpressao<Jnz>((Jnz *) line));
-                break;
+            break;
             case Instruction::iJZ:
                  //generateAssembly(processarExpressao<Jz>((Jz *) line));
-                break;
+            break;
             case Instruction::iJP:
                  //generateAssembly(processarExpressao<Jp>((Jp *) line));
-                break;
+            break;
             case Instruction::iCALL:
                  //generateAssembly(processarExpressao<Call>((Call *) line));
-                break;
+            break;
             case Instruction::iINT:
-                tableJumpsInstruction<Int>((Int *) line);
-                break;
+                 //generateAssembly(processarExpressao<Int>((Int *) line));
+                 tableJumpsInstruction<Int>((Int *) line);
+            break;
         }
     }
 

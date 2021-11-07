@@ -149,6 +149,7 @@ class Sub : public Semantic, ISemantic {
     private:
         //primeiro operand : registrador AX
         std::string operand2; //AX, DX ou cte
+
         std::vector<Token *> * expression;
     public:
         Sub(std::string line, std::string operand2);
@@ -483,7 +484,6 @@ class Halt : public Semantic {
     public:
         Halt(std::string line);
 };
-
 
 
 class Org : public Semantic, ISemantic {
