@@ -18,6 +18,28 @@ typedef long int Z808Operation;     //Operaçoes dentro da VM
 #define SP_MAXADDR 0xFFFF               //Definição do limite da pilha
 #define SP_BASEADDR 0xFE00               //Definição do início da pilha
 
+enum R                                  //Para usar de indice na tabela de registradores
+{
+    //Registrador acumulador AX
+    AX,
+    //Registrador de dados DX
+    DX,
+    //Registrador de pilha SP
+    SP,
+    //Registrador de segmento de código CS
+    CS,
+    //Registrador de segmento de Dados DS
+    DS,
+    //Registrador de segmento de pilha SS
+    SS,
+    //Registrador de indice SI
+    SI,
+    //Registrador contador de programa IP
+    IP,
+    //Registrador das flags de estado SR
+    SR
+};
+
 class Z808Processor
 {
 private:
@@ -80,28 +102,6 @@ private:
 
 public:
     Z808Processor();
-
-    enum R                                  //Para usar de indice na tabela de registradores
-    {
-        //Registrador acumulador AX
-        AX,
-        //Registrador de dados DX
-        DX,
-        //Registrador de pilha SP
-        SP,
-        //Registrador de segmento de código CS
-        CS,
-        //Registrador de segmento de Dados DS
-        DS,
-        //Registrador de segmento de pilha SS
-        SS,
-        //Registrador de indice SI
-        SI,
-        //Registrador contador de programa IP
-        IP,
-        //Registrador das flags de estado SR
-        SR
-    };
 
     //Pega os registradores
     std::vector<Z808Word> &getRegisters();

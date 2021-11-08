@@ -210,6 +210,9 @@ Semantic * SyntaxAnalyzer::getRow(int offset) {
                 return new EndM(this->line);
             break;
 
+        case TokenTypes::tORG:
+            return new Org(this->line, getExpression(offset+1, t));
+
         case TokenTypes::tOPERATION:
             switch (t1->getName()) {
                 case TokenNames::nOpADD:
@@ -287,13 +290,12 @@ Semantic * SyntaxAnalyzer::getRow(int offset) {
                 case TokenNames::nOpPOPF:
                     return new Popf(this->line);
 
-                case TokenNames::nHALT:
-                    return new Halt(this->line);
-
                 default:
                     break;
             }
             break;
+        case TokenTypes::tHALT:
+                    return new Halt(this->line);
         default:
             break;
     }

@@ -1,6 +1,8 @@
 #include "Z808Machine.h"
 #include "Z808Response.h"
-//#include "../InterfaceBus.h"
+#ifdef PRODUCTION_MODE
+#include "../InterfaceBus.h"
+#endif
 #include <iostream>
 #include <cstdlib>
 #include <thread>
@@ -26,7 +28,6 @@ void Z808Machine::memoryUpdate(std::vector<Z808Byte> *memory, std::vector<unsign
         this->memory->at(i) = programBytes->at(i);
 
     InterfaceBus::getInstance().dispatchProgramToMemory(memory);
-
     while(InterfaceBus::getInstance().isUpdating());
 }
 
@@ -35,7 +36,7 @@ bool Z808Machine::isEnd()
     InterfaceBus::getInstance().getMutex().lock();
     bool programEnd = this->programEnd;
     InterfaceBus::getInstance().getMutex().unlock();
-    return programEnd;
+    return programEnd;  
 }
 
 void Z808Machine::forceStop()
@@ -75,7 +76,7 @@ int Z808Machine::run(bool isBySteps)
 
     int increment = 0;
 
-    InterfaceBus * interfaceBus = &InterfaceBus::getInstance();
+    PRODUCTION(InterfaceBus * interfaceBus = &InterfaceBus::getInstance())
 
     programEnd = false;
 
@@ -93,7 +94,7 @@ int Z808Machine::run(bool isBySteps)
         {
             std::cout << "\nERRO NA INSTRUCAO " << processor->getIP() << "\n\n\n";
 
-            interfaceBus->dispatchLog(std::string("Erro na instrução ") + std::to_string(processor->getIP().to_ulong()), LogStatus::ERROR);
+            PRODUCTION(interfaceBus->dispatchLog(std::string("Erro na instrução ") + std::to_string(processor->getIP().to_ulong()), LogStatus::ERROR))
             programEnd = true;
             
             break;
@@ -103,8 +104,10 @@ int Z808Machine::run(bool isBySteps)
         {
             std::cout << "\nFIM DE PROGRAMA\n\n\n";
             
+            PRODUCTION(
             interfaceBus->dispatchLog(std::string("Fim do programa."), LogStatus::SUCCESS);
             interfaceBus->dispatchHalt();
+            )
             programEnd = true;
             
             break;
@@ -115,7 +118,7 @@ int Z808Machine::run(bool isBySteps)
         {
             std::cout << "\nERRO DE OVERFLOW NA PILHA\n\n\n";
 
-            interfaceBus->dispatchLog(std::string("Erro de stack overflow durante a instrução ") + std::to_string(processor->getIP().to_ulong()), LogStatus::ERROR);
+            PRODUCTION(interfaceBus->dispatchLog(std::string("Erro de stack overflow durante a instrução ") + std::to_string(processor->getIP().to_ulong()), LogStatus::ERROR))
             programEnd = true;
 
             break;
@@ -131,7 +134,7 @@ int Z808Machine::run(bool isBySteps)
         registradores = processor->getRegisters();
 
         //************Setters do Z808Response
-        Format->setAx(registradores[R::AX].to_ulong());
+        Format->setAx(registradores[R::AX].to_ulong());  /// error: ‘R’ has not been declared
         Format->setDx(registradores[R::DX].to_ulong());
         Format->setSp(registradores[R::SP].to_ulong());        //sp
         Format->setSi(registradores[R::SI].to_ulong());
@@ -139,7 +142,7 @@ int Z808Machine::run(bool isBySteps)
         Format->setCs(registradores[R::CS].to_ulong());
         Format->setDs(registradores[R::DS].to_ulong());
         Format->setSs(registradores[R::SS].to_ulong());
-        Format->setSr(&(processor->getRegisters()[5]));
+        Format->setSr(&(processor->getRegisters()[R::SR]));
 
         if (processor->isStore())
         {
@@ -172,34 +175,22 @@ int Z808Machine::run(bool isBySteps)
         
         //************End_Setters do Z808Response
 
-        std::cout << "machine: iomode: " << (ioMode ? "write" : "false") << std::endl;
-        
-        std::cout << "machine: within while: pre cycle" << std::endl;
+        PRODUCTION(
         interfaceBus->dispatchCycle(*Format, processor->isInterrupt() && !ioMode, isBySteps);
-        std::cout << "machine: within while: post cycle" << std::endl;
         while(interfaceBus->isUpdating());
 
-
-        std::cout << "machine: within while: post updating" << std::endl;
-        
         if(interfaceBus->isInputing())
         {
-            std::cout << "machine: within while: inputing 1" << std::endl;
 
             while(interfaceBus->isInputing());
 
-            std::cout << "machine: within while: inputing 2" << std::endl;
-
             processor->resetInterruption();
 
-            std::cout << "machine: within while: inputing 3" << std::endl;
         }
-
-        std::cout << "machine: within while: post inputing" << std::endl;
         
         while(isBySteps && !interfaceBus->isNextStepRequested());
+        )
 
-        std::cout << "machine: within while: post interruptions" << std::endl;
 
         //Exemplo de como pegar o valor numerico do registrador AX (checar indices no Z808Processor.h)
         //std::cout << "\nAX: " << std::hex << registradores[0].to_ulong();

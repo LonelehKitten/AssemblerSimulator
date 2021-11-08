@@ -8,6 +8,7 @@
 #include "MacroDef.h"
 #include "Symbol.h"
 #include "ExpressionEvaluator.h"
+#include "SegmentDef.h"
 #include "../Utils.h"
 
 class Assembler
@@ -17,21 +18,34 @@ private:
 
     std::vector<MacroDef *> macroList;
     std::unordered_map<std::string, MacroDef *> macroTable;
-    std::unordered_map<std::string, Symbol *> symbolTable;
+    std::unordered_map<std::string, SegmentDef *> segmentTable;
+
+    SegmentDef * currentSegment;
+    SegmentDef * assumedProgramSegment, * assumedDataSegment, * assumedStackSegment;
 
     std::string output;
 
-    std::vector<unsigned char> assemblyCode;
+    std::vector<byte> assemblyCode;
 
     int lineCounter;
     int programCounter;
+    int segmentCounter;
+
+    int startProgram;
 
     int assemblerError;
+
+    template <class T> std::vector<byte> * generateAssembly(T * line);
+
+    void GetSpecialOpcode(Semantic * line);
+
+    Symbol * findSymbol();
 
     int macroExpandParams(MacroCall * macrocall, int k);
     
     template <class T> void tableArithmeticInstructions(T *t);
     template <class T> void tableJumpsInstruction(T *t);
+    template <class T> void tableVarInstruction(T *t, bool isConst);
 
     int basicoAssemblerStep1();         //Está presente em Assembler.cpp
     int basicoAssemblerStep2();         //Está presente em Assembler.cpp
@@ -45,11 +59,18 @@ private:
     //Concatenar com assemblyCode
     //FAZER: Usar line->getOpcode() e concatenar com o vetor de bytecodes na posição
     //POSIÇÃO AINDA NÃO ESTÁ DETECTÁVEL NO MÉTODO, PRECISA ADICIONAR O ÍNDICE COMO PARÂMETRO AQUI
-    void generateAssembly(std::vector<unsigned char> bytecode);
+    //void generateAssembly(std::vector<unsigned char> bytecode);
 
-    std::vector<byte> * evaluate(Expression * expression);
+    std::vector<byte> * evaluate(Expression * expression, USint * valueHolder);
 
 public:
+
+    enum AssemblyFlags
+    {
+        SUCCESS,
+        ERROR
+    };
+
     Assembler(std::vector<Semantic *> * lines);
     //Método principal para chamar o montador (PRÉPROCESSADOR PRECISA SER CHAMADO ANTES)
     //Recebe como parâmetro o tipo de montador que será executado
@@ -62,6 +83,8 @@ public:
 
     void init(bool willExecute);
     int preproccess (std::vector<Semantic *> * lines, int k);
+
+    std::vector<byte> * getAssemblyCode();
 
     // debug only
     std::string getOutput();

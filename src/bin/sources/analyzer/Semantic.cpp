@@ -14,6 +14,10 @@ Instruction Semantic::getType() {
     return type;
 }
 
+std::vector<byte> * Semantic::getOpCode(){
+    return opcode;
+}
+
 Invalid::Invalid(std::string line)
     : Semantic(line, Instruction::iINVALID) {}
 
@@ -80,7 +84,7 @@ std::set<std::string> * Add::getSymbolSet() {
 
     for(int i = 0; i < (int) expression->size(); i++){
         if(expression->at(i)->getType() == TokenTypes::tIDENTIFIER){
-            set->emplace(expression->at(i));
+            set->emplace(expression->at(i)->getToken());
         }
     }
 
@@ -125,7 +129,7 @@ std::set<std::string> * Sub::getSymbolSet() {
 
     for(int i = 0; i < (int) expression->size(); i++){
         if(expression->at(i)->getType() == TokenTypes::tIDENTIFIER){
-            set->emplace(expression->at(i));
+            set->emplace(expression->at(i)->getToken());
         }
     }
 
@@ -203,7 +207,7 @@ std::set<std::string> * Cmp::getSymbolSet() {
 
     for(int i = 0; i < (int) expression->size(); i++){
         if(expression->at(i)->getType() == TokenTypes::tIDENTIFIER){
-            set->emplace(expression->at(i));
+            set->emplace(expression->at(i)->getToken());
         }
     }
 
@@ -246,7 +250,7 @@ std::set<std::string> * Or::getSymbolSet() {
 
     for(int i = 0; i < (int) expression->size(); i++){
         if(expression->at(i)->getType() == TokenTypes::tIDENTIFIER){
-            set->emplace(expression->at(i));
+            set->emplace(expression->at(i)->getToken());
         }
     }
 
@@ -291,7 +295,7 @@ std::set<std::string> * And::getSymbolSet() {
 
     for(int i = 0; i < (int) expression->size(); i++){
         if(expression->at(i)->getType() == TokenTypes::tIDENTIFIER){
-            set->emplace(expression->at(i));
+            set->emplace(expression->at(i)->getToken());
         }
     }
 
@@ -336,7 +340,7 @@ std::set<std::string> * Xor::getSymbolSet() {
 
     for(int i = 0; i < (int) expression->size(); i++){
         if(expression->at(i)->getType() == TokenTypes::tIDENTIFIER){
-            set->emplace(expression->at(i));
+            set->emplace(expression->at(i)->getToken());
         }
     }
 
@@ -487,13 +491,13 @@ std::set<std::string> * Mov::getSymbolSet() {
 
     for(int i = 0; expression1 != nullptr && i < (int) expression1->size(); i++){
         if(expression1->at(i)->getType() == TokenTypes::tIDENTIFIER){
-            set->emplace(expression1->at(i));
+            set->emplace(expression1->at(i)->getToken());
         }
     }
 
     for(int i = 0; expression2 != nullptr && i < (int) expression2->size(); i++){
         if(expression2->at(i)->getType() == TokenTypes::tIDENTIFIER){
-            set->emplace(expression2->at(i));
+            set->emplace(expression2->at(i)->getToken());
         }
     }
 
@@ -638,13 +642,13 @@ std::set<std::string> * Dw::getSymbolSet() {
 
     for(int i = 0; i < (int) defaultValue->size(); i++){
         if(defaultValue->at(i)->getType() == TokenTypes::tIDENTIFIER){
-            set->emplace(defaultValue->at(i));
+            set->emplace(defaultValue->at(i)->getToken());
         }
     }
 
     for(int i = 0; i < (int) length->size(); i++){
         if(length->at(i)->getType() == TokenTypes::tIDENTIFIER){
-            set->emplace(length->at(i));
+            set->emplace(length->at(i)->getToken());
         }
     }
 
@@ -676,7 +680,7 @@ std::set<std::string> * Equ::getSymbolSet() {
 
     for(int i = 0; i < (int) expression->size(); i++){
         if(expression->at(i)->getType() == TokenTypes::tIDENTIFIER){
-            set->emplace(expression->at(i));
+            set->emplace(expression->at(i)->getToken());
         }
     }
 
@@ -793,7 +797,7 @@ std::set<std::string> * Jmp::getSymbolSet() {
 
     for(int i = 0; i < (int) expression->size(); i++){
         if(expression->at(i)->getType() == TokenTypes::tIDENTIFIER){
-            set->emplace(expression->at(i));
+            set->emplace(expression->at(i)->getToken());
         }
     }
 
@@ -823,7 +827,7 @@ std::set<std::string> * Je::getSymbolSet() {
 
     for(int i = 0; i < (int) expression->size(); i++){
         if(expression->at(i)->getType() == TokenTypes::tIDENTIFIER){
-            set->emplace(expression->at(i));
+            set->emplace(expression->at(i)->getToken());
         }
     }
 
@@ -852,7 +856,7 @@ std::set<std::string> * Jnz::getSymbolSet() {
 
     for(int i = 0; i < (int) expression->size(); i++){
         if(expression->at(i)->getType() == TokenTypes::tIDENTIFIER){
-            set->emplace(expression->at(i));
+            set->emplace(expression->at(i)->getToken());
         }
     }
 
@@ -881,7 +885,7 @@ std::set<std::string> * Jz::getSymbolSet() {
 
     for(int i = 0; i < (int) expression->size(); i++){
         if(expression->at(i)->getType() == TokenTypes::tIDENTIFIER){
-            set->emplace(expression->at(i));
+            set->emplace(expression->at(i)->getToken());
         }
     }
 
@@ -910,7 +914,7 @@ std::set<std::string> * Jp::getSymbolSet() {
 
     for(int i = 0; i < (int) expression->size(); i++){
         if(expression->at(i)->getType() == TokenTypes::tIDENTIFIER){
-            set->emplace(expression->at(i));
+            set->emplace(expression->at(i)->getToken());
         }
     }
 
@@ -939,7 +943,7 @@ std::set<std::string> * Call::getSymbolSet() {
 
     for(int i = 0; i < (int) expression->size(); i++){
         if(expression->at(i)->getType() == TokenTypes::tIDENTIFIER){
-            set->emplace(expression->at(i));
+            set->emplace(expression->at(i)->getToken());
         }
     }
 
@@ -968,7 +972,7 @@ std::set<std::string> * Int::getSymbolSet() {
 
     for(int i = 0; i < (int) expression->size(); i++){
         if(expression->at(i)->getType() == TokenTypes::tIDENTIFIER){
-            set->emplace(expression->at(i));
+            set->emplace(expression->at(i)->getToken());
         }
     }
 
@@ -1011,7 +1015,7 @@ std::set<std::string> * Org::getSymbolSet() {
 
     for(int i = 0; i < (int) expression->size(); i++){
         if(expression->at(i)->getType() == TokenTypes::tIDENTIFIER){
-            set->emplace(expression->at(i));
+            set->emplace(expression->at(i)->getToken());
         }
     }
 

@@ -1,14 +1,13 @@
-const asmr = require('./build/Release/ASMR.node')
+const bindings = require('bindings')
 const EventEmitter = require('events');
-/*
+
 let asmr;
 try{
     asmr = bindings('ASMR') ?? null; // Pega o ASMR se ele estiver compilado
 }catch(e){
     asmr = null;
-    console.log(e);
 }
-*/
+
 console.log("Module C++: ",asmr);
 const isAsmr = asmr != null; 
 if(isAsmr) asmr.init();
@@ -57,77 +56,38 @@ const getEmitter = () => emitter.emit.bind(emitter);
 LogEventObserver = setInterval(() => asmr?.observeLogFiring(getEmitter()), 10);
 
 const run = () => {
-  const params = [`
-  Dados SEGMENT
-  Var1 DW 5
-  Var2 DW 8
-  Var3 DW 3
-  Dados ENDS
-  Codigo SEGMENT
-  ASSUME CS: Codigo
-  ASSUME DS: Dados
-  SomaMem MACRO Mem1, Mem2 ;; Soma duas variáveis
-  mov AX,Mem1
-  push AX
-  mov AX,Mem2
-  mov DX,AX
-  pop AX
-  add AX,DX
-  mov Mem1,AX
-  ENDM
-  Inicio:
-  mov AX, Dados
-  mov DS, AX
-  mov AX,2
-  mov AX, DX
-  mul DX
-  SomaMem Var1,V
-  mov AX, Var1
-  add AX, DX
-  mov Var2, AX
-  SomaMem Var1, 3
-  SomaMem Var1, Var3
-  CODIGO ENDS
-  END Inicio
-  `,[]];
-
-  const type = "requestAssembleAndRun";
-asmr[type].apply(asmr,params)
+asmr.requestAssembleAndRun(`
+Dados SEGMENT
+Var1 DW 5
+Var2 DW 8
+Var3 DW 3
+Dados ENDS
+Codigo SEGMENT
+ASSUME CS: Codigo
+ASSUME DS: Dados
+SomaMem MACRO Mem1, Mem2 ;; Soma duas variáveis
+mov AX,Mem1
+push AX
+mov AX,Mem2
+mov DX,AX
+pop AX
+add AX,DX
+mov Mem1,AX
+ENDM
+Inicio:
+mov AX, Dados
+mov DS, AX
+mov AX,2
+mov AX, DX
+mul DX
+SomaMem Var1,V
+mov AX, Var1
+add AX, DX
+mov Var2, AX
+SomaMem Var1, 3
+SomaMem Var1, Var3
+CODIGO ENDS
+END Inicio
+`,[]);
 ProgramToMemoryEventObserver = setInterval(() => asmr.observeProgramToMemoryFiring(getEmitter()), 10);
 }
-
-run();
-/*
-'use strict';
-
-const EventEmitter = require('events').EventEmitter;
-const addon = require('bindings')('ASMR.node');
-//const addon = require('./build/Release/ASMR.node');
-const emitter = new EventEmitter();
-
-/*
-let myPromise = new Promise(function(myResolve, myReject) {
-  addon.requestTest();
-  myResolve(); // when successful
-  myReject();  // when error
-});
-  
-myPromise.then(
-  function(value) {  },
-  function(error) {  }
-);
-
-addon.requestEndTest();
-*
-
-emitter.on("log", (data) => {
-    console.log(JSON.parse(data).message);
-})
-
-addon.init(emitter.emit.bind(emitter));
-
-console.log("-- post init")
-
-addon.requestEndTest();
-
-console.log("-- referencial")*/

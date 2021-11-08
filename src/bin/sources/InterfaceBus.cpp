@@ -214,30 +214,44 @@ void InterfaceBus::runExpandMacros()
 void InterfaceBus::runAssembleAndRun()
 {
 
-    while (isUpdating())
-        ;
-    setWaiting(false);
+    std::cout << "assemble and run: begin : code:\n" << inputReport.code << std::endl;
+    std::vector<Semantic *> *semantics = recognitionManager->analyze(inputReport.code, false);
+    std::cout << "assemble and run: analyzer" << std::endl;
+    assembler = new Assembler(semantics);
+    assembler->init(true);
+    std::cout << "assemble and run: preprocess" << std::endl;
+    if(assembler->assemble(inputReport.modeAssembler) == 0) {
+
+        std::cout << "assemble and run: assemble" << std::endl;
+
+        machine->resetMachine();
+        machine->memoryUpdate(&inputReport.memory, assembler->getAssemblyCode());
+        machine->run(false);
+
+        std::cout << "assemble and run: run" << std::endl;
+
+        while (isUpdating());
+        setWaiting(false);
+
+    }
+
+    delete assembler;
 }
 
 void InterfaceBus::runAssembleAndRunBySteps()
 {
 
-    while (isUpdating())
-        ;
+    while (isUpdating());
     setWaiting(false);
 }
 
 void InterfaceBus::runRun()
 {
     machine->resetMachine();
-    std::cout << "service run: memory setting" << std::endl;
     machine->memoryUpdate(&inputReport.memory, &inputReport.bytecode);
-    std::cout << "service run: run" << std::endl;
     machine->run(false);
-    std::cout << "service run: memory set" << std::endl;
 
-    while (isUpdating())
-        ;
+    while (isUpdating());
     setWaiting(false);
 }
 
@@ -395,6 +409,7 @@ void InterfaceBus::serviceExpandMacros(NodeInfo *info, V8Var code)
 void InterfaceBus::serviceAssembleAndRun(NodeInfo *info, V8Var code, V8Var memory)
 {
     this->info = info;
+    //std::cout << "Request: " << castV8toString(code) << std::endl;
     inputReport.code = castV8toString(code);
     inputReport.memory = castV8toByteArray(memory);
     service = Service::ASSEMBLE_AND_RUN;

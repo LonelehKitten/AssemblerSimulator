@@ -28,55 +28,77 @@ Assembler::Assembler(std::vector<Semantic *> *lines) : lines(lines)
  * getType - retorna um enum, com base nele podemos pegar o código de máquina referente
  */
 
-void Assembler::generateAssembly(std::vector<unsigned char> bytecode)
-{
-    //Concatenar bytecode no final de assemblyCode
-        
-
-    return;
-}
-
 template <class T>
 void Assembler::tableArithmeticInstructions(T *t)
 {
-    Symbol *s;
-    std::set<std::string> * set;
+    std::set<std::string> *set;
 
-    if (t->getExpression() != nullptr){     //instrucoes q o expression não for nullptr tem simbolo
+    if (set == nullptr)
+        return;
+
+    if (t->getExpression() != nullptr)
+    { // instrucoes q o expression não for nullptr tem simbolo
 
         programCounter += 3;
+        segmentCounter += 3;
         set = t->getSymbolSet();
 
-        for(std::set<std::string>::iterator it = set.begin(); it != set.end()) {
-            s = new Symbol(*it,"??");
-
-            //procurar p ver se já n tem o simbolo na tabela
-            if(symbolTable.find(*it) != symbolTable.end())
-                symbolTable.insert(s->name, s);
+        for (std::set<std::string>::iterator it = set->begin(); it != set->end(); it++)
+        {
+            // procurar p ver se já n tem o simbolo na tabela
+            if (currentSegment->getSymbol(*it) == nullptr)
+                currentSegment->setSymbol(new Symbol(*it, std::string("??")));
         }
 
         return;
-
     }
 
     programCounter += 2;
+    segmentCounter += 2;
 }
 
 template <class T>
-void Assembler::tableJumpsInstruction(T *t) 
+void Assembler::tableJumpsInstruction(T *t)
 {
     programCounter += 3;
-    
-    std::set<std::string> * set;
+    segmentCounter += 3;
+
+    std::set<std::string> *set;
 
     set = t->getSymbolSet();
 
-    for(std::set<std::string>::iterator it = set.begin(); it != set.end()) {
-        s = new Symbol(*it,"??");
+    if (set == nullptr)
+        return;
 
-        //procurar p ver se já n tem o simbolo na tabela
-        if(symbolTable.find(*it) != symbolTable.end())
-            symbolTable.insert(s->name, s);
+    for (std::set<std::string>::iterator it = set->begin(); it != set->end(); it++)
+    {
+        // procurar p ver se já n tem o simbolo na tabela
+            if (currentSegment->getSymbol(*it) == nullptr)
+                currentSegment->setSymbol(new Symbol(*it, std::string("??"), false, true));
+    }
+}
+
+template <class T>
+void Assembler::tableVarInstruction(T *t, bool isConst)
+{
+    if (!isConst)
+    {
+        segmentCounter += 2;
+        programCounter += 2;
+    }
+
+    std::set<std::string> *set;
+
+    set = t->getSymbolSet();
+
+    if (set == nullptr)
+        return;
+
+    for (std::set<std::string>::iterator it = set->begin(); it != set->end(); it++)
+    {
+        // procurar p ver se já n tem o simbolo na tabela
+        if (currentSegment->getSymbol(*it) == nullptr)
+            currentSegment->setSymbol(new Symbol(*it, std::string("??"), true, false));
     }
 }
 
@@ -86,12 +108,27 @@ void Assembler::tableJumpsInstruction(T *t)
 int Assembler::basicoAssemblerStep1()
 {
     programCounter = 0; // LC
+    segmentCounter = 0;
     Instruction instruction;
-    std::vector<Token *> * expression;
-    Symbol *s;
-    Semantic * line;
+    USint value;
 
-    //for (File::iterator line = lines->begin(); line != lines->end(); ++line)
+    std::vector<Token *> *expression;
+    Symbol *s;
+    Semantic *line;
+    bool inSegment = false;
+
+    typedef struct PendingResolution {
+        Symbol *symbol;
+        SegmentDef *segment;
+        Equ *semantic;
+        PendingResolution(Symbol *symbol, SegmentDef *segment, Equ *semantic) :
+            symbol(symbol), segment(segment), semantic(semantic)
+        {}
+    } PendingResolution;
+
+    std::vector<PendingResolution *> dependencyMap;
+
+    // for (File::iterator line = lines->begin(); line != lines->end(); ++line)
     for (int i = 0; i < lines->size(); ++i)
     {
         std::vector<Token *> *expression;
@@ -106,184 +143,205 @@ int Assembler::basicoAssemblerStep1()
         // DW, EQU, ORG
 
         instruction = line->getType();
+
+        if (!inSegment && instruction == Instruction::iSEGMENT)
+        {
+            Segment *segment = (Segment *)line;
+            segmentTable[segment->getName()] = new SegmentDef(segment->getName(), programCounter);
+            currentSegment = segmentTable.find(segment->getName())->second;
+
+            // mov ax, Var1
+            // mov ax, const1
+            // mov ax, Var1+const1+var4+consty3
+
+            segmentCounter = 0;
+            continue;
+        }
+
         switch (instruction)
         {
-            //aritmeticas e logicas
-            case Instruction::iADD:
-                tableArithmeticInstructions<Add>((Add *) line);
-                break;
-            case Instruction::iSUB:
-                tableArithmeticInstructions<Sub>((Sub *) line);
-                break;
-            case Instruction::iCMP:
-                tableArithmeticInstructions<Cmp>((Cmp *) line);
-                break;
-            case Instruction::iOR:
-                tableArithmeticInstructions<Or>((Or *) line);
-                break;
-            case Instruction::iAND:
-                tableArithmeticInstructions<And>((And *) line);
-                break;
-            case Instruction::iXOR:
-                tableArithmeticInstructions<Xor>((Xor *) line);
-                break;
 
-            //desvio
-            case Instruction::iJMP:
-                tableJumpsInstruction<Jmp>((Jmp *) line);
-                break;
-            case Instruction::iJE:
-                tableJumpsInstruction<Je>((Je *) line);
-                break;
-            case Instruction::iJNZ:
-                tableJumpsInstruction<Jnz>((Jnz *) line);
-                break;
-            case Instruction::iJZ:
-                tableJumpsInstruction<Jz>((Jz *) line);
-                break;
-            case Instruction::iJP:
-                tableJumpsInstruction<Jp>((Jp *) line);
-                break;
-            case Instruction::iCALL:
-                tableJumpsInstruction<Call>((Call *) line);
-                break;
-            case Instruction::iINT:
-                tableJumpsInstruction<Int>((Int *) line);
-                break;
-            
-            //movimetação
-            case Instruction::iMOV:
+        // aritmeticas e logicas
+        case Instruction::iADD:
+            tableArithmeticInstructions<Add>((Add *)line);
 
-                programCounter += 3;
-                //
+            break;
+        case Instruction::iSUB:
+            tableArithmeticInstructions<Sub>((Sub *)line);
+            break;
+        case Instruction::iCMP:
+            tableArithmeticInstructions<Cmp>((Cmp *)line);
+            break;
+        case Instruction::iOR:
+            tableArithmeticInstructions<Or>((Or *)line);
+            break;
+        case Instruction::iAND:
+            tableArithmeticInstructions<And>((And *)line);
+            break;
+        case Instruction::iXOR:
+            tableArithmeticInstructions<Xor>((Xor *)line);
+            break;
+
+        // desvio
+        case Instruction::iJMP:
+            tableJumpsInstruction<Jmp>((Jmp *)line);
+            break;
+        case Instruction::iJE:
+            tableJumpsInstruction<Je>((Je *)line);
+            break;
+        case Instruction::iJNZ:
+            tableJumpsInstruction<Jnz>((Jnz *)line);
+            break;
+        case Instruction::iJZ:
+            tableJumpsInstruction<Jz>((Jz *)line);
+            break;
+        case Instruction::iJP:
+            tableJumpsInstruction<Jp>((Jp *)line);
+            break;
+        case Instruction::iCALL:
+            tableJumpsInstruction<Call>((Call *)line);
+            break;
+        case Instruction::iINT:
+            tableJumpsInstruction<Int>((Int *)line);
+            break;
+
+        // movimetação
+        case Instruction::iMOV:
+
+            // if(((Mov *) line)->getOperand1() != null )
+
+            programCounter += 3;
+            segmentCounter += 3;
+            //
+            break;
+
+        case Instruction::iASSUME:
+        {
+            Assume *assume = (Assume *)line;
+
+            if (assume->getSegmentRegister() == "cs" &&
+                segmentTable.find(assume->getName()) != segmentTable.end())
+            {
+                assumedProgramSegment = segmentTable.find(assume->getName())->second;
+            }
+            else if (assume->getSegmentRegister() == "ds" &&
+                     segmentTable.find(assume->getName()) != segmentTable.end())
+            {
+                assumedDataSegment = segmentTable.find(assume->getName())->second;
+            }
+            else if (assume->getSegmentRegister() == "ss" &&
+                     segmentTable.find(assume->getName()) != segmentTable.end())
+            {
+                assumedStackSegment = segmentTable.find(assume->getName())->second;
+            }
+            break;
+        }
+
+        case Instruction::iORG: // error: jump to case label
+
+            if(evaluate(((Org *) line)->getExpression(), &value) != nullptr) {
+                programCounter += value;
+                segmentCounter += value;
                 break;
+            }
 
-            case Instruction::iORG:
+            return ERROR;
 
-                expression = ((Org *) line)->getExpression();
-                //programCounter = line.getValue();
+        case Instruction::iDW:
+        {
+            Dw *dw = (Dw *)line;
+            if (currentSegment->getSymbol(dw->getName()) == nullptr)
+            {
+                currentSegment->setSymbol(new Symbol(dw->getName(), std::string("??"), true, false));
+            }
 
+            tableVarInstruction<Dw>(dw, false);
+
+            currentSegment->getSymbol(dw->getName())->value = std::to_string(segmentCounter);
+
+            break;
+        }
+
+        case Instruction::iEQU:
+        {
+            Equ *equ = (Equ *)line;
+            if (currentSegment->getSymbol(equ->getName()) == nullptr)
+            {
+                currentSegment->setSymbol(new Symbol(equ->getName(), std::string("??"), false, false));
+            }
+
+            tableVarInstruction<Equ>(equ, true);
+
+            if (evaluate(equ->getExpression(), &value) != nullptr)
+            {
+                currentSegment->getSymbol(equ->getName())->value = std::to_string(value);
                 break;
+            }
 
-            case Instruction::iDW:
-                /*
-                if(line){
-                    if( symbolTable.find(line) != symbolTable.end()){
-                        // coloca rótulo na TS
-                        symbolTable.insert(line->getLine(), line->getType());
-                        programCounter += 2;
-                    }else{
-                        programCounter =  int( expression = ((Dw *) line)->getLength() );
-                    }
-                }
-                */
-                
-                // if Instrucao contém rotulo
-                // then if rotulo não está em TS
-                // coloca rótulo na TS com PC
-                //		pc += 2
-                // else if Instrucao é instrucao de máquina (pesquisar na TIM)
-                    //then pc += Tamanho da inst
+            dependencyMap.emplace_back(new PendingResolution(currentSegment->getSymbol(equ->getName()), currentSegment, equ));
+/*
+../src/bin/sources/assembler/Assembler.cpp:278:104: 
+error: no matching function for call to 
+‘std::vector<Assembler::basicoAssemblerStep1()::PendingResolution*>::emplace_back(<brace-enclosed initializer list>)’
+278 |  dependencyMap.emplace_back({currentSegment->getSymbol(equ->getName()), currentSegment, equ});
+*/                                                                                                    
+            break;
+        }
+        case Instruction::iLABEL:
+        {
+            Label * label = (Label *) line;
+            if (currentSegment->getSymbol(label->getName()) == nullptr)
+            {
+                currentSegment->setSymbol(new Symbol(label->getName(), std::string("??")));
+            }
 
+            currentSegment->getSymbol(label->getName())->value = segmentCounter;
+            break;
+        }
+        case Instruction::iEND:
+            // if (rotulo existe)
+            // return SUCCESS;
+            // else
+            // return ERROR;
+            break;
 
+        case Instruction::iENDS:
+            // Comecar catalogacao de variaveis dentro do segmento de codigo
+            break;
 
-                //s = new Symbol(line->getName(), , );
-
-                //symbolTable.insert(s);
-                break;
-
-            case Instruction::iEQU:
-                //
-                break;
-            
-            case Instruction::iEND:
-                //if (rotulo existe)
-                  //basicoAssemblerStep2();
-                //else
-                  //std::cout << ("ERROR"); 
-                break;
-
-            
-            default:
-                //
-                break;
+        default:
+            //
+            break;
         }
     }
 
-    /*
-    int locationCounter = 0;
-    int label;                      //#### template ####
-    int opcode;                     //#### template ####
-    int operand;                    //#### template ####
-    int* entry = NULL;              //#### template ####
-    int value, length;
-
-    //file == *this->lines
-    for(File::iterator line = this->lines->begin(); line != this->lines->end(); ++line)
+    PendingResolution * dep;
+    bool symbolWasResolved = false;
+    do
     {
-        //label = line->getLabel();         //falta pegar da linha
-        opcode = line->getType();
-        //operand = line->getOperand();     //pegar depois
-
-        // ** entry <- FINDTABLE(POT, opcode) **
-        //entry = tabela_de_pseudoinstrucoes;
-
-        if(entry != NULL)   //Se eh pseudoinstrucao
+        for (auto i = dependencyMap.begin(); i != dependencyMap.end(); i++)
         {
-            switch (opcode)
+            /*
+../src/bin/sources/assembler/Assembler.cpp:298:43: error: cannot bind non-const lvalue reference of type ‘__gnu_cxx::__normal_iterator<Assembler::basicoAssemblerStep1()::PendingResolution**, std::vector<Assembler::basicoAssemblerStep1()::PendingResolution*> >&’ to an rvalue of type ‘std::vector<Assembler::basicoAssemblerStep1()::PendingResolution*>::iterator’ {aka ‘__gnu_cxx::__normal_iterator<Assembler::basicoAssemblerStep1()::PendingResolution**, std::vector<Assembler::basicoAssemblerStep1()::PendingResolution*> >’}
+  298 |         for (auto &i = dependencyMap.begin(); i != dependencyMap.end(); i++)
+      |                        ~~~~~~~~~~~~~~~~~~~^~
+
+            */            
+            dep = *i;
+            if (evaluate(dep->semantic->getExpression(), &value) != nullptr)
             {
-                case 'ORG':
-                    // ** LC <-GETOPERANDVALUE (operand) **
-                    //locationCounter = line->getValue();
-                break;
-
-                case 'END':
-                    return basicoAssemblerStep2();
-                break;
-defaultValue
-                        // ** value <- GETOPERANDVALUE (operand) **
-                        //value = (operand);
-                        length = 0;
-                    }else
-                    {
-                        value = locationCounter;
-                        //lenght(entry, operand);
-                    }
-
-                    if(label != NULL)
-                    {
-                        // ** INSERTTABLE(ST, label, value) **
-                        //(ST, label, value); //usar this->symbolTable (unordered_map) para ST
-                        locationCounter = locationCounter + lenght;
-                    }
-                break;
-
+                dep->symbol->value = std::to_string(value);
+                delete dep;
+                dependencyMap.erase(i);
+                symbolWasResolved = true;
+                i--;
             }
         }
-        else
+        if (!symbolWasResolved)
         {
-            // ** entry <- FINDTABLE(MOT, opcode) **
-            //entry = tabela_de_instrucoes_maquina;
-
-            if(entry != NULL){
-                // ** length <- GETINSTRUCTIONSZE(entry, operand) **
-                length = (entry, operand);
-
-                if(label != NULL)
-                    //INSERTTABLE (ST, label, LC)
-                    //(ST, label, LC);        //usar this->symbolTable (unordered_map) para ST
-
-                locationCounter = locationCounter + lenght;
-            }
-            else
-            {
-                //error message, invalid opcode
-            }
+            break;
         }
-
-    }
-
-    */
+    } while ((int)dependencyMap.size() > 0);
 
     return 0;
 }
@@ -291,135 +349,439 @@ defaultValue
 /*
     lida com o ExpressionEvaluator e retorna o vetor de bytes do valor resultante
 */
-std::vector<byte> * Assembler::evaluate(Expression * expression) {
-    return nullptr;
+std::vector<byte> *Assembler::evaluate(Expression *expression, USint *valueHolder)
+{
+    ExpressionEvaluator *evaluator = new ExpressionEvaluator(expression, assumedProgramSegment, assumedDataSegment);
+    /*
+    ../src/bin/sources/assembler/Assembler.cpp:352:72: error: no matching function for call to ‘ExpressionEvaluator::ExpressionEvaluator(Expression*&)’
+  352 |     ExpressionEvaluator *evaluator = new ExpressionEvaluator(expression);
+      |                                                                        ^
+    */
+    if (evaluator->couldNotSymbolBeResolved())
+    {
+        delete evaluator;
+        return nullptr;
+    }
+    USint value = evaluator->getValue();
+
+    delete evaluator;
+
+    if (valueHolder != nullptr)
+        *valueHolder = value;
+
+    return new std::vector<byte>({(value & 0xFF), (value >> 8)});
 }
+
+// produz o código de máquina associado ao código da instrução e operandos
+template <class T>
+std::vector<byte> * Assembler::generateAssembly(T *line)
+{
+    std::vector<byte> * expressValue, * opcode;
+
+    // não depende de expressão
+    if (line->getExpression() == nullptr)
+    {
+        return line->getOpCode();
+    }
+
+    // C.C. junta o opcode com o evaluate
+    expressValue = evaluate(line->getExpression(), nullptr);
+    
+    opcode = line->getOpCode();
+
+    for (int i = 0; expressValue != nullptr && i < expressValue->size(); i++)
+    {
+        std::cout << "#" << i << ":  " << (int) expressValue->at(i) << std::endl;
+        opcode->push_back(expressValue->at(i));
+    }
+    
+
+    return opcode;
+}
+
+void Assembler::GetSpecialOpcode(Semantic *line)
+{
+    // assemblyCode.push_back(((Div *)line)->getOpcode());
+    std::vector<byte> * lineCode = line->getOpCode();
+    for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+    {
+        assemblyCode.push_back(lineCode->at(i));
+    }
+}
+
+/*
+void GetAritmeticLogicOpcode(){
+    lineCode = generateAssembly<Add>((Add *) line);
+                if (lineCode == nullptr){
+                    return ERROR;
+                }else
+                {
+                    for(int i = 0; lineCode != nullptr && i < lineCode->size(); i++){
+                        assemblyCode.push_back(lineCode->at(i));
+                    }
+                }
+}
+*/
 
 // NECESSÁRIO PARA A ENTREGA 3
 int Assembler::basicoAssemblerStep2()
 {
-    Semantic * line;
+    USint value;
+
+    startProgram = 0;
+
+    Semantic *line;
     Instruction instruction;
+
     programCounter = 0;
-    
+    segmentCounter = 0;
+
+    std::string endLabel;
+
+    Symbol *label;
+
+    std::vector<byte> *lineCode;
+    std::vector<byte> *expressionValue;
+
+    bool inSegment = false;
+
     for (int i = 0; i < lines->size(); ++i)
     {
-
+        line = lines->at(i);
         instruction = line->getType();
+
+        if (!inSegment && instruction == Instruction::iSEGMENT)
+        {
+            Segment *segment = (Segment *)line;
+            
+            segmentCounter = 0;
+            
+            currentSegment = segmentTable.find(segment->getName())->second;
+            
+            inSegment = true;
+            
+            continue;
+        }
+
         switch (instruction)
         {
-            case Instruction::iEQU:
+        case Instruction::iEQU:
             break;
-            //Nada
-            case Instruction::iORG:
-            //std::vector<Token *> * getExpression() const;
-            //std::set<std::string> * getSymbolSet();
+            // Nada
 
-                //programCounter = processarExpressao;
- 
+        case Instruction::iORG:
+
+            lineCode = evaluate(((Org *)line)->getExpression(), &value); 
+            /*
+            ../src/bin/sources/assembler/Assembler.cpp:469:66: error: ‘value’ was not declared in this scope; did you mean ‘evaluate’?
+  469 |             lineCode = evaluate(((Org *)line)->getExpression(), &value);
+      |                                                                  ^~~~~
+      |                                                                  evaluate
+      */
+            if (lineCode == nullptr)
+            {
+                return ERROR;
+            }
+            else
+            {
+                programCounter += value;
+                segmentCounter += value;
+            }
+
             break;
 
-            case Instruction::iEND:
+        case Instruction::iEND:
+            endLabel = ((End *)line)->getName();
+            label = currentSegment->getSymbol(endLabel);
+
+            if (label == nullptr)
+            {
+                return ERROR;
+            }
+            else
+            {
+                startProgram = std::stoi(label->value);
+            }
+
+            return SUCCESS;
+            break;
+
+        case Instruction::iENDS:
+            endLabel = ((EndS *)line)->getName(); 
+
+            if (endLabel == currentSegment->getName())
+            {
+                return ERROR;
+            }
+            else
+            {
+                inSegment = false;
+            }
 
             break;
 
-            //default:
-            //DC e DS tem no Z808? C.c ignorar
+        // casos especiais
+        case Instruction::iDIV:
+        case Instruction::iRET:
+        case Instruction::iNOT:
+        case Instruction::iMUL:
+            GetSpecialOpcode(line);
+            break;
 
-            //aritmeticas e logicas
-            case Instruction::iADD:
-                //generateAssembly(processarExpressao<Add>((Add *) line));
-            break;
-            case Instruction::iSUB:
-                //generateAssembly(processarExpressao<Sub>((Sub *) line));
-            break;
-            case Instruction::iCMP:
-                //generateAssembly(processarExpressao<Cmp>((Cmp *) line));
-            break;
-            case Instruction::iOR:
-                //generateAssembly(processarExpressao<Or>(Or *) line));
-            break;
-            case Instruction::iAND:
-                //generateAssembly(processarExpressao<And>((And *) line));
-            break;
-            case Instruction::iXOR:
-                //generateAssembly(processarExpressao<Xor>((Xor *) line));
-                break;
+        case Instruction::iMOV:
+        {
+            lineCode = line->getOpCode();
 
-            //desvio
-            case Instruction::iJMP:
-                //tableJumpsInstruction<Jmp>((Jmp *) line);
-                
-                //generateAssembly(processarExpressao<Jmp>((Jmp *) line));
+            Mov * mov = (Mov *) line;
+            if (mov->getSymbolSet() == nullptr)
+            {
+                for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+                {
+                    assemblyCode.push_back(lineCode->at(i));
+                }
+            }
+            else
+            {
+                if (mov->getExpression1() == nullptr && mov->isIndexed())
+                {
+                    // MOV AX, [SI] -- check
+                    for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+                    {
+                        assemblyCode.push_back(lineCode->at(i));
+                    }
+
+                    // MOV AX,mem[SI] -- usar evalute -- check
+                    expressionValue = evaluate(mov->getExpression2(), nullptr);
+                    for (int i = 0; expressionValue != nullptr && i < expressionValue->size(); i++)
+                    {
+                        assemblyCode.push_back(expressionValue->at(i)); //??????
+                    }
+                }
+                else if (mov->getExpression1() == nullptr)
+                {
+                    // MOV AX,cte -- ignorar por enquanto
+                    // MOV AX, mem -- ignorar por enquanto
+                }
+                else if (mov->getExpression2() == nullptr && mov->isIndexed())
+                {
+                    // MOV mem[SI], AX -- check
+                    for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+                    {
+                         assemblyCode.push_back(lineCode->at(i));
+                    }
+                    
+                    expressionValue = evaluate(mov->getExpression1(), nullptr);
+                    for (int i = 0; expressionValue != nullptr && i < expressionValue->size(); i++)
+                    {
+                        assemblyCode.push_back(expressionValue->at(i));
+                    }
+                }
+                else if (mov->getExpression2() == nullptr)
+                {
+                    // MOV [SI], AX -- check
+                    if (mov->getExpression1()->empty())
+                    {
+                        for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+                        {
+                            assemblyCode.push_back(lineCode->at(i));
+                        }
+                    }
+
+                    // MOV mem, AX
+                }
+            }
+
             break;
-            case Instruction::iJE:
-                 //generateAssembly(processarExpressao<Je>((Je *) line));
+        }
+        // aritmeticas e logicas
+        case Instruction::iADD:
+            lineCode = generateAssembly<Add>((Add *)line);
+            if (lineCode == nullptr)
+            {
+                return ERROR;
+            }
+            else
+            {
+                for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+                {
+                    assemblyCode.push_back(lineCode->at(i));
+                }
+            }
             break;
-            case Instruction::iJNZ:
-                 //generateAssembly(processarExpressao<Jnz>((Jnz *) line));
+        case Instruction::iSUB:
+            lineCode = generateAssembly<Sub>((Sub *)line);
+            if (lineCode == nullptr)
+            {
+                return ERROR;
+            }
+            else
+            {
+                for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+                {
+                    assemblyCode.push_back(lineCode->at(i));
+                }
+            }
             break;
-            case Instruction::iJZ:
-                 //generateAssembly(processarExpressao<Jz>((Jz *) line));
+        case Instruction::iCMP:
+            lineCode = generateAssembly<Cmp>((Cmp *)line);
+            if (lineCode == nullptr)
+            {
+                return ERROR;
+            }
+            else
+            {
+                for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+                {
+                    assemblyCode.push_back(lineCode->at(i));
+                }
+            }
             break;
-            case Instruction::iJP:
-                 //generateAssembly(processarExpressao<Jp>((Jp *) line));
+        case Instruction::iOR:
+            lineCode = generateAssembly<Or>((Or *)line);
+            if (lineCode == nullptr)
+            {
+                return ERROR;
+            }
+            else
+            {
+                for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+                {
+                    assemblyCode.push_back(lineCode->at(i));
+                }
+            }
             break;
-            case Instruction::iCALL:
-                 //generateAssembly(processarExpressao<Call>((Call *) line));
+        case Instruction::iAND:
+            lineCode = generateAssembly<And>((And *)line);
+            if (lineCode == nullptr)
+            {
+                return ERROR;
+            }
+            else
+            {
+                for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+                {
+                    assemblyCode.push_back(lineCode->at(i));
+                }
+            }
             break;
-            case Instruction::iINT:
-                 //generateAssembly(processarExpressao<Int>((Int *) line));
-                 tableJumpsInstruction<Int>((Int *) line);
+        case Instruction::iXOR:
+            lineCode = generateAssembly<Xor>((Xor *)line);
+            if (lineCode == nullptr)
+            {
+                return ERROR;
+            }
+            else
+            {
+                for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+                {
+                    assemblyCode.push_back(lineCode->at(i));
+                }
+            }
+            break;
+
+        // desvio
+        case Instruction::iJMP:
+            lineCode = generateAssembly<Jmp>((Jmp *)line);
+            if (lineCode == nullptr)
+            {
+                return ERROR;
+            }
+            else
+            {
+                for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+                {
+                    assemblyCode.push_back(lineCode->at(i));
+                }
+            }
+            break;
+        case Instruction::iJE:
+            lineCode = generateAssembly<Je>((Je *)line);
+            if (lineCode == nullptr)
+            {
+                return ERROR;
+            }
+            else
+            {
+                for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+                {
+                    assemblyCode.push_back(lineCode->at(i));
+                }
+            }
+            break;
+        case Instruction::iJNZ:
+            lineCode = generateAssembly<Jnz>((Jnz *)line);
+            if (lineCode == nullptr)
+            {
+                return ERROR;
+            }
+            else
+            {
+                for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+                {
+                    assemblyCode.push_back(lineCode->at(i));
+                }
+            }
+            break;
+        case Instruction::iJZ:
+            lineCode = generateAssembly<Jz>((Jz *)line);
+            if (lineCode == nullptr)
+            {
+                return ERROR;
+            }
+            else
+            {
+                for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+                {
+                    assemblyCode.push_back(lineCode->at(i));
+                }
+            }
+            break;
+        case Instruction::iJP:
+            lineCode = generateAssembly<Jp>((Jp *)line);
+            if (lineCode == nullptr)
+            {
+                return ERROR;
+            }
+            else
+            {
+                for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+                {
+                    assemblyCode.push_back(lineCode->at(i));
+                }
+            }
+            break;
+        case Instruction::iCALL:
+            lineCode = generateAssembly<Call>((Call *)line);
+            if (lineCode == nullptr)
+            {
+                return ERROR;
+            }
+            else
+            {
+                for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+                {
+                    assemblyCode.push_back(lineCode->at(i));
+                }
+            }
+            break;
+        case Instruction::iINT:
+            lineCode = generateAssembly<Int>((Int *)line);
+            if (lineCode == nullptr)
+            {
+                return ERROR;
+            }
+            else
+            {
+                for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+                {
+                    assemblyCode.push_back(lineCode->at(i));
+                }
+            }
+            break;
+        default:
             break;
         }
     }
-
-    /*
-
-    programCounter = 0; // LC
-    int startAddress;
-    Instruction instruction;
-
-    for(line = this->lines->begin(); line != this->lines->end(); ++line)
-    {
-        instruction = line->getType();
-        //operand = line->getOperand();     //pegar depois
-
-        switch(instruction) {
-            case Instruction::iEQU:
-                // NADA
-            break;
-
-            case Instruction::iORG:
-                //LC = GETOPERANDVALUE (operand)
-            break;
-
-            case Instruction::iEND:
-                //startAddress = GETOPERANDVALUE(operand)
-                //ASSEMBLECLOSINGCODE(startAdress);
-            break;
-
-            default:
-                switch(instruction) {
-                    case Instruction::iADD:
-                }
-                //if(opcode == 'DC' || opcode == 'DS'){
-                    //entry = findtable(POT, opcode);
-                //}else{
-                    //entry = findtable(MOT, opcode);
-                //}
-
-                //length = getinstructionsize(entry, operand);
-                //code = assembleByteCode(line);
-                //code = gerenatemachinecode(entry, operand);
-
-                //Concatena os vetores code e this->assemblyCode
-                //assemblemachinecode(locationCounter, code);    //Usa this->assemblyCode, std::vector<unsigned char>
-                //locationCounter = locationCounter + length;
-
-            break;
-    }
-    */
 
     return 0;
 }
@@ -428,9 +790,22 @@ int Assembler::assemble(int assemblerType)
 {
     // Switch case com assemblerType
     // Métodos de assembler devem retornar flags de erro; tratar elas
+        std::cout << "Step 1" << std::endl;
+    if(basicoAssemblerStep1() == SUCCESS) 
+    {
+        std::cout << "Step 2" << std::endl;
+        if (basicoAssemblerStep2() == SUCCESS) 
+        {
+            std::cout << "FIM" << std::endl;
+            TEST(std::cout << "Constução bem sucedida" << std::endl); 
+            return 0;
+        }
+        TEST(std::cout << "ERRO (step 2)" << std::endl);
+        return 1;
+    } 
+    TEST(std::cout << "ERRO (step 1)" << std::endl);
     
-    int flag = basicoAssemblerStep1(); 
-    return 0;
+    return 1;
 }
 
 //=====================================================================
@@ -448,13 +823,14 @@ int Assembler::macroExpandParams(MacroCall *macrocall, int k)
 
     MacroDef *macro = macroTable.find(macrocall->getName())->second;
 
-    std::vector<std::pair<std::string, std::string> *> * paramValue = macro->getParamValuePairs(macrocall);
+    std::vector<std::pair<std::string, std::string> *> *paramValue = macro->getParamValuePairs(macrocall);
 
     // ordena os pares (parametro_da_macro, valor) do maior para o menor
-    std::sort(paramValue->begin(), paramValue->end(), 
-        [](std::pair<std::string, std::string> * pair1, std::pair<std::string, std::string> * pair2) {
-            return pair1->first.size() > pair2->first.size();
-    });
+    std::sort(paramValue->begin(), paramValue->end(),
+              [](std::pair<std::string, std::string> *pair1, std::pair<std::string, std::string> *pair2)
+              {
+                  return pair1->first.size() > pair2->first.size();
+              });
 
     // itera sobre as linhas da macro (MACROCONTENT)
     for (int i = 0; i < (int)macro->getText()->size(); i++)
@@ -464,41 +840,41 @@ int Assembler::macroExpandParams(MacroCall *macrocall, int k)
         macrocontent = "";
 
         // insere espaços do lado dos caracteres especiais
-        for(int j = 0; j < aux.size(); j++) {
+        for (int j = 0; j < aux.size(); j++)
+        {
             char c = aux[j];
-            if(!Utils::isSpecialCharactere(c)) {
+            if (!Utils::isSpecialCharactere(c))
+            {
                 macrocontent += c;
                 continue;
             }
             macrocontent += std::string(" ") + c + std::string(" ");
         }
 
-        std::vector<std::string> * macrocontentPieces = Utils::split(macrocontent, ' ');
+        std::vector<std::string> *macrocontentPieces = Utils::split(macrocontent, ' ');
 
         macrocontent = "";
-        
-        // para cada linha, itera sobre os pedaços dessa linha
-        for (int j = 0; j < (int) macrocontentPieces->size(); j++)
-        {
-            if(Utils::isSpecialCharactere(macrocontentPieces->at(j))) continue;
 
+        // para cada linha, itera sobre os pedaços dessa linha
+        for (int j = 0; j < (int)macrocontentPieces->size(); j++)
+        {
+            if (Utils::isSpecialCharactere(macrocontentPieces->at(j)))
+                continue;
 
             // tenta substituir o primeiro parametro que bater pelo valor correspondente
-            for (int p = 0; p < (int) paramValue->size(); p++)
+            for (int p = 0; p < (int)paramValue->size(); p++)
             {
                 aux = macrocontentPieces->at(p);
                 aux = Utils::replaceAll(aux, paramValue->at(p)->first, paramValue->at(p)->second);
 
-                if(aux != macrocontentPieces->at(p)) break;
-
+                if (aux != macrocontentPieces->at(p))
+                    break;
             }
 
             macrocontent += aux;
 
-            TEST(std::cout << "macrocontent:  " << macrocontent << std::endl)
-
+            TEST(std::cout << "macrocontent:  " << macrocontent << std::endl);
         }
-        
 
         input += macrocontent;
     }
@@ -601,21 +977,28 @@ int Assembler::preproccess(std::vector<Semantic *> *lines, int k)
 void Assembler::init(bool willExecute)
 {
 
-    PRODUCTION(double startTime = InterfaceBus::getInstance().getMilliseconds())
+    PRODUCTION(double startTime = InterfaceBus::getInstance().getMilliseconds());
     this->preproccess(lines, 0);
-    PRODUCTION(double totalTime = (InterfaceBus::getInstance().getMilliseconds() - startTime) / 1000)
+    PRODUCTION(double totalTime = (InterfaceBus::getInstance().getMilliseconds() - startTime) / 1000);
 
-    TEST(std::cout << "============ INIT ==========" << std::endl)
-    TEST(std::cout << output << std::endl)
-    TEST(std::cout << "============ INIT ==========" << std::endl)
+    TEST(std::cout << "============ INIT ==========" << std::endl);
+    TEST(std::cout << output << std::endl);
+    TEST(std::cout << "============ INIT ==========" << std::endl);
 
     if (willExecute)
         return;
 
-    PRODUCTION(InterfaceBus::getInstance().dispatchMacroExpanded(output))
-    PRODUCTION(InterfaceBus::getInstance().dispatchLog("Macros expandidas com sucesso!", LogStatus::SUCCESS))
+    PRODUCTION(InterfaceBus::getInstance().dispatchMacroExpanded(output));
+    PRODUCTION(InterfaceBus::getInstance().dispatchLog("Macros expandidas com sucesso!", LogStatus::SUCCESS));
     PRODUCTION(
         InterfaceBus::getInstance().dispatchLog(
             std::string("Tempo:    ") + std::to_string(totalTime) + std::string(" segundos"),
-            LogStatus::INFO))
+            LogStatus::INFO));
+}
+/*
+
+*/
+
+std::vector<byte> * Assembler::getAssemblyCode() {
+    return &assemblyCode;
 }
