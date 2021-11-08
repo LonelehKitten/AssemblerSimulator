@@ -9,11 +9,11 @@ import Item from './item';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    backgroundColor: '#21222c ',
+    backgroundColor: '#21222c',
     color: '#fff',
     minHeight: '2rem',
     '& 	.MuiTab-root': {
-      boxShadow: '0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23)',
+     // boxShadow: '0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23)',
       padding: '0 12px',
       minHeight: '2rem',
     },
