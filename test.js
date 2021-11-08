@@ -6,6 +6,7 @@ try{
     asmr = bindings('ASMR') ?? null; // Pega o ASMR se ele estiver compilado
 }catch(e){
     asmr = null;
+    console.log(e);
 }
 
 console.log("Module C++: ",asmr);
@@ -56,6 +57,7 @@ const getEmitter = () => emitter.emit.bind(emitter);
 LogEventObserver = setInterval(() => asmr?.observeLogFiring(getEmitter()), 10);
 
 const run = () => {
+
 asmr.requestAssembleAndRun(`
 Dados SEGMENT
 Var1 DW 5
@@ -91,3 +93,5 @@ END Inicio
 `,[]);
 ProgramToMemoryEventObserver = setInterval(() => asmr.observeProgramToMemoryFiring(getEmitter()), 10);
 }
+
+run();

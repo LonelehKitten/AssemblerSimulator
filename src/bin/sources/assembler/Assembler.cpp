@@ -160,11 +160,9 @@ int Assembler::basicoAssemblerStep1()
 
         switch (instruction)
         {
-
         // aritmeticas e logicas
         case Instruction::iADD:
             tableArithmeticInstructions<Add>((Add *)line);
-
             break;
         case Instruction::iSUB:
             tableArithmeticInstructions<Sub>((Sub *)line);
@@ -279,12 +277,12 @@ int Assembler::basicoAssemblerStep1()
             }
 
             dependencyMap.emplace_back(new PendingResolution(currentSegment->getSymbol(equ->getName()), currentSegment, equ));
-/*
-../src/bin/sources/assembler/Assembler.cpp:278:104: 
-error: no matching function for call to 
-‘std::vector<Assembler::basicoAssemblerStep1()::PendingResolution*>::emplace_back(<brace-enclosed initializer list>)’
-278 |  dependencyMap.emplace_back({currentSegment->getSymbol(equ->getName()), currentSegment, equ});
-*/                                                                                                    
+        /*
+        ../src/bin/sources/assembler/Assembler.cpp:278:104: 
+        error: no matching function for call to 
+        ‘std::vector<Assembler::basicoAssemblerStep1()::PendingResolution*>::emplace_back(<brace-enclosed initializer list>)’
+        278 |  dependencyMap.emplace_back({currentSegment->getSymbol(equ->getName()), currentSegment, equ});
+        */                                                                                                    
             break;
         }
         case Instruction::iLABEL:
