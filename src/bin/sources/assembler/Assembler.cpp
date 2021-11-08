@@ -19,15 +19,6 @@ Assembler::Assembler(std::vector<Semantic *> *lines) : lines(lines)
 {
 }
 
-/** Coisas de Semantic que precisamos pegar:
- * getOperands - não entendi como funciona, talvez não seja o que precisamos
- * getLabel - Só tem o getName de uma subclasse Semantic Label
- * a subclasse pra pseudoinstrução ORG - não está implementada
- * (talvez tenha mais, mas por enquanto foi o que notamos)
- ** Coisas de Semantic prontas:
- * getType - retorna um enum, com base nele podemos pegar o código de máquina referente
- */
-
 template <class T>
 void Assembler::tableArithmeticInstructions(T *t)
 {
@@ -278,13 +269,7 @@ int Assembler::basicoAssemblerStep1()
                 break;
             }
 
-            dependencyMap.emplace_back(new PendingResolution(currentSegment->getSymbol(equ->getName()), currentSegment, equ));
-/*
-../src/bin/sources/assembler/Assembler.cpp:278:104: 
-error: no matching function for call to 
-‘std::vector<Assembler::basicoAssemblerStep1()::PendingResolution*>::emplace_back(<brace-enclosed initializer list>)’
-278 |  dependencyMap.emplace_back({currentSegment->getSymbol(equ->getName()), currentSegment, equ});
-*/                                                                                                    
+            dependencyMap.emplace_back(new PendingResolution(currentSegment->getSymbol(equ->getName()), currentSegment, equ));                                                                                      
             break;
         }
         case Instruction::iLABEL:
@@ -320,13 +305,7 @@ error: no matching function for call to
     do
     {
         for (auto i = dependencyMap.begin(); i != dependencyMap.end(); i++)
-        {
-            /*
-../src/bin/sources/assembler/Assembler.cpp:298:43: error: cannot bind non-const lvalue reference of type ‘__gnu_cxx::__normal_iterator<Assembler::basicoAssemblerStep1()::PendingResolution**, std::vector<Assembler::basicoAssemblerStep1()::PendingResolution*> >&’ to an rvalue of type ‘std::vector<Assembler::basicoAssemblerStep1()::PendingResolution*>::iterator’ {aka ‘__gnu_cxx::__normal_iterator<Assembler::basicoAssemblerStep1()::PendingResolution**, std::vector<Assembler::basicoAssemblerStep1()::PendingResolution*> >’}
-  298 |         for (auto &i = dependencyMap.begin(); i != dependencyMap.end(); i++)
-      |                        ~~~~~~~~~~~~~~~~~~~^~
-
-            */            
+        {    
             dep = *i;
             if (evaluate(dep->semantic->getExpression(), &value) != nullptr)
             {
@@ -352,11 +331,6 @@ error: no matching function for call to
 std::vector<byte> *Assembler::evaluate(Expression *expression, USint *valueHolder)
 {
     ExpressionEvaluator *evaluator = new ExpressionEvaluator(expression, assumedProgramSegment, assumedDataSegment);
-    /*
-    ../src/bin/sources/assembler/Assembler.cpp:352:72: error: no matching function for call to ‘ExpressionEvaluator::ExpressionEvaluator(Expression*&)’
-  352 |     ExpressionEvaluator *evaluator = new ExpressionEvaluator(expression);
-      |                                                                        ^
-    */
     if (evaluator->couldNotSymbolBeResolved())
     {
         delete evaluator;
@@ -471,13 +445,7 @@ int Assembler::basicoAssemblerStep2()
 
         case Instruction::iORG:
 
-            lineCode = evaluate(((Org *)line)->getExpression(), &value); 
-            /*
-            ../src/bin/sources/assembler/Assembler.cpp:469:66: error: ‘value’ was not declared in this scope; did you mean ‘evaluate’?
-  469 |             lineCode = evaluate(((Org *)line)->getExpression(), &value);
-      |                                                                  ^~~~~
-      |                                                                  evaluate
-      */
+            lineCode = evaluate(((Org *)line)->getExpression(), &value);
             if (lineCode == nullptr)
             {
                 return ERROR;
