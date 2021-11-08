@@ -85,8 +85,6 @@ ipcRenderer.send(event, data?); // Para enviar o evento React -> Electron
 - Material-UI/Labs
 - React ACE
 
-===========================================
-
 # Bibliotecas dinâmicas do C++
 
 Ficarão organizadas na pasta _/src/bin_

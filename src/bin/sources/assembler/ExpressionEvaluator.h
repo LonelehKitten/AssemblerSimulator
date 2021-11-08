@@ -5,17 +5,23 @@
 #include <string>
 #include <unordered_map>
 #include "Symbol.h"
+#include "SegmentDef.h"
 #include "../Enums.h"
 
 class PseudoToken : public Token {
 
     private:
         USint resolvedValue;
+        bool is_const;
 
     public:
-        PseudoToken(USint resolvedValue);
+        PseudoToken(USint resolvedValue, bool is_const);
 
         USint getSolvedValue();
+
+        bool isConst();
+
+
 };
 
 /*
@@ -49,8 +55,8 @@ class PseudoToken : public Token {
 class ExpressionEvaluator {
     private:
         bool priority1, priority2, priority3, priority4;
-        Expression * expression;
-        SymbolTable * symbolTable;
+        Expression * expression, * originalExpression;
+        SegmentDef * programSegment, * dataSegment;
         bool symbolCouldNotBeResolved;
 
         void solve(int precedenceBegin, bool root);
@@ -66,10 +72,10 @@ class ExpressionEvaluator {
         bool isOperand(Token * token);
 
     public:
-        ExpressionEvaluator(Expression * expression, SymbolTable * symbolTable);
+        ExpressionEvaluator(Expression * expression, SegmentDef * programSegment, SegmentDef * dataSegment);
 
         USint getValue();
-        bool isSymbolCouldNotBeResolved();
+        bool couldNotSymbolBeResolved();
 };
 
 #endif /* EXPRESSION_EVALUATOR_H */

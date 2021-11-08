@@ -4,6 +4,7 @@
 #include <vector>
 #include <bitset>
 #include "Z808Processor.h"
+#include "../GlobalSettings.h"
 
 #define IO_T short int
 

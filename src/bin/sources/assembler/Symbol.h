@@ -7,9 +7,10 @@ struct Symbol
 {
     std::string name;
     std::string value;
+    bool isVar, isLabel;
     std::vector<int> addressOccurrences;
 
-    Symbol(std::string, std::string, int);
+    Symbol(std::string, std::string, bool, bool);
     Symbol(std::string, std::string);
 };
 

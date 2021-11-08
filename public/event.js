@@ -9,7 +9,9 @@ try{
 }catch(e){
     asmr = null;
 }
-console.log(asmr);
+//const asmr = require('../build/Debug/ASMR');
+
+console.log("Module C++: ",asmr);
 const isAsmr = asmr != null; 
 if(isAsmr) asmr.init();
 const emitter = new EventEmitter();
@@ -73,6 +75,7 @@ const requests = [
     'requestClockChange',
     'requestSendInput'
 ];
+
 ipcMain.on("play", (event, type, params) => {
     try{
         // Executa as requisições após o evento do front
