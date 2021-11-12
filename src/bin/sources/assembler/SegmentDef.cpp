@@ -1,9 +1,10 @@
 #include "SegmentDef.h"
 
-SegmentDef::SegmentDef(std::string name, int location)
+SegmentDef::SegmentDef(std::string name, int location, int size)
 {
     this->name = name;
     this->location = location;
+    this->size = size;
 }
 
 std::string SegmentDef::getName()
@@ -15,6 +16,12 @@ int SegmentDef::getLocation()
 {
     return location;
 }
+
+int SegmentDef::getSize()
+{
+    return size;
+}
+
 
 void SegmentDef::setSymbol(Symbol * symbol)
 {

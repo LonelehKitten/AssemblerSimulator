@@ -1,0 +1,3 @@
+# Executar dentro da pasta sources
+
+g++ -c Utils.cpp assembler/SegmentDef.cpp assembler/Symbol.cpp linker/LinkerTables.cpp linker/LoaderTables.cpp linker/Linker.cpp linker/Loader.cpp

@@ -8,10 +8,13 @@ class SegmentDef
 private:
     std::string name;
     int location;
+    int size;
     
     SymbolTable symbolTable;
 public:
-    SegmentDef(std::string, int);
+    SegmentDef(std::string, int, int);
+
+    int getSize();
 
     std::string getName();
 
