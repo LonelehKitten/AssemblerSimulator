@@ -35,3 +35,8 @@ Symbol * SegmentDef::getSymbol(std::string symbolName)
         return nullptr;
     return symbolTable.find(symbolName)->second;
 }
+
+SymbolTable * SegmentDef::getSymbol()
+{
+    return &symbolTable;
+}

@@ -23,6 +23,8 @@ public:
     void setSymbol(Symbol *);
 
     Symbol * getSymbol(std::string);
+
+    SymbolTable * getSymbol();
 };
 
 #endif /* SEGMENT_DEF_H */

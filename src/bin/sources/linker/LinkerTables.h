@@ -15,7 +15,7 @@ struct ExternalSymbol{
 };
 
 //linker/LinkerTables.cpp:11:67: error: no 'int ExternalUse::ExternalSymbol(Symbol*, int, int)' member function declared in class 'ExternalUse'
- //ExternalUse::ExternalSymbol(Symbol* symbol, int address, int reloc)
+//ExternalUse::ExternalSymbol(Symbol* symbol, int address, int reloc)
 
 struct ExternalUse{
     //- Símbolo
