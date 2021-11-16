@@ -2,6 +2,8 @@ const { app, BrowserWindow } = require('electron');
 const isDev = require('electron-is-dev');
 const path = require('path');
 
+app.commandLine.appendSwitch('js-flags', '--max-old-space-size=4096');
+
 require('@electron/remote/main').initialize();
 const {ASMRFinish} = require('./event');
 
