@@ -20,7 +20,6 @@ void Linker::linkerStep1()
         }
     }
 
-
     // 1ª tabela copiada sem alterações, na 2ª tabela o valor dos endereços é adicionado do tamanho do primeiro segmento
     // para levar em conta o deslocamento do espaço ocupado pelo primeiro segmento
 }
@@ -28,6 +27,9 @@ void Linker::linkerStep1()
 void Linker::linkerStep2()
 {
     
+    for (auto it_linker = tableGlobalSymbol.begin(); it_linker != tableGlobalSymbol.end(); it_linker++){
+
+    }
 
     
     // Carrega o texto, relocando os símbolos locais relativos(não precisa de reajuste nas tabelas, coloca diretamente a informação)
