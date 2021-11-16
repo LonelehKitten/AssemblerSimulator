@@ -312,19 +312,16 @@ int Assembler::basicoAssemblerStep1()
             break;
         }
     }
-
+    // cte1 EQU cte2+5
+    // cte2 EQU cte3*3
+    // cte3 EQU 4
     PendingResolution * dep;
     bool symbolWasResolved = false;
     do
     {
         for (auto i = dependencyMap.begin(); i != dependencyMap.end(); i++)
         {
-            /*
-../src/bin/sources/assembler/Assembler.cpp:298:43: error: cannot bind non-const lvalue reference of type ‘__gnu_cxx::__normal_iterator<Assembler::basicoAssemblerStep1()::PendingResolution**, std::vector<Assembler::basicoAssemblerStep1()::PendingResolution*> >&’ to an rvalue of type ‘std::vector<Assembler::basicoAssemblerStep1()::PendingResolution*>::iterator’ {aka ‘__gnu_cxx::__normal_iterator<Assembler::basicoAssemblerStep1()::PendingResolution**, std::vector<Assembler::basicoAssemblerStep1()::PendingResolution*> >’}
-  298 |         for (auto &i = dependencyMap.begin(); i != dependencyMap.end(); i++)
-      |                        ~~~~~~~~~~~~~~~~~~~^~
-
-            */            
+                     
             dep = *i;
             if (evaluate(dep->semantic->getExpression(), &value) != nullptr)
             {
