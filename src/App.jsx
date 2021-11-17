@@ -95,18 +95,6 @@ const App = () => {
                     height: `100%`,
                   }}
                 />
-                {/*
-                <Tabs
-                  render={{
-                    editor: <Editor
-                      style={{
-                        width: '100%',
-                        height: `100%`,
-                      }}
-                    />,
-                    memory: <Memory />
-                  }}
-                />*/}
               </Container>
               <Container
                 draggable

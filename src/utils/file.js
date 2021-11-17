@@ -1,5 +1,7 @@
 const { ipcRenderer } = window.electron;
 
+import event from './event';
+
 const save = ({ alertShow, currentFile, setCode, setListFiles }) => {
     if (currentFile?.isSave) {
         ipcRenderer.send('invoke_save_file', JSON.stringify(currentFile));
@@ -19,8 +21,8 @@ const save = ({ alertShow, currentFile, setCode, setListFiles }) => {
     }
 }
 
-const load = ({ alertShow, addFile }) => {
-    ipcRenderer.send('invoke_open_file');
+const load = ({ alertShow, addFile }, path = "") => {
+    ipcRenderer.send('invoke_open_file', path);
     ipcRenderer.once('open_file', (e, path, code = '') => {
         if (path === false) {
             if (code != '') {
@@ -34,7 +36,7 @@ const load = ({ alertShow, addFile }) => {
     });
 }
 
-const close = ({setListFiles,changeFile,currentFile}) => {
+const close = ({ setListFiles, changeFile, currentFile }) => {
     if (currentFile == null) return;
     if (!currentFile.isSave || confirm('Você não salvou esse arquivo, deseja continua?')) {
         const id = currentFile.id;
@@ -48,4 +50,12 @@ const close = ({setListFiles,changeFile,currentFile}) => {
     }
 }
 
-export { save, load, close };
+const getTree = ({setTreeFiles},directory = "") => {
+    console.log(directory == "");
+    event("openTreeDir", [directory], (e, tree, path) => {
+        localStorage.setItem("directory_root", path);
+        setTreeFiles(tree);
+    });
+}
+
+export { save, load, close,getTree };

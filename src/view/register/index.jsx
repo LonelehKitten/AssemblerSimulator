@@ -2,11 +2,14 @@ import { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import UpperMenu from './upperMenu';
 import LowerMenu from './lowerMenu';
+import TabContainer from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
 import { ClassNames } from '@emotion/react';
 //import Grid from '@material-ui/core/Grid';
 
 import { useContext } from '../../utils/context';
 
+import Tree from '../tree';
 // Esse não tem, mas ussa esse aqui: https://material-ui.com/pt/components/tables/
 
 const useStyles = makeStyles((theme) => ({
@@ -15,9 +18,23 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
     height: 'calc(100% - 1em)',
     overflowY: 'scroll',
-    borderRadius: '1em',
+    //borderRadius: '1em',
     userSelect: 'none'
   },
+  tab: {
+    backgroundColor: '#21222c',
+    color: '#fff',
+    minHeight: '2rem',
+    '& 	.MuiTab-root': {
+      // boxShadow: '0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23)',
+      padding: '0 12px',
+      minHeight: '2rem',
+    },
+    '& .MuiTab-textColorInherit.Mui-selected': {
+      backgroundColor: '#282a36 !important',
+      borderTop: '1px solid hotpink !important',
+    },
+  }
 }));
 /*
 
@@ -26,24 +43,10 @@ const useStyles = makeStyles((theme) => ({
 const { ipcRenderer } = window.electron;
 
 const Register = (props) => {
-  const { registers, setRegisters } = useContext();
-
   const classes = useStyles();
+  const { registers, setRegisters } = useContext();
+  const [menu, setMenu] = useState('registers');
 
-  // const [register, setRegister] = useState({
-  //   AX: Math.random() * 50,
-  //   DX: Math.random() * 50,
-  //   SI: Math.random() * 50,
-  //   SS: Math.random() * 50,
-  //   DS: Math.random() * 50,
-  //   CS: Math.random() * 50,
-  //   SP: Math.random() * 50,
-  //   PC: Math.random() * 50,
-  //   SR: {
-  //     asLiteral: Math.random() * 50,
-  //     asFlags: [true, false, true, true, false, true, true, false],
-  //   },
-  // });
 
   useEffect(() => {
     ipcRenderer.on('cycle_registers', (e, data) => {
@@ -53,8 +56,24 @@ const Register = (props) => {
 
   return (
     <div id='register' className={classes.root}>
-      <UpperMenu register={registers} />
-      <LowerMenu register={registers} />
+      <TabContainer
+        value={menu}
+        onChange={(event, newValue) => setMenu(newValue)}
+        indicatorColor='secondary'
+        textColor='inherit'
+        aria-label='disabled tabs example'
+        variant='scrollable'
+        scrollButtons='auto'
+        className={classes.tab}
+      >
+        <Tab value='registers' label='Registradores' />
+        <Tab value='tree' label='Arquivos' />
+      </TabContainer>
+      {menu == "registers" && <>
+        <UpperMenu register={registers} />
+        <LowerMenu register={registers} />
+      </>
+      || <Tree />}
     </div>
   );
 };
