@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Context } from '../utils/context';
+import { file } from '../utils';
+
 
 const { ipcRenderer } = window.electron;
 
 
 const Global = ({ value, children }) => {
+    const [treeFiles,setTreeFiles] = useState(null);
     const [memory, setMemory] = useState(() => {
         const memoryChanges = [];
         for (let b = 0; b < 128; b++) {
@@ -130,6 +133,10 @@ const Global = ({ value, children }) => {
                 return memoryChanges;
             });
         });
+        const directory = localStorage.getItem("directory_root") ?? null;
+        if(directory != null && directory != "undefined"){
+            file.getTree({setTreeFiles},directory);
+        }
     }, []);
 
     const context = {
@@ -149,6 +156,8 @@ const Global = ({ value, children }) => {
         setStdin,
         byStep,
         setByStep,
+        treeFiles,
+        setTreeFiles
     };
 
     return <Context.Provider value={{ ...context, ...value }}>{children}</Context.Provider>

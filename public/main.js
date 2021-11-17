@@ -1,11 +1,11 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain,dialog } = require('electron');
 const isDev = require('electron-is-dev');
 const path = require('path');
 
 app.commandLine.appendSwitch('js-flags', '--max-old-space-size=4096');
 
 require('@electron/remote/main').initialize();
-const {ASMRFinish} = require('./event');
+const { ASMRFinish } = require('./event');
 
 function createWindow() {
   // Create the browser window.
@@ -53,3 +53,18 @@ app.on('activate', function () {
   // dock icon is clicked and there are no other windows open.
   if (BrowserWindow.getAllWindows().length === 0) createWindow();
 });
+
+
+const dirTree = require("directory-tree");
+
+ipcMain.on("openTreeDir", async(event,directory) => {
+  if(directory == ""){
+
+    const result = await dialog.showOpenDialog(BrowserWindow.getFocusedWindow(), {
+      properties: ['openDirectory']
+    });
+    if (result.canceled) return event.sender.send('openTreeDir', null);
+    directory = result.filePaths[0];
+  }
+  event.sender.send('openTreeDir', dirTree(directory,{attributes:['extension', 'type','uid']}),directory);
+})
