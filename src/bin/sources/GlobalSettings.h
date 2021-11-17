@@ -8,7 +8,7 @@
 /**
  * Se definido, indica que está no modo de compilação para integração com o Electron
 */
-//#define PRODUCTION_MODE 1
+#define PRODUCTION_MODE 1
 
 // Tudo que deve aparecer somente no teste unitário
 #ifdef TEST_MODE
@@ -22,4 +22,10 @@
 #define PRODUCTION(T) T;
 #else
 #define PRODUCTION(T)
+#endif
+
+#ifdef PRODUCTION_MODE
+#define LOG(M) InterfaceBus::getInstance().dispatchLog(M, LogStatus::INFO);
+#else
+#define LOG(M) std::cout << M << std::endl;
 #endif

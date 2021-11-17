@@ -1,6 +1,10 @@
 #include "ExpressionEvaluator.h"
 #include <iostream>
 
+#ifdef PRODUCTION_MODE
+#include "../InterfaceBus.h"
+#endif
+
 
 PseudoToken::PseudoToken(USint resolvedValue, bool is_const) :
     Token("", TokenTypes::tNULL_TYPE, TokenNames::nNULL_TYPE, false),
@@ -18,7 +22,7 @@ bool PseudoToken::isConst() {
 
 
 ExpressionEvaluator::ExpressionEvaluator(Expression * expression, 
-    SegmentDef * programSegment, SegmentDef * dataSegment) :
+    SegmentDef * programSegment, SegmentDef * dataSegment, int pc) :
     priority1(false),
     priority2(false),
     priority3(false),
@@ -27,6 +31,7 @@ ExpressionEvaluator::ExpressionEvaluator(Expression * expression,
     originalExpression(expression),
     programSegment(programSegment),
     dataSegment(dataSegment),
+    pc(pc),
     symbolCouldNotBeResolved(false)
 {
     solve(0, true);
@@ -59,6 +64,12 @@ ExpressionEvaluator::ExpressionEvaluator(Expression * expression,
 
 */
 void ExpressionEvaluator::solve(int precedenceBegin, bool root) {
+
+    if(expression->size() == 1) {
+        expression->emplace_back(solveSymbol(expression->at(0)));
+        expression->erase(expression->begin());
+        return;
+    }
 
     int precedenceEnd = -1;
     for(int i = precedenceBegin; i < (int) expression->size(); i++) {
@@ -93,7 +104,7 @@ void ExpressionEvaluator::solve(int precedenceBegin, bool root) {
                     if(symbolCouldNotBeResolved) return;
                     swap(i, (Token *) solvePriority1(i, precedenceEnd));
                     expression->erase(expression->begin()+i+1);
-                    i--;
+                    i -= 2;
                     precedenceEnd--;
                 }
             }
@@ -113,7 +124,7 @@ void ExpressionEvaluator::solve(int precedenceBegin, bool root) {
                     swap(i, (Token *) solvePriority2(i, precedenceEnd));
                     expression->erase(expression->begin()+i+1);
                     expression->erase(expression->begin()+i-1);
-                    i -= 2;
+                    i -= 3;
                     precedenceEnd -= 2;
                 }
             }
@@ -133,7 +144,7 @@ void ExpressionEvaluator::solve(int precedenceBegin, bool root) {
                     swap(i, (Token *) solvePriority3(i, precedenceEnd));
                     expression->erase(expression->begin()+i+1);
                     expression->erase(expression->begin()+i-1);
-                    i -= 2;
+                    i -= 3;
                     precedenceEnd -= 2;
                 }
             }
@@ -155,7 +166,7 @@ void ExpressionEvaluator::solve(int precedenceBegin, bool root) {
                     swap(i, (Token *) solvePriority4(i, precedenceEnd));
                     expression->erase(expression->begin()+i+1);
                     expression->erase(expression->begin()+i-1);
-                    i -= 2;
+                    i -= 3;
                     precedenceEnd -= 2;
                 }
             }
@@ -213,28 +224,38 @@ void ExpressionEvaluator::swap(int k, Token * token) {
 
 PseudoToken * ExpressionEvaluator::solveSymbol(Token * token) {
 
-    std::string v;
+    std::string v, USint value;
 
     switch(token->getType()) {
         case TokenTypes::tIDENTIFIER:
             if(programSegment->getSymbol(token->getToken()) != nullptr &&
                 programSegment->getSymbol(token->getToken())->value != "??") {
+
+                value = programSegment->getSymbol(token->getToken())->value; 
+                if(programSegment->getSymbol(token->getToken())->isLabel) {
+                    value -= pc;
+                }
                 
-                return new PseudoToken((USint) std::stoi(
-                    programSegment->getSymbol(token->getToken())->value
-                ), !programSegment->getSymbol(token->getToken())->isVar);
+                return new PseudoToken((USint) std::stoi(value), 
+                !programSegment->getSymbol(token->getToken())->isVar);
+
             }
             else if(dataSegment->getSymbol(token->getToken()) != nullptr &&
                 dataSegment->getSymbol(token->getToken())->value != "??") {
                 
-                return new PseudoToken((USint) std::stoi(
-                    dataSegment->getSymbol(token->getToken())->value
-                ), !dataSegment->getSymbol(token->getToken())->isVar);
+                value = dataSegment->getSymbol(token->getToken())->value; 
+                if(programSegment->getSymbol(token->getToken())->isLabel) {
+                    value -= pc;
+                }
+
+                return new PseudoToken((USint) std::stoi(value), 
+                !dataSegment->getSymbol(token->getToken())->isVar);
             }
             symbolCouldNotBeResolved = true;
             return nullptr;
         case TokenTypes::tDECIMAL:
         {
+            LOG("decimal")
             v = token->getToken();
             char d = v[v.size() - 1];
             return new PseudoToken((USint) std::stoi(
