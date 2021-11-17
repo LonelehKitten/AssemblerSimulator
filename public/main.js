@@ -27,6 +27,8 @@ function createWindow() {
     },
     icon: path.join(__dirname, 'AS.ico'),
   }); //'http://localhost:3000'
+//  window.setIcon(path.join(__dirname, '/AS.ico'));
+
   window.removeMenu();
   window.loadURL(
     isDev

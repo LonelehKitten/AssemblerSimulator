@@ -39,7 +39,8 @@
     "dev": "npm run electron:serve",
     "deploy": "npm run react:build && npm run electron:deploy",
     "c++:build2": "node-gyp rebuild --debug",
-    "c++:build": "node-gyp clean && electron-rebuild"
+    "c++:build": "node-gyp clean && electron-rebuild",
+    "test": "electron test.js"
   },
   "repository": {
     "type": "git",

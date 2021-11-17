@@ -59,7 +59,7 @@ Z808Word Z808Processor::getStoreValue()
 
 void Z808Processor::reset()
 {
-    Z808Registers = std::vector<Z808Word>(6,0);
+    Z808Registers = std::vector<Z808Word>(9,0);
     Z808Registers[SP] = SP_BASEADDR;
     interruptionMode = false;
     storeAddr = 0;

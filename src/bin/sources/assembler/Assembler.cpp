@@ -64,8 +64,8 @@ void Assembler::tableJumpsInstruction(T *t)
     for (std::set<std::string>::iterator it = set->begin(); it != set->end(); it++)
     {
         // procurar p ver se já n tem o simbolo na tabela
-            if (currentSegment->getSymbol(*it) == nullptr)
-                currentSegment->setSymbol(new Symbol(*it, std::string("??"), false, true));
+        if (currentSegment->getSymbol(*it) == nullptr)
+            currentSegment->setSymbol(new Symbol(*it, std::string("??"), false, true));
     }
 }
 
@@ -137,8 +137,9 @@ int Assembler::basicoAssemblerStep1()
 
         if (!inSegment && instruction == Instruction::iSEGMENT)
         {
+            LOG("iSegment");
             Segment *segment = (Segment *)line;
-            segmentTable[segment->getName()] = new SegmentDef(segment->getName(), programCounter);
+            segmentTable[segment->getName()] = new SegmentDef(segment->getName(), programCounter,0);
             currentSegment = segmentTable.find(segment->getName())->second;
 
             // mov ax, Var1
@@ -206,6 +207,7 @@ int Assembler::basicoAssemblerStep1()
 
         case Instruction::iASSUME:
         {
+            LOG("iAssume");
             Assume *assume = (Assume *)line;
 
             if (assume->getSegmentRegister() == "cs" &&
@@ -272,16 +274,19 @@ int Assembler::basicoAssemblerStep1()
         }
         case Instruction::iLABEL:
         {
+            LOG("iLabel");
             Label * label = (Label *) line;
             if (currentSegment->getSymbol(label->getName()) == nullptr)
             {
                 currentSegment->setSymbol(new Symbol(label->getName(), std::string("??")));
             }
 
-            currentSegment->getSymbol(label->getName())->value = segmentCounter;
+            currentSegment->getSymbol(label->getName())->value = std::to_string(segmentCounter);
+            currentSegment->getSymbol(label->getName())->isLabel = true;
             break;
         }
         case Instruction::iEND:
+            LOG("iEND");            
             // if (rotulo existe)
             // return SUCCESS;
             // else
@@ -421,6 +426,7 @@ int Assembler::basicoAssemblerStep2()
 
     for (int i = 0; i < lines->size(); ++i)
     {
+        //LOG(std::string("Loop: " + i));
         line = lines->at(i);
         instruction = line->getType();
 
@@ -444,10 +450,10 @@ int Assembler::basicoAssemblerStep2()
             // Nada
 
         case Instruction::iORG:
-
             lineCode = evaluate(((Org *)line)->getExpression(), &value);
             if (lineCode == nullptr)
             {
+                LOG("iORG")
                 return ERROR;
             }
             else
@@ -461,24 +467,31 @@ int Assembler::basicoAssemblerStep2()
         case Instruction::iEND:
             endLabel = ((End *)line)->getName();
             label = currentSegment->getSymbol(endLabel);
-
+            
             if (label == nullptr)
             {
+                LOG("iEND")
                 return ERROR;
             }
             else
             {
-                startProgram = std::stoi(label->value);
+                std::cout << "stoi" << label->value << std::endl;
+                //return ERROR;
+                assemblyCode.emplace_back(0x00);
+               // emplace_back(0x00);
+               // startProgram = std::stoi(label->value);
             }
-
+            std::cout << "deu bom" << std::endl;
+            LOG("deu bom")
             return SUCCESS;
             break;
 
         case Instruction::iENDS:
             endLabel = ((EndS *)line)->getName(); 
 
-            if (endLabel == currentSegment->getName())
+            if (endLabel != currentSegment->getName())
             {
+                LOG("iENDS")
                 return ERROR;
             }
             else
@@ -493,11 +506,14 @@ int Assembler::basicoAssemblerStep2()
         case Instruction::iRET:
         case Instruction::iNOT:
         case Instruction::iMUL:
+            LOG("casos especiais");
             GetSpecialOpcode(line);
             break;
 
         case Instruction::iMOV:
         {
+            LOG("iMOV")
+
             lineCode = line->getOpCode();
 
             Mov * mov = (Mov *) line;
@@ -563,6 +579,7 @@ int Assembler::basicoAssemblerStep2()
         }
         // aritmeticas e logicas
         case Instruction::iADD:
+            LOG("iADD");
             lineCode = generateAssembly<Add>((Add *)line);
             if (lineCode == nullptr)
             {
@@ -577,6 +594,7 @@ int Assembler::basicoAssemblerStep2()
             }
             break;
         case Instruction::iSUB:
+            LOG("iSUB");
             lineCode = generateAssembly<Sub>((Sub *)line);
             if (lineCode == nullptr)
             {
@@ -591,6 +609,7 @@ int Assembler::basicoAssemblerStep2()
             }
             break;
         case Instruction::iCMP:
+            LOG("iCMP")
             lineCode = generateAssembly<Cmp>((Cmp *)line);
             if (lineCode == nullptr)
             {
@@ -719,6 +738,7 @@ int Assembler::basicoAssemblerStep2()
             }
             break;
         case Instruction::iCALL:
+            LOG("iCALL")
             lineCode = generateAssembly<Call>((Call *)line);
             if (lineCode == nullptr)
             {
@@ -764,6 +784,9 @@ int Assembler::assemble(int assemblerType)
         std::cout << "Step 2" << std::endl;
         if (basicoAssemblerStep2() == SUCCESS) 
         {
+
+            LOG(std::string("assemble: code size: ") + std::to_string(assemblyCode.size()))
+
             std::cout << "FIM" << std::endl;
             TEST(std::cout << "Constução bem sucedida" << std::endl); 
             return 0;

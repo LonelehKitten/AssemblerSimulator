@@ -81,9 +81,14 @@ int Z808Machine::run(bool isBySteps)
     programEnd = false;
 
     std::cout << "machine: before while" << std::endl;
+
+    int i = 0;
     
     while(!isEnd())
     {
+
+        LOG(std::string("machine: instruction: ") + std::to_string(i))
+
         if(!isBySteps) std::this_thread::sleep_for(interfaceBus->getClock());
 
         std::cout << "machine: within while: pre execute" << std::endl;
@@ -175,7 +180,9 @@ int Z808Machine::run(bool isBySteps)
         
         //************End_Setters do Z808Response
 
-        PRODUCTION(
+        i++;
+
+#ifdef PRODUCTION_MODE
         interfaceBus->dispatchCycle(*Format, processor->isInterrupt() && !ioMode, isBySteps);
         while(interfaceBus->isUpdating());
 
@@ -189,7 +196,7 @@ int Z808Machine::run(bool isBySteps)
         }
         
         while(isBySteps && !interfaceBus->isNextStepRequested());
-        )
+#endif
 
 
         //Exemplo de como pegar o valor numerico do registrador AX (checar indices no Z808Processor.h)
