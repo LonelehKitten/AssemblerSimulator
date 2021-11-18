@@ -2,10 +2,7 @@ import { useState } from 'react';
 import MenuItem from '@material-ui/core/MenuItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import CheckIcon from '@material-ui/icons/Check';
-import Divider from '@material-ui/core/Divider';
-
-
-const { ipcRenderer } = window.electron;
+import Menu from '../../components/menu';
 
 const options = [
     {
@@ -18,17 +15,16 @@ const options = [
     }
 ];
 
-const Assembler = ({ onClose }) => {
+const Assembler = () => {
 
     const [checked, setChecked] = useState("");
 
     const handleChangeCheck = (value) => (e) => {
         setChecked(value);
-        setTimeout(onClose,100);
     }
 
     return (
-        <>
+        <Menu label="Assembler">
             {options.map((item) =>
                 <MenuItem button onClick={handleChangeCheck(item.value)}>
                     <ListItemIcon>
@@ -37,7 +33,7 @@ const Assembler = ({ onClose }) => {
                     {item.name}
                 </MenuItem>
             )}
-        </>
+        </Menu>
     );
 }
 

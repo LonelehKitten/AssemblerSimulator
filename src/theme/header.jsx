@@ -6,11 +6,13 @@ import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import { useContext } from '../utils/context';
 //import Menu from '@material-ui/core/Menu';
-//import MenuItem from '@material-ui/core/MenuItem';
+import MenuItem from '@material-ui/core/MenuItem';
 import MenuContainer from '@material-ui/core/Menu';
 
 import event from '../utils/event';
-import Menu from './menu';
+//import Menu from './menu';
+
+import Menu from '../components/menu';
 
 import File from './menu/file';
 import Editor from './menu/editor';
@@ -59,7 +61,7 @@ const useStyles = makeStyles((theme) => ({
             "& .MuiMenuItem-root:hover": {
                 backgroundColor: "rgba(255,255,255,0.2)"
             },
-            "& .MuiListItemIcon-root":{
+            "& .MuiListItemIcon-root": {
                 color: "#f1f1f1",
                 minWidth: 26
             }
@@ -118,6 +120,7 @@ const Header = () => {
         });
     }
 
+    //{Object.entries(menuTop).map(([key, name]) => <Button color="primary" onClick={handleToggle(key)} className={key == type ? "active" : ""}>{name}</Button>)}
     return (
         <div className={classes.root}>
             <AppBar position='static' style={{ backgroundColor: '#191a21' }} onDoubleClick={handleButton("restore")}>
@@ -126,7 +129,11 @@ const Header = () => {
                         <Typography variant="p" className={classes.title}>
                             ASMR
                         </Typography>
-                        {Object.entries(menuTop).map(([key, name]) => <Button color="primary" onClick={handleToggle(key)} className={key == type ? "active" : ""}>{name}</Button>)}
+                        <File />
+                        <Editor />
+                        <Assembler />
+                        <Execute />
+                        <Help />
                     </div>
                     <div className={classes.windowsButtons}>
                         <Button onClick={handleButton("minimize")}>&#xE921;</Button>
@@ -135,6 +142,10 @@ const Header = () => {
                     </div>
                 </Toolbar>
             </AppBar>
+        </div>
+    );
+};
+/*
             <MenuContainer
                 anchorEl={anchorEl}
                 //                keepMounted
@@ -155,10 +166,6 @@ const Header = () => {
                 {type == "execute" && <Execute onClose={handleClose} />}
                 {type == "help" && <Help onClose={handleClose} />}
             </MenuContainer>
-        </div>
-    );
-};
-/*
 <Menu
     anchorEl={anchorEl}
     className={classes.menuRoot}

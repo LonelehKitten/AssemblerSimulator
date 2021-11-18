@@ -1,6 +1,7 @@
 import MenuItem from '@material-ui/core/MenuItem';
 
 import { useContext, electron } from '../../utils';
+import Menu from '../../components/menu';
 
 
 const requests = {
@@ -17,20 +18,19 @@ const requests = {
 };
 
 
-const Execute = ({ onClose }) => {
+const Execute = () => {
     const { memory, currentFile, setPlaying, setByStep, treeFiles } = useContext();
 
     const handleClick = (type) => () => {
         electron.request.play({ type, memory, currentFile, setPlaying, setByStep, treeFiles });
-        onClose();
     }
 
     return (
-        <>
+        <Menu label="Execução">
             {Object.entries(requests).map(([key, name]) => (
                 <MenuItem onClick={handleClick(key)}>{name} ({key})</MenuItem>
             ))}
-        </>
+        </Menu>
     );
 }
 

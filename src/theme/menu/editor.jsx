@@ -1,18 +1,24 @@
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import Collapse from '@material-ui/core/Collapse';
 import MenuItem from '@material-ui/core/MenuItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import CheckIcon from '@material-ui/icons/Check';
-import Divider from '@material-ui/core/Divider';
-import { useState } from 'react';
 
+import Menu from '../../components/menu';
 
-const { ipcRenderer } = window.electron;
-const Editor = ({ onClose }) => {
+const Editor = () => {
 
-    const [open,setOpen] = useState(false);
-    console.log(open);
+    return (
+        <Menu label="Editor">
+            <Menu label="Fonte" submenu>
+                <MenuItem>12px</MenuItem>
+                <MenuItem>14px</MenuItem>
+                <MenuItem>16px</MenuItem>
+                <MenuItem>18px</MenuItem>
+                <MenuItem>20px</MenuItem>
+                <MenuItem>22px</MenuItem>
+            </Menu>
+            <MenuItem>Colaboradores</MenuItem>
+            <MenuItem>Versão Beta</MenuItem>
+        </Menu>
+    );
+    /*
     return (
         <>
             <MenuItem>
@@ -27,7 +33,7 @@ const Editor = ({ onClose }) => {
                 AutoComplete
             </MenuItem>
         </>
-    );
+    );*/
 }
 
 export default Editor;
