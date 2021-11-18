@@ -902,7 +902,9 @@ Ret::Ret(std::string line) : Semantic(line, Instruction::iRET)
 //============================
 //            HALT
 //============================
-Halt::Halt(std::string line) : Semantic(line, Instruction::iHALT) {}
+Halt::Halt(std::string line) : Semantic(line, Instruction::iHALT) {
+    opcode = new std::vector<byte>({0xEE});
+}
 
 
 //============================

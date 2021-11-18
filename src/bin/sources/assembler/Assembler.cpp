@@ -884,6 +884,9 @@ int Assembler::basicoAssemblerStep2()
                 }
             }
             break;
+        case Instruction::iHALT:
+            assemblyCode.push_back(line->getOpCode()->at(0));
+            break;
         default:
             break;
         }
