@@ -17,6 +17,11 @@ int SegmentDef::getLocation()
     return location;
 }
 
+void SegmentDef::setSize(int size)
+{
+    this->size = size;
+}
+
 int SegmentDef::getSize()
 {
     return size;

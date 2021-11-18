@@ -21,7 +21,7 @@
 /src/bin/build-teste-Desktop-Debug
 /src/bin/build-teste_analyzer-Desktop-Debug
 /src/bin/build-test-Desktop-Debug
-
+/src/bin/sources/*.o
 # production
 /build
 /bin
