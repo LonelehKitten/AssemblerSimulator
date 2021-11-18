@@ -69,7 +69,8 @@ void ExpressionEvaluator::solve(int precedenceBegin, bool root) {
         expression->erase(expression->begin());
         return;
     }
-
+    // 0 1 2 3 4 5 6
+    // 2 * 5
     int precedenceEnd = -1;
     for(int i = precedenceBegin; i < (int) expression->size(); i++) {
 
@@ -103,7 +104,7 @@ void ExpressionEvaluator::solve(int precedenceBegin, bool root) {
                     if(symbolCouldNotBeResolved) return;
                     swap(i, (Token *) solvePriority1(i, precedenceEnd));
                     expression->erase(expression->begin()+i+1);
-                    i -= 2;
+                    i = root ? -1 : precedenceBegin;
                     precedenceEnd--;
                 }
             }
@@ -115,7 +116,7 @@ void ExpressionEvaluator::solve(int precedenceBegin, bool root) {
                     expression->at(i)->getName() == TokenNames::nExpMOD ||
                     expression->at(i)->getName() == TokenNames::nExpAND
             ) {
-                if(i-1 >= 0 && isOperand(expression->at(i-1)) && isOperand(expression->at(i+1))) {
+                if(i-1 > 0 && isOperand(expression->at(i-1)) && isOperand(expression->at(i+1))) {
                     solveSymbol(i-1);
                     if(symbolCouldNotBeResolved) return;
                     solveSymbol(i+1);
@@ -123,7 +124,7 @@ void ExpressionEvaluator::solve(int precedenceBegin, bool root) {
                     swap(i, (Token *) solvePriority2(i, precedenceEnd));
                     expression->erase(expression->begin()+i+1);
                     expression->erase(expression->begin()+i-1);
-                    i -= 3;
+                    i = root ? -1 : precedenceBegin;
                     precedenceEnd -= 2;
                 }
             }
@@ -135,7 +136,7 @@ void ExpressionEvaluator::solve(int precedenceBegin, bool root) {
                     expression->at(i)->getName() == TokenNames::nExpOR ||
                     expression->at(i)->getName() == TokenNames::nExpXOR
             ) {
-                if(i-1 >= 0 && isOperand(expression->at(i-1)) && isOperand(expression->at(i+1))) {
+                if(i-1 > 0 && isOperand(expression->at(i-1)) && isOperand(expression->at(i+1))) {
                     solveSymbol(i-1);
                     if(symbolCouldNotBeResolved) return;
                     solveSymbol(i+1);
@@ -143,7 +144,7 @@ void ExpressionEvaluator::solve(int precedenceBegin, bool root) {
                     swap(i, (Token *) solvePriority3(i, precedenceEnd));
                     expression->erase(expression->begin()+i+1);
                     expression->erase(expression->begin()+i-1);
-                    i -= 3;
+                    i = root ? -1 : precedenceBegin;
                     precedenceEnd -= 2;
                 }
             }
@@ -157,7 +158,7 @@ void ExpressionEvaluator::solve(int precedenceBegin, bool root) {
                     expression->at(i)->getName() == TokenNames::nExpGT ||
                     expression->at(i)->getName() == TokenNames::nExpGE
             ) {
-                if(i-1 >= 0 && isOperand(expression->at(i-1)) && isOperand(expression->at(i+1))) {
+                if(i-1 > 0 && isOperand(expression->at(i-1)) && isOperand(expression->at(i+1))) {
                     solveSymbol(i-1);
                     if(symbolCouldNotBeResolved) return;
                     solveSymbol(i+1);
@@ -165,7 +166,7 @@ void ExpressionEvaluator::solve(int precedenceBegin, bool root) {
                     swap(i, (Token *) solvePriority4(i, precedenceEnd));
                     expression->erase(expression->begin()+i+1);
                     expression->erase(expression->begin()+i-1);
-                    i -= 3;
+                    i = root ? -1 : precedenceBegin;
                     precedenceEnd -= 2;
                 }
             }
