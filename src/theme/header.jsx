@@ -120,6 +120,7 @@ const Header = () => {
         });
     }
 
+    //{Object.entries(menuTop).map(([key, name]) => <Button color="primary" onClick={handleToggle(key)} className={key == type ? "active" : ""}>{name}</Button>)}
     return (
         <div className={classes.root}>
             <AppBar position='static' style={{ backgroundColor: '#191a21' }} onDoubleClick={handleButton("restore")}>
@@ -128,19 +129,11 @@ const Header = () => {
                         <Typography variant="p" className={classes.title}>
                             ASMR
                         </Typography>
-                        {Object.entries(menuTop).map(([key, name]) => <Button color="primary" onClick={handleToggle(key)} className={key == type ? "active" : ""}>{name}</Button>)}
-                        <Menu label="Editor">
-                            <Menu label="Fonte" submenu>
-                                <MenuItem>12px</MenuItem>
-                                <MenuItem>14px</MenuItem>
-                                <MenuItem>16px</MenuItem>
-                                <MenuItem>18px</MenuItem>
-                                <MenuItem>20px</MenuItem>
-                                <MenuItem>22px</MenuItem>
-                            </Menu>
-                            <MenuItem>Colaboradores</MenuItem>
-                            <MenuItem>Versão Beta</MenuItem>
-                        </Menu>
+                        <File />
+                        <Editor />
+                        <Assembler />
+                        <Execute />
+                        <Help />
                     </div>
                     <div className={classes.windowsButtons}>
                         <Button onClick={handleButton("minimize")}>&#xE921;</Button>
@@ -149,6 +142,10 @@ const Header = () => {
                     </div>
                 </Toolbar>
             </AppBar>
+        </div>
+    );
+};
+/*
             <MenuContainer
                 anchorEl={anchorEl}
                 //                keepMounted
@@ -169,10 +166,6 @@ const Header = () => {
                 {type == "execute" && <Execute onClose={handleClose} />}
                 {type == "help" && <Help onClose={handleClose} />}
             </MenuContainer>
-        </div>
-    );
-};
-/*
 <Menu
     anchorEl={anchorEl}
     className={classes.menuRoot}

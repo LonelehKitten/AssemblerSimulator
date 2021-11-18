@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, Children } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Button from '@material-ui/core/Button'
 import { MenuItem } from '@material-ui/core';
 import Divider from '@material-ui/core/Divider';
@@ -9,6 +9,21 @@ const useStyles = makeStyles((theme) => ({
     root: {
         display: "inline-flex",
         position: "relative",
+        "&.submenu":{
+            width: "100%",
+            "& .MuiMenuItem-root": {
+                width: "100%",
+                "& .MuiSvgIcon-root":{
+                    position: "absolute",
+                    right: 5,
+                    zIndex: -1
+                }
+            },
+            "& .submenu":{
+                top:0,
+                left: "calc(100% + 1px)"
+            }
+        }
     },
     menu: {
         margin: 0,
@@ -28,25 +43,11 @@ const useStyles = makeStyles((theme) => ({
         "& .MuiListItemIcon-root": {
             color: "#f1f1f1",
             minWidth: 26
-        }
+        },
     },
     open: {
         display: "block"
     },
-    submenu:{
-        width: "100%",
-        "& .MuiMenuItem-root": {
-            width: "100%",
-            "& .MuiSvgIcon-root":{
-                position: "absolute",
-                right: 5
-            }
-        },
-        "& .submenu":{
-            top:0,
-            left: "calc(100% + 1px)"
-        }
-    }
 
 }));
 const Menu = ({ label, children,submenu = false }) => {
@@ -60,18 +61,24 @@ const Menu = ({ label, children,submenu = false }) => {
         _setOpen(val);
     }
 
-    const onClose = () => setOpen(false);
-    
+    const onClose = () => {
+        setOpen(false);
+    }
+
     const eventClick = (e) => {
         if (openRef.current) {
             let i = 0;
             let target = e.target;
+            if(target.nodeName == "BUTTON") target = target.children[0];
+            console.log(target.nodeName)
+            let checkSubMenu = target.parentNode;
 
+            const isSubMenu = checkSubMenu.classList.contains("submenu");
             while(ref.current != target && i < 5){
                 target = target.parentNode;
                 i++;
             }
-            if(ref.current !== target) onClose();
+            if(ref.current !== target || checkSubMenu.nodeName != "BUTTON" && isSubMenu == false) onClose();
         }
     }
 
@@ -79,9 +86,15 @@ const Menu = ({ label, children,submenu = false }) => {
         window.addEventListener("click", eventClick);
         return () => window.removeEventListener("click", eventClick);
     }, []);
+/*
+    const childrenProps = React.Children.map((child) => {
+        if(!React.isValidElement(child)) return null;
+
+        return child;
+    })*/
 
     return (
-        <div className={[classes.root,submenu ? classes.submenu : ""].join(" ")} ref={ref}>
+        <div className={[classes.root,submenu ? "submenu" : ""].join(" ")} ref={ref}>
             {submenu ? <MenuItem onClick={() => setOpen(!open)}>{label} <KeyboardArrowRightIcon /></MenuItem>: <Button onClick={() => setOpen(!open)} className={open && "active"}>{label}</Button>}
             <ul className={classes.menu + (open ? " " + classes.open : "")+ (submenu ? " submenu" : "")}>
                 {children}

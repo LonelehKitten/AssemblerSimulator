@@ -1,0 +1,66 @@
+[
+    {
+        "name": "Time A",
+        "users": [
+            {
+                "name": "Daniel Oliveira",
+                "image": "https://avatars.githubusercontent.com/u/79409460?v=4",
+                "links": {
+                    "github": "https://github.com/Daniel8bits"
+                }
+            }
+        ]
+    },
+    {
+        "name": "Time B",
+        "users": [
+            {
+                "name": "Emerson Vieira",
+                "image": "https://avatars.githubusercontent.com/u/53117023?v=4",
+                "links": {
+                    "github": "https://github.com/emersondont"
+                }
+            },
+            {
+                "name": "Kevin Pereira",
+                "image": "https://avatars.githubusercontent.com/u/26307688?v=4",
+                "links": {
+                    "github": "https://github.com/KDOXG"
+                }
+            },
+            {
+                "name": "Juliano Buss",
+                "image": "https://avatars.githubusercontent.com/u/57720819?v=4",
+                "links": {
+                    "github": "https://github.com/Juliano-hub"
+                }
+            },
+            {
+                "name": "Matheus Fukuda",
+                "image": "https://avatars.githubusercontent.com/u/54581490?v=4",
+                "links": {
+                    "github": "https://github.com/MatheusFukuda"
+                }
+            }
+        ]
+    },
+    {
+        "name": "Time C",
+        "users": [
+            {
+                "name": "Fernando Ollé",
+                "image": "https://avatars.githubusercontent.com/u/55040050?v=4",
+                "links": {
+                    "github": "https://github.com/fernandOlle"
+                }
+            },
+            {
+                "name": "Lucas Alviene",
+                "image": "https://avatars.githubusercontent.com/u/54518010?v=4",
+                "links": {
+                    "github": "https://github.com/LucasAlviene"
+                }
+            }
+        ]
+    }
+]
