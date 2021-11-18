@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain,dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const isDev = require('electron-is-dev');
 const path = require('path');
 
@@ -27,7 +27,7 @@ function createWindow() {
     },
     icon: path.join(__dirname, 'AS.ico'),
   }); //'http://localhost:3000'
-//  window.setIcon(path.join(__dirname, '/AS.ico'));
+  //  window.setIcon(path.join(__dirname, '/AS.ico'));
 
   window.removeMenu();
   window.loadURL(
@@ -59,14 +59,14 @@ app.on('activate', function () {
 
 const dirTree = require("directory-tree");
 
-ipcMain.on("openTreeDir", async(event,directory) => {
-  if(directory == ""){
+ipcMain.on("openTreeDir", async (event, directory) => {
+  if (directory == "") {
 
     const result = await dialog.showOpenDialog(BrowserWindow.getFocusedWindow(), {
       properties: ['openDirectory']
     });
-    if (result.canceled) return event.sender.send('openTreeDir', null);
+    if (result.canceled) return event.sender.send('openTreeDir', null, directory);
     directory = result.filePaths[0];
   }
-  event.sender.send('openTreeDir', dirTree(directory,{attributes:['extension', 'type','uid']}),directory);
+  event.sender.send('openTreeDir', dirTree(directory, { attributes: ['extension', 'type', 'uid'], extensions: /\.asm/ }), directory);
 })

@@ -795,7 +795,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
 
         opbytes = operator1;    //Novo deslocamento
 
-        Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
+        Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes + Z808Registers[CS].to_ulong());
     }
     break;
 
@@ -816,7 +816,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
         if (Z808Registers[SR].test(ZF) == 1)
             opbytes = operator1;    //Novo deslocamento
 
-        Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
+        Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes + Z808Registers[CS].to_ulong());
     }
     break;
 
@@ -837,7 +837,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
         if (Z808Registers[SR].test(ZF) != 1)
             opbytes = operator1;        //Novo deslocamento
 
-        Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
+        Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes + Z808Registers[CS].to_ulong());
     }
     break;
 
@@ -858,7 +858,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
         if (Z808Registers[SR].test(SF) == 0)
             opbytes = operator1;    //Novo deslocamento
 
-        Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
+        Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes + Z808Registers[CS].to_ulong());
     }
     break;
 
@@ -881,6 +881,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
         memory[2 * Z808Registers[SP].to_ulong()] = (Z808Byte) operator2;
         operator2 >>= 8;
         memory[2 * Z808Registers[SP].to_ulong() + 1] = (Z808Byte) operator2;
+
                                                                             //Incremento na posicao atual da pilha
         Z808Registers[SP] = (Z808Word) (Z808Registers[SP].to_ulong() + 1);
                                                                             
@@ -1017,9 +1018,9 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
         operator2 <<= 8;
         operator2 |= memory[Z808Registers[SP].to_ulong()+1];
 
-        memory[operator1] = (Z808Byte) operator2;          //Salva o topo da pilha, salvo em operator2, na posicao salva em operator1
+        memory[Z808Registers[DS].to_ulong() + operator1] = (Z808Byte) operator2;          //Salva o topo da pilha, salvo em operator2, na posicao salva em operator1
         operator2 >>= 8;
-        memory[operator1+1] = (Z808Byte) operator2;
+        memory[Z808Registers[DS].to_ulong() + operator1+1] = (Z808Byte) operator2;
 
         Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
 
@@ -1174,9 +1175,9 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
 
         operator2 = (Z808Operation) Z808Registers[AX].to_ulong();   //Pegando o registrador
 
-        memory[operator1] = (Z808Byte) operator2;
+        memory[2 * Z808Registers[DS].to_ulong() + operator1] = (Z808Byte) operator2;
         operator2 >>= 8;
-        memory[operator1+1] = (Z808Byte) operator2;
+        memory[2 * Z808Registers[DS].to_ulong() + operator1+1] = (Z808Byte) operator2;
         
         storeAddr = (Z808Word) (operator1/2);                  //Preparando para escrita na memória
         storeValue = (Z808Word) operator2;
@@ -1215,7 +1216,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
         break;
 
         case 0x04 :             //mov AX, [SI]
-            Z808Registers[AX] = Z808Registers[memory[SI]];
+            Z808Registers[AX] = memory[2 * memory[SI].to_ulong() + 2 * Z808Registers[DS].to_ulong()];
 
             Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
         break;
@@ -1262,8 +1263,9 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
             operator2 |= memory[i+3];           //pegando opd
             operator2 <<= 8;
             operator2 |= memory[i+2];
+            operator2 *= 2;
             
-            Z808Registers[AX] = operator1 + operator2;
+            Z808Registers[AX] = 2 * Z808Registers[DS].to_ulong() + operator1 + operator2;
 
             Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
             break;
@@ -1293,9 +1295,9 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
 
         case 0x84: //mov [SI], AX
             operator1 = Z808Registers[AX].to_ulong();
-            memory[Z808Registers[SI].to_ulong()+1] = operator1;
+            memory[2 * Z808Registers[DS].to_ulong() + 2 * Z808Registers[SI].to_ulong() + 1] = operator1;
             operator1 <<= 8;
-            memory[Z808Registers[SI].to_ulong()] = operator1;
+            memory[2 * Z808Registers[DS].to_ulong() + 2 * Z808Registers[SI].to_ulong()] = operator1;
 
             Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
 
@@ -1310,20 +1312,20 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
                 errorInstruction = true;
                 break;
             }
-            
 
-            operator1 = Z808Registers[SI].to_ulong();
+            operator1 = 2 * Z808Registers[SI].to_ulong();
 
             operator2 = 0;
             operator2 |= memory[i+3];           //pegando opd
             operator2 <<= 8;
             operator2 |= memory[i+2];
+            operator2 *= 2;
 
             Z808Operation operator3 = Z808Registers[AX].to_ulong();
 
-            memory[operator1 + operator2 + 1] = operator3;
+            memory[2 * Z808Registers[DS].to_ulong() + operator1 + operator2 + 1] = operator3;
             operator3 <<= 8;
-            memory[operator1 + operator2] = operator3;
+            memory[2 * Z808Registers[DS].to_ulong() + operator1 + operator2] = operator3;
 
             Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);                
         }
@@ -1352,9 +1354,9 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
         operator1 |= memory[i+1];
         operator1 *= 2;
 
-        operator2 |= memory[operator1+1];
+        operator2 |= memory[2 * Z808Registers[DS].to_ulong() + operator1+1];
         operator2 <<= 8;
-        operator2 |= memory[operator1];
+        operator2 |= memory[2 * Z808Registers[DS].to_ulong() + operator1];
 
         Z808Registers[AX] = operator2;
 
@@ -1381,7 +1383,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
     }
     break;
 
-    case 0x8E: // mov SD e mov DS
+    case 0x8E: // mov SS e mov DS
     {    
         opbytes = 2;               
 

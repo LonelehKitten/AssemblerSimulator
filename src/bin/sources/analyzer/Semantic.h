@@ -287,64 +287,56 @@ Call(std::string line);
 Ret(std::string line);
 
 */
-class Jmp : public Semantic, ISemantic {
+class Jmp : public Semantic {
     private:
-        std::vector<Token *> * expression;         //endereço
+        std::string label;         //endereço
     public:
-        Jmp(std::string line, std::vector<Token *> * expression);
-        std::vector<Token *> * getExpression() const;
+        Jmp(std::string line, std::string label);
+        std::string getLabel() const;
         
-        std::set<std::string> * getSymbolSet();
 };
 
-class Je : public Semantic, ISemantic {
+class Je : public Semantic {
     private:
-        std::vector<Token *> * expression;         //endereço
+        std::string label;         //endereço
     public:
-        Je(std::string line, std::vector<Token *> * expression);
-        std::vector<Token *> * getExpression() const;
+        Je(std::string line, std::string label);
+        std::string getLabel() const;
         
-        std::set<std::string> * getSymbolSet();
 };
 
-class Jnz : public Semantic, ISemantic {
+class Jnz : public Semantic {
     private:
-        std::vector<Token *> * expression;         //endereço
+        std::string label;         //endereço
     public:
-        Jnz(std::string line, std::vector<Token *> * expression);
-        std::vector<Token *> * getExpression() const;
+        Jnz(std::string line, std::string label);
+        std::string getLabel() const;
 
-        std::set<std::string> * getSymbolSet();
 };
 
-class Jz : public Semantic, ISemantic {
+class Jz : public Semantic {
     private:
-        std::vector<Token *> * expression;         //endereço
+        std::string label;         //endereço
     public:
-        Jz(std::string line, std::vector<Token *> * expression);
-        std::vector<Token *> * getExpression() const;
+        Jz(std::string line, std::string label);
+        std::string getLabel() const;
         
-        std::set<std::string> * getSymbolSet();
 };
 
-class Jp : public Semantic, ISemantic {
+class Jp : public Semantic {
     private:
-        std::vector<Token *> * expression;         //endereço
+        std::string label;         //endereço
     public:
-        Jp(std::string line, std::vector<Token *> * expression);
-        std::vector<Token *> * getExpression() const;
-        
-        std::set<std::string> * getSymbolSet();
+        Jp(std::string line, std::string label);
+        std::string getLabel() const;
 };
 
-class Call : public Semantic, ISemantic {
+class Call : public Semantic {
     private:
-        std::vector<Token *> * expression;         //endereço
+        std::string label;         //endereço
     public:
-        Call(std::string line, std::vector<Token *> * expression);
-        std::vector<Token *> * getExpression() const;
-        
-        std::set<std::string> * getSymbolSet();
+        Call(std::string line, std::string label);
+        std::string getLabel() const;
 };
 
 class Int : public Semantic, ISemantic {

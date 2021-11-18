@@ -25,12 +25,22 @@ void requestExpandMacros(const Nan::FunctionCallbackInfo<v8::Value> & info) {
     InterfaceBus::getInstance().serviceExpandMacros((NodeInfo *) &info, info[0]);
     std::cout << "cpp: end" << std::endl;
 }
+
+/**
+ * Requisita construção e execução direta
+ * @param files em array de string
+ * @param 128Kb de memória em um array de int
+ */
+void requestBuildAndRun(const Nan::FunctionCallbackInfo<v8::Value> & info) {
+    InterfaceBus::getInstance().serviceBuildAndRun((NodeInfo *) &info, info[0], info[1]);
+}
 /**
  * Requisita montagem e execução direta
  * @param instruções em string
  * @param 128Kb de memória em um array de int
  */
 void requestAssembleAndRun(const Nan::FunctionCallbackInfo<v8::Value> & info) {
+    std::cout << "Assemble And Run" << std::endl;
     InterfaceBus::getInstance().serviceAssembleAndRun((NodeInfo *) &info, info[0], info[1]);
 }
 /**
@@ -148,6 +158,12 @@ void moduleExports(v8::Local<v8::Object> exports) {
   exports->Set(context,
                Nan::New("requestExpandMacros").ToLocalChecked(),
                Nan::New<v8::FunctionTemplate>(requestExpandMacros)
+                   ->GetFunction(context)
+                   .ToLocalChecked());
+
+  exports->Set(context,
+               Nan::New("requestBuildAndRun").ToLocalChecked(),
+               Nan::New<v8::FunctionTemplate>(requestBuildAndRun)
                    ->GetFunction(context)
                    .ToLocalChecked());
 

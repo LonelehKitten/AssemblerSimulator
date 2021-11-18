@@ -67,6 +67,7 @@ LogEventObserver = setInterval(() => asmr?.observeLogFiring(getEmitter()), 10);
 const requests = [
     'requestExpandMacros',
     'requestTest',
+    'requestBuildAndRun',
     'requestAssembleAndRun',
     'requestAssembleAndRunBySteps',
     'requestRun',

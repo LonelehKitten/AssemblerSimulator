@@ -259,7 +259,9 @@ namespace SyntaxAutomatons {
         transition->setId(true);
         bool r = analyzer->q(transition);
         transition->~Transition();
-        
+        if(!r) {
+            analyzer->setAux1(analyzer->getLastToken()->getToken());
+        }
         return r;
     }
 

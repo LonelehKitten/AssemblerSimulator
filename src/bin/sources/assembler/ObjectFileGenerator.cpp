@@ -96,11 +96,14 @@ enum InstructionObject{
     iENDP,
     iMACRO,
     iENDM,
-    iMACROCALL,
-    iMACROCONTENT,
     iLABEL,
     iINVALID,
     iHALT
+
+    //se mudar esse enum tem que mudar o do loader.cpp também
+
+    //iMACROCONTENT - n precisa
+    //iMACROCALL - n precisa
 };
 
 ObjectFileGenerator::ObjectFileGenerator(std::vector<Semantic *> *lines) : lines(lines)

@@ -18,6 +18,7 @@ private:
 
 public:
     Loader();
+    void Decoder();
 };
 
 

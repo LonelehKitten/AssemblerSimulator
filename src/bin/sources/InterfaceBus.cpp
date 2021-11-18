@@ -50,6 +50,9 @@ void InterfaceBus::producer()
         case Service::EXPAND_MACROS:
             serviceThread = new std::thread(ServiceBus::startExpandMacros);
             break;
+        case Service::BUILD_AND_RUN:
+            serviceThread = new std::thread(ServiceBus::startBuildAndRun);
+        break;
         case Service::ASSEMBLE_AND_RUN:
             serviceThread = new std::thread(ServiceBus::startAssembleAndRun);
             break;
@@ -205,18 +208,38 @@ std::mutex &InterfaceBus::getMutex()
 
 void InterfaceBus::runExpandMacros()
 {
-    std::vector<Semantic *> *semantics = recognitionManager->analyze(inputReport.code, false);
+    std::vector<Semantic *> *semantics = recognitionManager->analyzeFile(inputReport.code);
     assembler = new Assembler(semantics);
     assembler->init(false);
     delete assembler;
+}
+
+void InterfaceBus::runBuildAndRun(){
+    std::cout << "build and run" << std::endl;
+    std::vector<std::string> * files = &inputReport.files;
+
+    Assembler * assembler;
+    std::vector<Assembler *> listAssemblers = std::vector<Assembler *>();
+    for(unsigned int i = 0;i < files->size(); i++){
+        std::vector<Semantic *> *semantics = recognitionManager->analyzeFile(files->at(i));
+        assembler = new Assembler(semantics);
+        listAssemblers.emplace_back(assembler);
+        assembler->init(true);
+        if(assembler->assemble(inputReport.modeAssembler) == 0) {
+        
+        }
+        // assembler
+    }
+    //Linker
 }
 
 void InterfaceBus::runAssembleAndRun()
 {
 
     std::cout << "assemble and run: begin : code:\n" << inputReport.code << std::endl;
-    std::vector<Semantic *> *semantics = recognitionManager->analyze(inputReport.code, false);
+    std::vector<Semantic *> *semantics = recognitionManager->analyzeText(inputReport.code);
     std::cout << "assemble and run: analyzer" << std::endl;
+    //return;
     assembler = new Assembler(semantics);
     assembler->init(true);
     std::cout << "assemble and run: preprocess" << std::endl;
@@ -402,6 +425,21 @@ void InterfaceBus::serviceExpandMacros(NodeInfo *info, V8Var code)
 }
 
 /**
+ * Constroi e execução direta
+ * @param arquivos em array de string
+ * @param 128Kb de memória em um array de int
+ */
+void InterfaceBus::serviceBuildAndRun(NodeInfo *info, V8Var files, V8Var memory)
+{
+    this->info = info;
+    
+    //std::cout << "Request: " << castV8toString(code) << std::endl;
+    inputReport.files = castV8toStringArray(files);
+    inputReport.memory = castV8toByteArray(memory);
+    service = Service::BUILD_AND_RUN;
+}
+
+/**
  * Montagem e execução direta
  * @param instruções em string
  * @param 128Kb de memória em um array de int
@@ -549,6 +587,17 @@ std::string InterfaceBus::castV8toString(V8Var jsString)
 int InterfaceBus::castV8toInt(V8Var jsNumber)
 {
     return (int)jsNumber->NumberValue(info->GetIsolate()->GetCurrentContext()).FromJust();
+}
+std::vector<std::string> InterfaceBus::castV8toStringArray(V8Var jsNumberArray){
+ 
+    v8::Local<v8::Array> jsArray = v8::Local<v8::Array>::Cast(jsNumberArray);   
+    unsigned int length = (unsigned int)jsArray->Length();
+    std::string *array = (std::string *)malloc(sizeof(std::string) * length);
+    for (unsigned int i = 0; i < length; i++)
+    {
+        array[i] = (std::string)castV8toString(Nan::Get(jsArray, i).ToLocalChecked());
+    }
+    return std::vector<std::string>(array, array + length);
 }
 
 std::vector<byte> InterfaceBus::castV8toByteArray(V8Var jsNumberArray)

@@ -5,6 +5,9 @@ namespace ServiceBus {
     void startExpandMacros() {
         InterfaceBus::getInstance().runExpandMacros();
     }
+    void startBuildAndRun() {
+        InterfaceBus::getInstance().runBuildAndRun();
+    }
     void startAssembleAndRun() {
         InterfaceBus::getInstance().runAssembleAndRun();
     }
