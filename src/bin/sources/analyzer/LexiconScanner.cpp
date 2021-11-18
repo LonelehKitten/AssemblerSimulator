@@ -115,10 +115,10 @@ void LexiconScanner::initTokenSet() {
     this->tokenSet[TokenNames::nPC]                 = new LexiconScanner::TokenSetUnit("$",         TokenTypes::tPC);
     this->tokenSet[TokenNames::nORG]                = new LexiconScanner::TokenSetUnit("org",       TokenTypes::tORG);
 
-    this->tokenSet[TokenNames::nOFFSET]             = new LexiconScanner::TokenSetUnit("$",         TokenTypes::tOFFSET);
+    this->tokenSet[TokenNames::nOFFSET]             = new LexiconScanner::TokenSetUnit("offset",         TokenTypes::tOFFSET);
     this->tokenSet[TokenNames::nSTACK]              = new LexiconScanner::TokenSetUnit("stack",     TokenTypes::tSTACK);
 
-    this->tokenSet[TokenNames::nHALT]               = new LexiconScanner::TokenSetUnit("halt",      TokenTypes::tHALT);
+    this->tokenSet[TokenNames::nHALT]               = new LexiconScanner::TokenSetUnit("hlt",      TokenTypes::tHALT);
 
 }
 

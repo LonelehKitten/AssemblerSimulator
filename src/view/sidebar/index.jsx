@@ -64,12 +64,13 @@ const SideBar = () => {
     setPlaying,
     byStep,
     setByStep,
+    treeFiles
   } = useContext();
 
   const [anchorEl, setAnchorEl] = useState(null);
 
   const handlePlay = (type) => () => {
-    electron.request.play({type,memory, currentFile, setPlaying, setByStep });
+    electron.request.play({type,memory, currentFile, setPlaying, setByStep, treeFiles });
   };
 
   const handleClickDebug = (type) => () => {

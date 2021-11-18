@@ -11,7 +11,17 @@ const getBytecodeFromEditor = (currentFile) => {
 };
 const isEmpty = (value) => value == '' || value == null;
 
-const play = ({ type, memory, currentFile, setPlaying, setByStep }) => {
+const getAllFiles = (tree,array = []) => {
+    if(typeof tree.children == "undefined"){
+        array.push(tree);
+    }else{
+        tree.children.map((i) => {
+             getAllFiles(i,array);
+        });
+    }
+    return array;
+}
+const play = ({ type, memory, currentFile, setPlaying, setByStep, treeFiles }) => {
     let memoryToBytes = [];
     for (let i = 0; i < memory.length; i++) {
         let string = String(memory[i]).padStart(4, 0);
@@ -30,6 +40,11 @@ const play = ({ type, memory, currentFile, setPlaying, setByStep }) => {
         if (['requestRun', 'requestRunBySteps'].includes(type)) {
             let arr = getBytecodeFromEditor(currentFile)
             params.push(arr);
+        }
+        if(['requestBuildAndRun'].includes(type)){
+            const files = getAllFiles(treeFiles);
+            console.log(files);
+            params.push(files);
         }
         if (['requestExpandMacros', 'requestAssembleAndRun', 'requestAssembleAndRunBySteps'].includes(type)) {
             params.push(currentFile?.code);

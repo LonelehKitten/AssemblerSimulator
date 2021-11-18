@@ -22,7 +22,7 @@ bool PseudoToken::isConst() {
 
 
 ExpressionEvaluator::ExpressionEvaluator(Expression * expression, 
-    SegmentDef * programSegment, SegmentDef * dataSegment, int pc) :
+    SegmentDef * programSegment, SegmentDef * dataSegment) :
     priority1(false),
     priority2(false),
     priority3(false),
@@ -31,7 +31,6 @@ ExpressionEvaluator::ExpressionEvaluator(Expression * expression,
     originalExpression(expression),
     programSegment(programSegment),
     dataSegment(dataSegment),
-    pc(pc),
     symbolCouldNotBeResolved(false)
 {
     solve(0, true);
@@ -224,32 +223,25 @@ void ExpressionEvaluator::swap(int k, Token * token) {
 
 PseudoToken * ExpressionEvaluator::solveSymbol(Token * token) {
 
-    std::string v, USint value;
+    std::string v; 
+    USint value;
 
     switch(token->getType()) {
         case TokenTypes::tIDENTIFIER:
             if(programSegment->getSymbol(token->getToken()) != nullptr &&
                 programSegment->getSymbol(token->getToken())->value != "??") {
-
-                value = programSegment->getSymbol(token->getToken())->value; 
-                if(programSegment->getSymbol(token->getToken())->isLabel) {
-                    value -= pc;
-                }
                 
-                return new PseudoToken((USint) std::stoi(value), 
-                !programSegment->getSymbol(token->getToken())->isVar);
+                return new PseudoToken((USint) std::stoi(
+                    programSegment->getSymbol(token->getToken())->value
+                ), !programSegment->getSymbol(token->getToken())->isVar);
 
             }
             else if(dataSegment->getSymbol(token->getToken()) != nullptr &&
                 dataSegment->getSymbol(token->getToken())->value != "??") {
                 
-                value = dataSegment->getSymbol(token->getToken())->value; 
-                if(programSegment->getSymbol(token->getToken())->isLabel) {
-                    value -= pc;
-                }
-
-                return new PseudoToken((USint) std::stoi(value), 
-                !dataSegment->getSymbol(token->getToken())->isVar);
+                return new PseudoToken((USint) std::stoi(
+                    dataSegment->getSymbol(token->getToken())->value
+                ), !dataSegment->getSymbol(token->getToken())->isVar);
             }
             symbolCouldNotBeResolved = true;
             return nullptr;
@@ -400,6 +392,10 @@ PseudoToken * ExpressionEvaluator::solvePriority4(int k, int max) {
 
 USint ExpressionEvaluator::getValue() {
     return ((PseudoToken *) expression->at(0))->getSolvedValue();
+}
+
+bool ExpressionEvaluator::isConst() {
+    return ((PseudoToken *) expression->at(0))->isConst();
 }
 
 bool ExpressionEvaluator::couldNotSymbolBeResolved() {

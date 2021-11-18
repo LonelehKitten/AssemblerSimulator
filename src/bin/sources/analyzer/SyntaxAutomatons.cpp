@@ -253,15 +253,16 @@ namespace SyntaxAutomatons {
     }
 
     bool qJ(SyntaxAnalyzer * analyzer) {
-        /*
+        
         Transition * transition = new Transition(AutomatonPattern::pLABEL);
         transition->setState(qEnd);
         transition->setId(true);
         bool r = analyzer->q(transition);
         transition->~Transition();
-        */
-        analyzer->setEndpoint(qEnd);
-        return ExpressionAutomaton::qBegin_Expression(analyzer);
+        if(!r) {
+            analyzer->setAux1(analyzer->getLastToken()->getToken());
+        }
+        return r;
     }
 
     bool qMD(SyntaxAnalyzer * analyzer) {
@@ -841,7 +842,3 @@ namespace SyntaxAutomatons {
 
     }
 }
-
-
-
-

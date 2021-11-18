@@ -24,9 +24,6 @@ void Assembler::tableArithmeticInstructions(T *t)
 {
     std::set<std::string> *set;
 
-    if (set == nullptr)
-        return;
-
     if (t->getExpression() != nullptr)
     { // instrucoes q o expression não for nullptr tem simbolo
 
@@ -50,6 +47,21 @@ void Assembler::tableArithmeticInstructions(T *t)
 
 template <class T>
 void Assembler::tableJumpsInstruction(T *t)
+{
+    programCounter += 3;
+    segmentCounter += 3;
+    /*
+../src/bin/sources/assembler/Assembler.cpp:57:38: error: ‘class Int’ has no member named ‘getLabel’
+   57 |     if (currentSegment->getSymbol(t->getLabel()) == nullptr)
+   ⠦ Building module: AssemblerSimulator, Completed: 0../src/bin/sources/assembler/Assembler.cpp:58:53: error: ‘class Int’ has no member named ‘getLabel’
+   58 |             currentSegment->setSymbol(new Symbol(t->getLabel(), std::string("??"), false, true));
+    */
+    if (currentSegment->getSymbol(t->getLabel()) == nullptr)
+            currentSegment->setSymbol(new Symbol(t->getLabel(), std::string("??"), false, true));
+}
+
+template <class T>
+void Assembler::tableIntInstruction(T *t)
 {
     programCounter += 3;
     segmentCounter += 3;
@@ -137,7 +149,7 @@ int Assembler::basicoAssemblerStep1()
 
         if (!inSegment && instruction == Instruction::iSEGMENT)
         {
-            LOG("iSegment");
+            LOG("iSegment (Etapa 1)");
             Segment *segment = (Segment *)line;
             segmentTable[segment->getName()] = new SegmentDef(segment->getName(), programCounter,0);
             currentSegment = segmentTable.find(segment->getName())->second;
@@ -154,6 +166,7 @@ int Assembler::basicoAssemblerStep1()
         {
         // aritmeticas e logicas
         case Instruction::iADD:
+            LOG("iAdd (Etapa 1)");
             tableArithmeticInstructions<Add>((Add *)line);
             break;
         case Instruction::iSUB:
@@ -192,22 +205,42 @@ int Assembler::basicoAssemblerStep1()
             tableJumpsInstruction<Call>((Call *)line);
             break;
         case Instruction::iINT:
-            tableJumpsInstruction<Int>((Int *)line);
+            tableIntInstruction<Int>((Int *)line);
             break;
 
         // movimetação
-        case Instruction::iMOV:
+        case Instruction::iMOV: {
+            
+            Mov * mov = (Mov *) line;
+            std::set<std::string> * set = mov->getSymbolSet();
 
-            // if(((Mov *) line)->getOperand1() != null )
+            if(set != nullptr) {
+                for (std::set<std::string>::iterator it = set->begin(); it != set->end(); it++)
+                {
+                    if (currentSegment->getSymbol(*it) == nullptr)
+                        currentSegment->setSymbol(new Symbol(*it, std::string("??")));
+                }
 
-            programCounter += 3;
-            segmentCounter += 3;
+                if(mov->isIndexed()) {
+                    programCounter += 4;
+                    segmentCounter += 4;
+                }
+                else {
+                    programCounter += 3;
+                    segmentCounter += 3;
+                }
+            }
+            else {
+                programCounter += 2;
+                segmentCounter += 2;
+            }
+
             //
             break;
-
+        }
         case Instruction::iASSUME:
         {
-            LOG("iAssume");
+            LOG("iAssume (Etapa 1)");
             Assume *assume = (Assume *)line;
 
             if (assume->getSegmentRegister() == "cs" &&
@@ -274,19 +307,19 @@ int Assembler::basicoAssemblerStep1()
         }
         case Instruction::iLABEL:
         {
-            LOG("iLabel");
+            LOG("iLabel (Etapa 1)"); 
             Label * label = (Label *) line;
             if (currentSegment->getSymbol(label->getName()) == nullptr)
-            {
+            { 
                 currentSegment->setSymbol(new Symbol(label->getName(), std::string("??")));
             }
-
+            LOG(label->getName() + std::string(":") + std::to_string(segmentCounter))
             currentSegment->getSymbol(label->getName())->value = std::to_string(segmentCounter);
             currentSegment->getSymbol(label->getName())->isLabel = true;
             break;
         }
         case Instruction::iEND:
-            LOG("iEND");            
+            LOG("iEND (Etapa 1)");            
             // if (rotulo existe)
             // return SUCCESS;
             // else
@@ -333,7 +366,7 @@ int Assembler::basicoAssemblerStep1()
 /*
     lida com o ExpressionEvaluator e retorna o vetor de bytes do valor resultante
 */
-std::vector<byte> *Assembler::evaluate(Expression *expression, USint *valueHolder)
+std::vector<byte> *Assembler::evaluate(Expression *expression, USint *valueHolder, bool * isConst)
 {
     ExpressionEvaluator *evaluator = new ExpressionEvaluator(expression, assumedProgramSegment, assumedDataSegment);
     if (evaluator->couldNotSymbolBeResolved())
@@ -341,14 +374,18 @@ std::vector<byte> *Assembler::evaluate(Expression *expression, USint *valueHolde
         delete evaluator;
         return nullptr;
     }
-    USint value = evaluator->getValue();
 
-    delete evaluator;
+    USint value = evaluator->getValue();
 
     if (valueHolder != nullptr)
         *valueHolder = value;
 
-    return new std::vector<byte>({(value & 0xFF), (value >> 8)});
+    if(isConst != nullptr)
+        *isConst = evaluator->isConst();
+
+    delete evaluator;
+
+    return new std::vector<byte>({(byte)(value & 0xFF), (byte)(value >> 8)});
 }
 
 // produz o código de máquina associado ao código da instrução e operandos
@@ -360,8 +397,13 @@ std::vector<byte> * Assembler::generateAssembly(T *line)
     // não depende de expressão
     if (line->getExpression() == nullptr)
     {
+        segmentCounter += 2;
+        programCounter += 2;
         return line->getOpCode();
     }
+
+    segmentCounter += 3;
+    programCounter += 3;
 
     // C.C. junta o opcode com o evaluate
     expressValue = evaluate(line->getExpression(), nullptr);
@@ -378,9 +420,33 @@ std::vector<byte> * Assembler::generateAssembly(T *line)
     return opcode;
 }
 
+template<class T>
+std::vector<byte> * Assembler::generateAssemblyJumps(T *line) {
+    std::vector<byte> * opcode = line->getOpCode();
+    
+    LOG(std::string("generateAssemblyJumps:  ") + line->getLabel())
+    if(assumedProgramSegment->getSymbol(line->getLabel()) == nullptr) {
+        return nullptr;
+    }
+
+    // 3 - 6 = -3
+    USint value = (USint) std::stoi(assumedProgramSegment->getSymbol(line->getLabel())->value);
+    value -= programCounter;
+    
+    segmentCounter += 3;
+    programCounter += 3;
+    
+    opcode->emplace_back(value & 0xFF);
+    opcode->emplace_back(value >> 8);
+    
+    return opcode;
+}
+
 void Assembler::GetSpecialOpcode(Semantic *line)
 {
     // assemblyCode.push_back(((Div *)line)->getOpcode());
+    segmentCounter += 2; 
+    programCounter += 2;
     std::vector<byte> * lineCode = line->getOpCode();
     for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
     {
@@ -445,6 +511,29 @@ int Assembler::basicoAssemblerStep2()
 
         switch (instruction)
         {
+
+        case Instruction::iASSUME:
+        {
+            LOG("iAssume: etapa 2");
+            Assume *assume = (Assume *)line;
+
+            if (assume->getSegmentRegister() == "cs" &&
+                segmentTable.find(assume->getName()) != segmentTable.end())
+            {
+                assumedProgramSegment = segmentTable.find(assume->getName())->second;
+            }
+            else if (assume->getSegmentRegister() == "ds" &&
+                     segmentTable.find(assume->getName()) != segmentTable.end())
+            {
+                assumedDataSegment = segmentTable.find(assume->getName())->second;
+            }
+            else if (assume->getSegmentRegister() == "ss" &&
+                     segmentTable.find(assume->getName()) != segmentTable.end())
+            {
+                assumedStackSegment = segmentTable.find(assume->getName())->second;
+            }
+            break;
+        }
         case Instruction::iEQU:
             break;
             // Nada
@@ -453,7 +542,7 @@ int Assembler::basicoAssemblerStep2()
             lineCode = evaluate(((Org *)line)->getExpression(), &value);
             if (lineCode == nullptr)
             {
-                LOG("iORG")
+                LOG("iOrg: etapa 2");
                 return ERROR;
             }
             else
@@ -470,7 +559,7 @@ int Assembler::basicoAssemblerStep2()
             
             if (label == nullptr)
             {
-                LOG("iEND")
+                LOG("iEND: etapa 2")
                 return ERROR;
             }
             else
@@ -482,7 +571,7 @@ int Assembler::basicoAssemblerStep2()
                // startProgram = std::stoi(label->value);
             }
             std::cout << "deu bom" << std::endl;
-            LOG("deu bom")
+            LOG("deu bom etapa 2")
             return SUCCESS;
             break;
 
@@ -491,7 +580,7 @@ int Assembler::basicoAssemblerStep2()
 
             if (endLabel != currentSegment->getName())
             {
-                LOG("iENDS")
+                LOG("iENDS : etapa 2")
                 return ERROR;
             }
             else
@@ -506,23 +595,29 @@ int Assembler::basicoAssemblerStep2()
         case Instruction::iRET:
         case Instruction::iNOT:
         case Instruction::iMUL:
-            LOG("casos especiais");
+            LOG("casos especiais etapa 2");
             GetSpecialOpcode(line);
             break;
 
         case Instruction::iMOV:
         {
-            LOG("iMOV")
+            LOG("iMOV : etapa 2")
+            
+            //PENDENTE: segmentCounter += 2 / 3 / 4;
+            //PENDENTE: programCounter += 2 / 3 / 4;
 
             lineCode = line->getOpCode();
-
             Mov * mov = (Mov *) line;
+            bool isConst;
+
             if (mov->getSymbolSet() == nullptr)
             {
                 for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
                 {
                     assemblyCode.push_back(lineCode->at(i));
                 }
+                segmentCounter += 2;
+                programCounter += 2;
             }
             else
             {
@@ -540,11 +635,24 @@ int Assembler::basicoAssemblerStep2()
                     {
                         assemblyCode.push_back(expressionValue->at(i)); //??????
                     }
+
+                    segmentCounter += 4;
+                    programCounter += 4;
                 }
                 else if (mov->getExpression1() == nullptr)
                 {
-                    // MOV AX,cte -- ignorar por enquanto
-                    // MOV AX, mem -- ignorar por enquanto
+
+                    expressionValue = evaluate(mov->getExpression1(), nullptr, &isConst);
+
+                    assemblyCode.push_back(isConst ? 0xB8 : 0xA1);
+
+                    for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+                    {
+                         assemblyCode.push_back(lineCode->at(i));
+                    }
+
+                    segmentCounter += 3;
+                    programCounter += 3;
                 }
                 else if (mov->getExpression2() == nullptr && mov->isIndexed())
                 {
@@ -559,6 +667,9 @@ int Assembler::basicoAssemblerStep2()
                     {
                         assemblyCode.push_back(expressionValue->at(i));
                     }
+
+                    segmentCounter += 4;
+                    programCounter += 4;
                 }
                 else if (mov->getExpression2() == nullptr)
                 {
@@ -571,6 +682,9 @@ int Assembler::basicoAssemblerStep2()
                         }
                     }
 
+                    segmentCounter += 3;
+                    programCounter += 3;
+
                     // MOV mem, AX
                 }
             }
@@ -579,7 +693,7 @@ int Assembler::basicoAssemblerStep2()
         }
         // aritmeticas e logicas
         case Instruction::iADD:
-            LOG("iADD");
+            LOG("iADD : etapa 2");
             lineCode = generateAssembly<Add>((Add *)line);
             if (lineCode == nullptr)
             {
@@ -591,10 +705,11 @@ int Assembler::basicoAssemblerStep2()
                 {
                     assemblyCode.push_back(lineCode->at(i));
                 }
+                
             }
             break;
         case Instruction::iSUB:
-            LOG("iSUB");
+            LOG("iSUB (etapa 2)");
             lineCode = generateAssembly<Sub>((Sub *)line);
             if (lineCode == nullptr)
             {
@@ -609,7 +724,7 @@ int Assembler::basicoAssemblerStep2()
             }
             break;
         case Instruction::iCMP:
-            LOG("iCMP")
+            LOG("iCMP : etapa 2")
             lineCode = generateAssembly<Cmp>((Cmp *)line);
             if (lineCode == nullptr)
             {
@@ -624,6 +739,7 @@ int Assembler::basicoAssemblerStep2()
             }
             break;
         case Instruction::iOR:
+            LOG("iOr: etapa 2");
             lineCode = generateAssembly<Or>((Or *)line);
             if (lineCode == nullptr)
             {
@@ -638,6 +754,7 @@ int Assembler::basicoAssemblerStep2()
             }
             break;
         case Instruction::iAND:
+            LOG("And: etapa 2");
             lineCode = generateAssembly<And>((And *)line);
             if (lineCode == nullptr)
             {
@@ -652,6 +769,7 @@ int Assembler::basicoAssemblerStep2()
             }
             break;
         case Instruction::iXOR:
+            LOG("iXor: etapa 2");
             lineCode = generateAssembly<Xor>((Xor *)line);
             if (lineCode == nullptr)
             {
@@ -668,7 +786,7 @@ int Assembler::basicoAssemblerStep2()
 
         // desvio
         case Instruction::iJMP:
-            lineCode = generateAssembly<Jmp>((Jmp *)line);
+            lineCode = generateAssemblyJumps<Jmp>((Jmp *)line);
             if (lineCode == nullptr)
             {
                 return ERROR;
@@ -682,7 +800,7 @@ int Assembler::basicoAssemblerStep2()
             }
             break;
         case Instruction::iJE:
-            lineCode = generateAssembly<Je>((Je *)line);
+            lineCode = generateAssemblyJumps<Je>((Je *)line);
             if (lineCode == nullptr)
             {
                 return ERROR;
@@ -696,7 +814,7 @@ int Assembler::basicoAssemblerStep2()
             }
             break;
         case Instruction::iJNZ:
-            lineCode = generateAssembly<Jnz>((Jnz *)line);
+            lineCode = generateAssemblyJumps<Jnz>((Jnz *)line);
             if (lineCode == nullptr)
             {
                 return ERROR;
@@ -710,7 +828,7 @@ int Assembler::basicoAssemblerStep2()
             }
             break;
         case Instruction::iJZ:
-            lineCode = generateAssembly<Jz>((Jz *)line);
+            lineCode = generateAssemblyJumps<Jz>((Jz *)line);
             if (lineCode == nullptr)
             {
                 return ERROR;
@@ -724,7 +842,7 @@ int Assembler::basicoAssemblerStep2()
             }
             break;
         case Instruction::iJP:
-            lineCode = generateAssembly<Jp>((Jp *)line);
+            lineCode = generateAssemblyJumps<Jp>((Jp *)line);
             if (lineCode == nullptr)
             {
                 return ERROR;
@@ -738,8 +856,8 @@ int Assembler::basicoAssemblerStep2()
             }
             break;
         case Instruction::iCALL:
-            LOG("iCALL")
-            lineCode = generateAssembly<Call>((Call *)line);
+            LOG("iCALL : etapa 2")
+            lineCode = generateAssemblyJumps<Call>((Call *)line);
             if (lineCode == nullptr)
             {
                 return ERROR;
@@ -870,7 +988,7 @@ int Assembler::macroExpandParams(MacroCall *macrocall, int k)
         input += macrocontent;
     }
 
-    return preproccess(rm->analyze(input, false), k);
+    return preproccess(rm->analyzeText(input), k);
 }
 
 int Assembler::preproccess(std::vector<Semantic *> *lines, int k)

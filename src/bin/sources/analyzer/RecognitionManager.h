@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <cstring>
+#include <fstream> 
 
 #include "SyntaxAnalyzer.h"
 #include "Semantic.h"
@@ -22,7 +23,10 @@ class RecognitionManager {
 
         RecognitionManager();
 
-        std::vector<Semantic *> * analyze(std::string text, bool strict);
+        //std::vector<Semantic *> * analyze(std::string text, bool strict);
+        std::vector<Semantic *> * analyzeText(std::string text);
+        std::vector<Semantic *> * analyzeFile(std::string pathname);
+        std::vector<Semantic *> * analyze(std::vector<std::string> * rawLines);
 
 };
 

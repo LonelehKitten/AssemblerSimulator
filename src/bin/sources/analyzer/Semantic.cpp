@@ -777,177 +777,87 @@ MacroContent::MacroContent(const std::string line) : Semantic(line, Instruction:
 //============================
 //            JMP
 //============================
-Jmp::Jmp(std::string line, std::vector<Token *> * expression) :
+Jmp::Jmp(std::string line, std::string label) :
     Semantic(line, Instruction::iJMP),
-    expression(expression)
+    label(label)
 {
     opcode = new std::vector<byte>;
     opcode->push_back(0xEB);
 }
 
-std::vector<Token *> * Jmp::getExpression() const {
-    return expression;
-}
-
-std::set<std::string> * Jmp::getSymbolSet() {
-    
-    if(expression == nullptr) return nullptr;
-
-    std::set<std::string> * set = new std::set<std::string>;
-
-    for(int i = 0; i < (int) expression->size(); i++){
-        if(expression->at(i)->getType() == TokenTypes::tIDENTIFIER){
-            set->emplace(expression->at(i)->getToken());
-        }
-    }
-
-    return set;
+std::string Jmp::getLabel() const {
+    return label;
 }
 
 //============================
 //            JE
 //============================
-Je::Je(std::string line, std::vector<Token *> * expression) :
+Je::Je(std::string line, std::string label) :
     Semantic(line, Instruction::iJE),
-    expression(expression)
+    label(label)
 {
     opcode = new std::vector<byte>;
     opcode->push_back(0x74);
 }
 
-std::vector<Token *> * Je::getExpression() const {
-    return expression;
-}
-
-std::set<std::string> * Je::getSymbolSet() {
-    
-    if(expression == nullptr) return nullptr;
-
-    std::set<std::string> * set = new std::set<std::string>;
-
-    for(int i = 0; i < (int) expression->size(); i++){
-        if(expression->at(i)->getType() == TokenTypes::tIDENTIFIER){
-            set->emplace(expression->at(i)->getToken());
-        }
-    }
-
-    return set;
+std::string Je::getLabel() const {
+    return label;
 }
 
 //============================
 //            JNZ
 //============================
-Jnz::Jnz(std::string line, std::vector<Token *> * expression) :
-    Semantic(line, Instruction::iJNZ), expression(expression)
+Jnz::Jnz(std::string line, std::string label) :
+    Semantic(line, Instruction::iJNZ), label(label)
 {
     opcode = new std::vector<byte>;
     opcode->push_back(0x75);
 }
 
-std::vector<Token *> * Jnz::getExpression() const {
-    return expression;
-}
-
-std::set<std::string> * Jnz::getSymbolSet() {
-    
-    if(expression == nullptr) return nullptr;
-
-    std::set<std::string> * set = new std::set<std::string>;
-
-    for(int i = 0; i < (int) expression->size(); i++){
-        if(expression->at(i)->getType() == TokenTypes::tIDENTIFIER){
-            set->emplace(expression->at(i)->getToken());
-        }
-    }
-
-    return set;
+std::string Jnz::getLabel() const {
+    return label;
 }
 
 //============================
 //            JZ
 //============================
-Jz::Jz(std::string line, std::vector<Token *> * expression) :
-    Semantic(line, Instruction::iJZ), expression(expression)
+Jz::Jz(std::string line, std::string label) :
+    Semantic(line, Instruction::iJZ), label(label)
 {
     opcode = new std::vector<byte>;
     opcode->push_back(0x74);
 }
 
-std::vector<Token *> * Jz::getExpression() const {
-    return expression;
-}
-
-std::set<std::string> * Jz::getSymbolSet() {
-    
-    if(expression == nullptr) return nullptr;
-
-    std::set<std::string> * set = new std::set<std::string>;
-
-    for(int i = 0; i < (int) expression->size(); i++){
-        if(expression->at(i)->getType() == TokenTypes::tIDENTIFIER){
-            set->emplace(expression->at(i)->getToken());
-        }
-    }
-
-    return set;
+std::string Jz::getLabel() const {
+    return label;
 }
 
 //============================
 //            JP
 //============================
-Jp::Jp(std::string line, std::vector<Token *> * expression) :
-    Semantic(line, Instruction::iJP), expression(expression)
+Jp::Jp(std::string line, std::string label) :
+    Semantic(line, Instruction::iJP), label(label)
 {
     opcode = new std::vector<byte>;
     opcode->push_back(0x7A);
 }
 
-std::vector<Token *> * Jp::getExpression() const {
-    return expression;
-}
-
-std::set<std::string> * Jp::getSymbolSet() {
-    
-    if(expression == nullptr) return nullptr;
-
-    std::set<std::string> * set = new std::set<std::string>;
-
-    for(int i = 0; i < (int) expression->size(); i++){
-        if(expression->at(i)->getType() == TokenTypes::tIDENTIFIER){
-            set->emplace(expression->at(i)->getToken());
-        }
-    }
-
-    return set;
+std::string Jp::getLabel() const {
+    return label;
 }
 
 //============================
 //            CALL
 //============================
-Call::Call(std::string line, std::vector<Token *> * expression) :
-    Semantic(line, Instruction::iCALL), expression(expression)
+Call::Call(std::string line, std::string label) :
+    Semantic(line, Instruction::iCALL), label(label)
 {
     opcode = new std::vector<byte>;
     opcode->push_back(0xE8);
 }
 
-std::vector<Token *> * Call::getExpression() const {
-    return expression;
-}
-
-std::set<std::string> * Call::getSymbolSet() {
-    
-    if(expression == nullptr) return nullptr;
-
-    std::set<std::string> * set = new std::set<std::string>;
-
-    for(int i = 0; i < (int) expression->size(); i++){
-        if(expression->at(i)->getType() == TokenTypes::tIDENTIFIER){
-            set->emplace(expression->at(i)->getToken());
-        }
-    }
-
-    return set;
+std::string Call::getLabel() const {
+    return label;
 }
 
 //============================

@@ -265,17 +265,17 @@ Semantic * SyntaxAnalyzer::getRow(int offset) {
                     return new Not(this->line);
 
                 case TokenNames::nOpJMP:
-                    return new Jmp(this->line, getExpression(offset+1, t));
+                    return new Jmp(this->line, this->aux1);
                 case TokenNames::nOpJE:
-                    return new Je(this->line, getExpression(offset+1, t));
+                    return new Je(this->line, this->aux1);
                 case TokenNames::nOpJNZ:
-                    return new Jnz(this->line, getExpression(offset+1, t));
+                    return new Jnz(this->line, this->aux1);
                 case TokenNames::nOpJZ:
-                    return new Jz(this->line, getExpression(offset+1, t));
+                    return new Jz(this->line, this->aux1);
                 case TokenNames::nOpJP:
-                    return new Jp(this->line, getExpression(offset+1, t));
+                    return new Jp(this->line, this->aux1);
                 case TokenNames::nOpCALL:
-                    return new Call(this->line, getExpression(offset+1, t));
+                    return new Call(this->line, this->aux1);
                 case TokenNames::nOpINT:
                     return new Int(this->line, getExpression(offset+1, t));
                 case TokenNames::nOpRET:

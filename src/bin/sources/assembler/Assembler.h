@@ -36,7 +36,7 @@ private:
     int assemblerError;
 
     template <class T> std::vector<byte> * generateAssembly(T * line);
-
+    template <class T> std::vector<byte> * generateAssemblyJumps(T *line);
     void GetSpecialOpcode(Semantic * line);
 
     Symbol * findSymbol();
@@ -45,6 +45,7 @@ private:
     
     template <class T> void tableArithmeticInstructions(T *t);
     template <class T> void tableJumpsInstruction(T *t);
+    template <class T> void tableIntInstruction(T *t);
     template <class T> void tableVarInstruction(T *t, bool isConst);
 
     int basicoAssemblerStep1();         //Está presente em Assembler.cpp
@@ -61,7 +62,7 @@ private:
     //POSIÇÃO AINDA NÃO ESTÁ DETECTÁVEL NO MÉTODO, PRECISA ADICIONAR O ÍNDICE COMO PARÂMETRO AQUI
     //void generateAssembly(std::vector<unsigned char> bytecode);
 
-    std::vector<byte> * evaluate(Expression * expression, USint * valueHolder);
+    std::vector<byte> * evaluate(Expression * expression, USint * valueHolder, bool * isConst = nullptr);
 
 public:
 

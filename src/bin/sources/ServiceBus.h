@@ -4,6 +4,7 @@
 
 namespace ServiceBus {
     void startExpandMacros();
+    void startBuildAndRun();
     void startAssembleAndRun();
     void startAssembleAndRunBySteps();
     void startRun();

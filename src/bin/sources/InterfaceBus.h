@@ -37,6 +37,7 @@ enum LogStatus {
 enum Service {
     NONE,
     EXPAND_MACROS,
+    BUILD_AND_RUN,
     ASSEMBLE_AND_RUN,
     ASSEMBLE_AND_RUN_BY_STEPS,
     RUN,
@@ -46,6 +47,7 @@ enum Service {
 
 typedef struct InputReport {
     bool ready;
+    std::vector<std::string> files;
     std::string code;
     std::vector<byte> bytecode;
     std::vector<byte> memory;
@@ -89,6 +91,7 @@ class InterfaceBus {
          std::string castV8toString(V8Var jsString);
          int castV8toInt(V8Var jsNumber);
          std::vector<byte> castV8toByteArray(V8Var jsNumberArray);
+         std::vector<std::string> castV8toStringArray(V8Var jsNumberArray);
          v8::Local<v8::Array> castByteArraytoV8(std::vector<byte> * array);
 
          EventEmitter getEventEmitter();
@@ -167,6 +170,12 @@ class InterfaceBus {
           */
          void serviceExpandMacros(NodeInfo * info, V8Var code);
          /**
+        * Constroi e execução direta
+        * @param arquivos em array de string
+        * @param 128Kb de memória em um array de int
+        */
+        void serviceBuildAndRun(NodeInfo *info, V8Var files, V8Var memory);
+         /**
           * Montagem e execução direta
           * @param instruções em string
           * @param 128Kb de memória em um array de int
@@ -225,6 +234,8 @@ class InterfaceBus {
 
          void runExpandMacros();
 
+         void runBuildAndRun();
+         
          void runAssembleAndRun();
 
          void runAssembleAndRunBySteps();
