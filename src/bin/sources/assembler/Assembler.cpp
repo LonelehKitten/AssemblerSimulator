@@ -204,11 +204,13 @@ int Assembler::basicoAssemblerStep1()
         case Instruction::iCALL:
             tableJumpsInstruction<Call>((Call *)line);
             break;
+
+        // interrupção
         case Instruction::iINT:
             tableIntInstruction<Int>((Int *)line);
             break;
 
-        // movimetação
+        // movimentação
         case Instruction::iMOV: {
             
             Mov * mov = (Mov *) line;
@@ -238,6 +240,7 @@ int Assembler::basicoAssemblerStep1()
             //
             break;
         }
+
         case Instruction::iASSUME:
         {
             LOG("iAssume (Etapa 1)");
@@ -258,10 +261,14 @@ int Assembler::basicoAssemblerStep1()
             {
                 assumedStackSegment = segmentTable.find(assume->getName())->second;
             }
+            else
+            {
+                LOG("iAssume ERRO");
+            }
             break;
         }
 
-        case Instruction::iORG: // error: jump to case label
+        case Instruction::iORG:
 
             if(evaluate(((Org *) line)->getExpression(), &value) != nullptr) {
                 programCounter += value;
@@ -305,12 +312,13 @@ int Assembler::basicoAssemblerStep1()
             dependencyMap.emplace_back(new PendingResolution(currentSegment->getSymbol(equ->getName()), currentSegment, equ));                                                                                      
             break;
         }
+
         case Instruction::iLABEL:
         {
             LOG("iLabel (Etapa 1)"); 
             Label * label = (Label *) line;
             if (currentSegment->getSymbol(label->getName()) == nullptr)
-            { 
+            {
                 currentSegment->setSymbol(new Symbol(label->getName(), std::string("??")));
             }
             LOG(label->getName() + std::string(":") + std::to_string(segmentCounter))
@@ -318,20 +326,34 @@ int Assembler::basicoAssemblerStep1()
             currentSegment->getSymbol(label->getName())->isLabel = true;
             break;
         }
+
         case Instruction::iEND:
-            LOG("iEND (Etapa 1)");            
-            // if (rotulo existe)
-            // return SUCCESS;
-            // else
-            // return ERROR;
+        {
+            LOG("iEND (Etapa 1)");
+            End * end = (End *) line;
+            if (currentSegment->getSymbol(end->getName()) == nullptr)
+                return SUCCESS;
+            else
+                return ERROR;
             break;
+        }
 
         case Instruction::iENDS:
-            // Comecar catalogacao de variaveis dentro do segmento de codigo
+            currentSegment->setSize(segmentCounter);
+
             break;
 
+        case Instruction::iDIV:
+        case Instruction::iRET:
+        case Instruction::iNOT:
+        case Instruction::iMUL:
+        case Instruction::iHALT:
+        case Instruction::iPUSH:
+        case Instruction::iPUSHF:
+        case Instruction::iPOP:
+        case Instruction::iPOPF:
         default:
-            //
+            //Nenhuma instrução com símbolo
             break;
         }
     }
@@ -396,18 +418,28 @@ std::vector<byte> * Assembler::generateAssembly(T *line)
 
     // não depende de expressão
     if (line->getExpression() == nullptr)
+    /*
+      ../src/bin/sources/assembler/Assembler.cpp:419:15: error: ‘class Push’ has no member named ‘getExpression’
+  419 |     if (line->getExpression() == nullptr)
+      |         ~~~~~~^~~~~~~~~~~~~
+    */
     {
         segmentCounter += 2;
         programCounter += 2;
         return line->getOpCode();
     }
 
+
     segmentCounter += 3;
     programCounter += 3;
 
     // C.C. junta o opcode com o evaluate
     expressValue = evaluate(line->getExpression(), nullptr);
-    
+    /*
+      ../src/bin/sources/assembler/Assembler.cpp:430:35: error: ‘class Push’ has no member named ‘getExpression’
+  430 |     expressValue = evaluate(line->getExpression(), nullptr);
+      |                             ~~~~~~^~~~~~~~~~~~~
+    */    
     opcode = line->getOpCode();
 
     for (int i = 0; expressValue != nullptr && i < expressValue->size(); i++)
@@ -416,7 +448,6 @@ std::vector<byte> * Assembler::generateAssembly(T *line)
         opcode->push_back(expressValue->at(i));
     }
     
-
     return opcode;
 }
 
@@ -535,8 +566,8 @@ int Assembler::basicoAssemblerStep2()
             break;
         }
         case Instruction::iEQU:
-            break;
             // Nada
+            break;
 
         case Instruction::iORG:
             lineCode = evaluate(((Org *)line)->getExpression(), &value);
@@ -565,10 +596,8 @@ int Assembler::basicoAssemblerStep2()
             else
             {
                 std::cout << "stoi" << label->value << std::endl;
-                //return ERROR;
                 assemblyCode.emplace_back(0x00);
-               // emplace_back(0x00);
-               // startProgram = std::stoi(label->value);
+                // startProgram = std::stoi(label->value);
             }
             std::cout << "deu bom" << std::endl;
             LOG("deu bom etapa 2")
@@ -602,7 +631,7 @@ int Assembler::basicoAssemblerStep2()
         case Instruction::iMOV:
         {
             LOG("iMOV : etapa 2")
-            
+
             //PENDENTE: segmentCounter += 2 / 3 / 4;
             //PENDENTE: programCounter += 2 / 3 / 4;
 
@@ -788,106 +817,117 @@ int Assembler::basicoAssemblerStep2()
         case Instruction::iJMP:
             lineCode = generateAssemblyJumps<Jmp>((Jmp *)line);
             if (lineCode == nullptr)
-            {
                 return ERROR;
-            }
             else
-            {
                 for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
-                {
                     assemblyCode.push_back(lineCode->at(i));
-                }
-            }
             break;
+            
         case Instruction::iJE:
             lineCode = generateAssemblyJumps<Je>((Je *)line);
             if (lineCode == nullptr)
-            {
                 return ERROR;
-            }
             else
-            {
                 for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
-                {
                     assemblyCode.push_back(lineCode->at(i));
-                }
-            }
             break;
+            
         case Instruction::iJNZ:
             lineCode = generateAssemblyJumps<Jnz>((Jnz *)line);
             if (lineCode == nullptr)
-            {
                 return ERROR;
-            }
             else
-            {
                 for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
-                {
                     assemblyCode.push_back(lineCode->at(i));
-                }
-            }
             break;
+
         case Instruction::iJZ:
             lineCode = generateAssemblyJumps<Jz>((Jz *)line);
             if (lineCode == nullptr)
-            {
                 return ERROR;
-            }
             else
-            {
                 for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
-                {
                     assemblyCode.push_back(lineCode->at(i));
-                }
-            }
             break;
+
         case Instruction::iJP:
             lineCode = generateAssemblyJumps<Jp>((Jp *)line);
             if (lineCode == nullptr)
-            {
                 return ERROR;
-            }
             else
-            {
                 for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
-                {
                     assemblyCode.push_back(lineCode->at(i));
-                }
-            }
             break;
+            
         case Instruction::iCALL:
             LOG("iCALL : etapa 2")
             lineCode = generateAssemblyJumps<Call>((Call *)line);
             if (lineCode == nullptr)
-            {
                 return ERROR;
-            }
             else
-            {
                 for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
-                {
                     assemblyCode.push_back(lineCode->at(i));
-                }
-            }
             break;
+            
         case Instruction::iINT:
             lineCode = generateAssembly<Int>((Int *)line);
             if (lineCode == nullptr)
-            {
                 return ERROR;
-            }
             else
-            {
                 for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
-                {
                     assemblyCode.push_back(lineCode->at(i));
-                }
-            }
             break;
+            
+        case Instruction::iPUSH:
+            lineCode = generateAssembly<Push>((Push *)line);
+            if (lineCode == nullptr)
+                return ERROR;
+            else
+                for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+                    assemblyCode.push_back(lineCode->at(i));
+            break;
+            
+        case Instruction::iPUSHF:
+            lineCode = generateAssembly<Pushf>((Pushf *)line);
+            if (lineCode == nullptr)
+                return ERROR;
+            else
+                for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+                    assemblyCode.push_back(lineCode->at(i));
+            break;
+
+        case Instruction::iPOP:
+            lineCode = generateAssembly<Pop>((Pop *)line);
+            if (lineCode == nullptr)
+                return ERROR;
+            else
+                for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+                    assemblyCode.push_back(lineCode->at(i));
+            break;
+            
+        case Instruction::iPOPF:
+            lineCode = generateAssembly<Popf>((Popf *)line);
+            if (lineCode == nullptr)
+                return ERROR;
+            else
+                for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+                    assemblyCode.push_back(lineCode->at(i));
+            break;
+
         case Instruction::iHALT:
             assemblyCode.push_back(line->getOpCode()->at(0));
             break;
+
+        case Instruction::iDW:
+            //Processar instrução
+        break;
+
+        case Instruction::iLABEL:
+            //Nada
+        break;
+
         default:
+            //
             break;
         }
     }

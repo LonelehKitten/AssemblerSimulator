@@ -14,6 +14,8 @@ private:
 public:
     SegmentDef(std::string, int, int);
 
+    void setSize(int);
+
     int getSize();
 
     std::string getName();
