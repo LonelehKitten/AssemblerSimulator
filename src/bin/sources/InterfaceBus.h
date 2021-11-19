@@ -30,7 +30,7 @@ typedef unsigned char byte;
 
 enum LogStatus {
     INFO = 0,
-    ERROR,
+    ERRO,
     SUCCESS
 };
 

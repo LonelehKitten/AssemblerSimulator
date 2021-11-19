@@ -69,7 +69,7 @@ public:
     enum AssemblyFlags
     {
         SUCCESS,
-        ERROR
+        ERROR2
     };
 
     Assembler(std::vector<Semantic *> * lines);

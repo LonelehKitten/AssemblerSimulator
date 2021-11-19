@@ -302,7 +302,7 @@ void InterfaceBus::runTest()
     for (int i = 0; i < 10; i++)
     {
         dispatchLog("teste info", LogStatus::INFO);
-        dispatchLog("teste error", LogStatus::ERROR);
+        dispatchLog("teste error", LogStatus::ERRO);
         dispatchLog("teste success", LogStatus::SUCCESS);
         std::this_thread::sleep_for(1s);
     }

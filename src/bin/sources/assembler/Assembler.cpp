@@ -288,7 +288,7 @@ int Assembler::basicoAssemblerStep1()
                 break;
             }
 
-            return ERROR;
+            return ERRO;
 
         case Instruction::iDW:
         {
@@ -351,7 +351,7 @@ int Assembler::basicoAssemblerStep1()
             if (currentSegment->getSymbol(end->getName()) != nullptr)
                 isEnd = true;
             else
-                return ERROR;
+                return ERRO;
             break;
         }
 
@@ -586,7 +586,7 @@ int Assembler::basicoAssemblerStep2()
             if (lineCode == nullptr)
             {
                 LOG("iOrg: etapa 2");
-                return ERROR;
+                return ERRO;
             }
             else
             {
@@ -604,7 +604,7 @@ int Assembler::basicoAssemblerStep2()
             if (label == nullptr)
             {
                 LOG("iEND: etapa 2: ERROR")
-                return ERROR;
+                return ERRO;
             }
         
             std::cout << "iEND:" << label->value << std::endl;
@@ -622,7 +622,7 @@ int Assembler::basicoAssemblerStep2()
             if (endLabel != currentSegment->name)
             {
                 LOG("iENDS : etapa 2")
-                return ERROR;
+                return ERRO;
             }
             else
             {
@@ -744,7 +744,7 @@ int Assembler::basicoAssemblerStep2()
             lineCode = generateAssembly<Add>((Add *)line);
             if (lineCode == nullptr)
             {
-                return ERROR;
+                return ERRO;
             }
             else
             {
@@ -760,7 +760,7 @@ int Assembler::basicoAssemblerStep2()
             lineCode = generateAssembly<Sub>((Sub *)line);
             if (lineCode == nullptr)
             {
-                return ERROR;
+                return ERRO;
             }
             else
             {
@@ -775,7 +775,7 @@ int Assembler::basicoAssemblerStep2()
             lineCode = generateAssembly<Cmp>((Cmp *)line);
             if (lineCode == nullptr)
             {
-                return ERROR;
+                return ERRO;
             }
             else
             {
@@ -790,7 +790,7 @@ int Assembler::basicoAssemblerStep2()
             lineCode = generateAssembly<Or>((Or *)line);
             if (lineCode == nullptr)
             {
-                return ERROR;
+                return ERRO;
             }
             else
             {
@@ -805,7 +805,7 @@ int Assembler::basicoAssemblerStep2()
             lineCode = generateAssembly<And>((And *)line);
             if (lineCode == nullptr)
             {
-                return ERROR;
+                return ERRO;
             }
             else
             {
@@ -820,7 +820,7 @@ int Assembler::basicoAssemblerStep2()
             lineCode = generateAssembly<Xor>((Xor *)line);
             if (lineCode == nullptr)
             {
-                return ERROR;
+                return ERRO;
             }
             else
             {
@@ -835,7 +835,7 @@ int Assembler::basicoAssemblerStep2()
         case Instruction::iJMP:
             lineCode = generateAssemblyJumps<Jmp>((Jmp *)line);
             if (lineCode == nullptr)
-                return ERROR;
+                return ERRO;
             else
                 for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
                     assemblyCode.push_back(lineCode->at(i));
@@ -844,7 +844,7 @@ int Assembler::basicoAssemblerStep2()
         case Instruction::iJE:
             lineCode = generateAssemblyJumps<Je>((Je *)line);
             if (lineCode == nullptr)
-                return ERROR;
+                return ERRO;
             else
                 for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
                     assemblyCode.push_back(lineCode->at(i));
@@ -853,7 +853,7 @@ int Assembler::basicoAssemblerStep2()
         case Instruction::iJNZ:
             lineCode = generateAssemblyJumps<Jnz>((Jnz *)line);
             if (lineCode == nullptr)
-                return ERROR;
+                return ERRO;
             else
                 for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
                     assemblyCode.push_back(lineCode->at(i));
@@ -862,7 +862,7 @@ int Assembler::basicoAssemblerStep2()
         case Instruction::iJZ:
             lineCode = generateAssemblyJumps<Jz>((Jz *)line);
             if (lineCode == nullptr)
-                return ERROR;
+                return ERRO;
             else
                 for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
                     assemblyCode.push_back(lineCode->at(i));
@@ -871,7 +871,7 @@ int Assembler::basicoAssemblerStep2()
         case Instruction::iJP:
             lineCode = generateAssemblyJumps<Jp>((Jp *)line);
             if (lineCode == nullptr)
-                return ERROR;
+                return ERRO;
             else
                 for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
                     assemblyCode.push_back(lineCode->at(i));
@@ -881,7 +881,7 @@ int Assembler::basicoAssemblerStep2()
             LOG("iCALL : etapa 2")
             lineCode = generateAssemblyJumps<Call>((Call *)line);
             if (lineCode == nullptr)
-                return ERROR;
+                return ERRO;
             else
                 for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
                     assemblyCode.push_back(lineCode->at(i));
@@ -890,7 +890,7 @@ int Assembler::basicoAssemblerStep2()
         case Instruction::iINT:
             lineCode = generateAssembly<Int>((Int *)line);
             if (lineCode == nullptr)
-                return ERROR;
+                return ERRO;
             else
                 for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
                     assemblyCode.push_back(lineCode->at(i));
