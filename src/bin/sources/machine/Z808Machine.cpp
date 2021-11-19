@@ -105,7 +105,7 @@ int Z808Machine::run(bool isBySteps)
         {
             std::cout << "\nERRO NA INSTRUCAO " << processor->getIP() << "\n\n\n";
 
-            PRODUCTION(interfaceBus->dispatchLog(std::string("Erro na instrução ") + std::to_string(processor->getIP().to_ulong()), LogStatus::ERROR))
+            PRODUCTION(interfaceBus->dispatchLog(std::string("Erro na instrução ") + std::to_string(processor->getIP().to_ulong()), LogStatus::ERRO))
             programEnd = true;
             
             break;
@@ -129,7 +129,7 @@ int Z808Machine::run(bool isBySteps)
         {
             std::cout << "\nERRO DE OVERFLOW NA PILHA\n\n\n";
 
-            PRODUCTION(interfaceBus->dispatchLog(std::string("Erro de stack overflow durante a instrução ") + std::to_string(processor->getIP().to_ulong()), LogStatus::ERROR))
+            PRODUCTION(interfaceBus->dispatchLog(std::string("Erro de stack overflow durante a instrução ") + std::to_string(processor->getIP().to_ulong()), LogStatus::ERRO))
             programEnd = true;
 
             break;

@@ -52,7 +52,7 @@ std::vector<Semantic *> *RecognitionManager::analyze(std::vector<std::string> *r
             bool status = analyzer->init();
             if (!status)
             {
-                PRODUCTION(InterfaceBus::getInstance().dispatchLog(analyzer->getErrorMessage(i + 1), LogStatus::ERROR))
+                PRODUCTION(InterfaceBus::getInstance().dispatchLog(analyzer->getErrorMessage(i + 1), LogStatus::ERRO))
                 TEST(std::cout << analyzer->getErrorMessage(i + 1) << std::endl)
             }
 
