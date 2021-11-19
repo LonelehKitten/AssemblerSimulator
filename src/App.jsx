@@ -4,7 +4,8 @@ import {
   createTheme,
   makeStyles,
 } from '@material-ui/core/styles';
-
+import Alert from '@material-ui/lab/Alert';
+import Snackbar from '@material-ui/core/Snackbar';
 import Header from './theme/header';
 import Footer from './theme/footer';
 
@@ -49,7 +50,7 @@ const App = () => {
 
   const [EtoC, setEtoC] = useState(250); // EtoC = Editor to Console
   const [EtoR, setEtoR] = useState(460); // EtoR = Editor to Register
-  //const [alertMessage, setAlertMessage] = useState(null);
+  const [alertMessage, setAlertMessage] = useState(null);
   const [consoleOpen, setConsoleOpen] = useState(true);
 
   const handleVertical = (e) => {
@@ -73,12 +74,15 @@ const App = () => {
   };
 
   const alertShow = (color, text, time = 6000) => {
-    alert(text);
-    // setAlertMessage({ color, text, time });
+    setAlertMessage({ color, text, time });
   };
 
   return (
     <ThemeProvider theme={theme}>
+      {alertMessage != null &&
+        <Snackbar open={true} autoHideDuration={alertMessage.time} onClose={() => setAlertMessage(null)}>
+          <Alert severity={alertMessage.color}>{alertMessage.text}</Alert>
+        </Snackbar>}
       <Global value={{ alertShow, consoleOpen, setConsoleOpen }}>
         <Header />
         <div className={classes.main}>

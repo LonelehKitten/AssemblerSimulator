@@ -13,7 +13,7 @@ const useStyles = makeStyles((theme) => ({
             width: "100%",
             "& .MuiMenuItem-root": {
                 width: "100%",
-                "& .MuiSvgIcon-root":{
+                "& .MuiSvgIcon-root.submenuicon":{
                     position: "absolute",
                     right: 5,
                     zIndex: -1
@@ -21,7 +21,9 @@ const useStyles = makeStyles((theme) => ({
             },
             "& .submenu":{
                 top:0,
-                left: "calc(100% + 1px)"
+                left: "calc(100% + 1px)",
+                maxHeight: 500,
+                overflow: "auto"
             }
         }
     },
@@ -70,7 +72,6 @@ const Menu = ({ label, children,submenu = false }) => {
             let i = 0;
             let target = e.target;
             if(target.nodeName == "BUTTON") target = target.children[0];
-            console.log(target.nodeName)
             let checkSubMenu = target.parentNode;
 
             const isSubMenu = checkSubMenu.classList.contains("submenu");
@@ -95,7 +96,7 @@ const Menu = ({ label, children,submenu = false }) => {
 
     return (
         <div className={[classes.root,submenu ? "submenu" : ""].join(" ")} ref={ref}>
-            {submenu ? <MenuItem onClick={() => setOpen(!open)}>{label} <KeyboardArrowRightIcon /></MenuItem>: <Button onClick={() => setOpen(!open)} className={open && "active"}>{label}</Button>}
+            {submenu ? <MenuItem onClick={() => setOpen(!open)}>{label} <KeyboardArrowRightIcon className="submenuicon" /></MenuItem>: <Button onClick={() => setOpen(!open)} className={open && "active"}>{label}</Button>}
             <ul className={classes.menu + (open ? " " + classes.open : "")+ (submenu ? " submenu" : "")}>
                 {children}
             </ul>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import MenuItem from '@material-ui/core/MenuItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import CheckIcon from '@material-ui/icons/Check';
@@ -14,6 +14,7 @@ import Grid from '@material-ui/core/Grid';
 import Tooltip from '@material-ui/core/Tooltip';
 
 import users from './users.json';
+import event from '../../utils/event';
 
 const useStyles = makeStyles({
     root: {
@@ -93,13 +94,20 @@ const User = ({ item }) => {
 const Help = () => {
     const classes = useStyles();
     const [open, setOpen] = useState(false);
+    const [version,setVersion] = useState("");
+
+    useEffect(() => {  
+        event("getVersion",[],(e,value) => {
+            setVersion(value);
+        })
+    })
 
     return (
         <>
             <Menu label="Ajuda">
                 <MenuItem>Ajuda</MenuItem>
                 <MenuItem onClick={() => setOpen(true)}>Colaboradores</MenuItem>
-                <MenuItem>Versão 1.0.0</MenuItem>
+                <MenuItem onClick={openLink("https://github.com/LonelehKitten/AssemblerSimulator")}>Versão {version}</MenuItem>
             </Menu>
             <Dialog onClose={() => setOpen(false)} className={classes.root} open={open}>
                 <DialogTitle style={{fontSize:22}}>Colaboradores</DialogTitle>

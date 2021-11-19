@@ -61,7 +61,6 @@ const Tabs = ({ value, onChange, listFiles }) => {
         indicatorColor='secondary'
         textColor='inherit'
         onChange={onChange}
-        aria-label='disabled tabs example'
         variant='scrollable'
         scrollButtons='auto'
         className={classes.root}

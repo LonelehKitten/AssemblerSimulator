@@ -1,21 +1,51 @@
 import MenuItem from '@material-ui/core/MenuItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import CheckIcon from '@material-ui/icons/Check';
+import { useEffect, useState } from 'react';
 
 import Menu from '../../components/menu';
+import event from '../../utils/event';
+import { useContext } from '../../utils';
 
 const Editor = () => {
+    const { editorConfig, changeEditorConfig } = useContext();
+
+    const [listFonts, setListFonts] = useState([]);
+
+    useEffect(() => {
+        event("getFonts", [], (e, fonts) => {
+            setListFonts(["Share Tech Mono", ...fonts]);
+        })
+    }, []);
+    const handleChangeEditorConfig = (name, value) => () => {
+        changeEditorConfig(name, value);
+    }
+
+    const listSizes = [12,16,20, 24,28,32];
 
     return (
         <Menu label="Editor">
-            <Menu label="Fonte" submenu>
-                <MenuItem>12px</MenuItem>
-                <MenuItem>14px</MenuItem>
-                <MenuItem>16px</MenuItem>
-                <MenuItem>18px</MenuItem>
-                <MenuItem>20px</MenuItem>
-                <MenuItem>22px</MenuItem>
+            <Menu label="Tamanho" submenu>
+                {listSizes.map((item) => (
+                    <MenuItem onClick={handleChangeEditorConfig("fontSize", item)}>
+                        <ListItemIcon>
+                            {item == editorConfig.fontSize && <CheckIcon color="inherit" fontSize="small" />}
+                        </ListItemIcon>
+                        {item}px
+                    </MenuItem>
+                ))}
             </Menu>
-            <MenuItem>Colaboradores</MenuItem>
-            <MenuItem>Versão Beta</MenuItem>
+            <Menu label="Fonte" submenu>
+                {listFonts.map((item) => (
+                    <MenuItem onClick={handleChangeEditorConfig("fontFamily", item)}>
+                        <ListItemIcon>
+                            {item == editorConfig.fontFamily && <CheckIcon color="inherit" fontSize="small" />}
+                        </ListItemIcon>
+                        {item}
+                    </MenuItem>
+                )
+                )}
+            </Menu>
         </Menu>
     );
     /*

@@ -15,6 +15,8 @@ const Ace = ({ onChange }, ref) => {
     setCode,
     alertShow,
     setListFiles,
+    editorConfig,
+    addFile
   } = useContext();
 
   const handleChange = (value) => {
@@ -27,6 +29,8 @@ const Ace = ({ onChange }, ref) => {
   const handleSave = (e) => {
     if (e.keyCode == 83 && e.ctrlKey) {
       file.save({ alertShow, currentFile, setCode, setListFiles });
+    }else if (e.keyCode == 79 && e.ctrlKey) {
+      file.load({alertShow,addFile});
     }
   };
 
@@ -47,17 +51,16 @@ const Ace = ({ onChange }, ref) => {
         name='editor'
         value={currentFile?.code || ''}
         style={{
-          boxShadow:
-            'inset  0 -3px 6px rgba(0,0,0,0.16), 0 -3px 6px rgba(0,0,0,0.23)',
+          boxShadow: 'inset  0 -3px 6px rgba(0,0,0,0.16), 0 -3px 6px rgba(0,0,0,0.23)',
           width: '100%',
           height: '100%',
-          fontFamily: 'Share Tech Mono',
+          fontFamily: editorConfig.fontFamily,
         }}
         editorProps={{ $blockScrolling: true }}
         setOptions={{
           printMargin: 50,
           showInvisibles: true,
-          fontSize: 20,
+          fontSize: editorConfig.fontSize,
           enableLiveAutocompletion: true,
           tabSize: 2,
           useSoftTabs: true,
