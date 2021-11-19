@@ -8,12 +8,6 @@
 #include "Token.h"
 #include "../Enums.h"
 
-/*
- * tipo e linha
- * operador / parametros / operand
- */
-
-// intruções:
 enum Instruction{
     //aritmeticas
     iADD,
@@ -63,6 +57,11 @@ enum Instruction{
     iINVALID,
     iHALT
 };
+
+/*
+ * tipo e linha
+ * operador / parametros / operand
+ */
 
 class Semantic {
     private:
@@ -418,6 +417,7 @@ class Dw : public Semantic, ISemantic {
         std::vector<Token *> *getLength() const;
 
         bool isArray() const;
+        bool isValueUndefined() const;
 
         std::set<std::string> * getSymbolSet();
 };

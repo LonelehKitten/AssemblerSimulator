@@ -1,32 +1,32 @@
 #include "SegmentDef.h"
 
-SegmentDef::SegmentDef(std::string name, int location, int size)
+SegmentDef::SegmentDef(std::string name, USint location, USint size) : Symbol::Symbol(name, std::to_string(location))
 {
+    //../src/bin/sources/assembler/SegmentDef.cpp:3:68: error: no matching function for call to ‘Symbol::Symbol()’
+    /*
     this->name = name;
+    this->value = location;
+    this->isVar = false;
+    this->isLabel = false;
+    */
     this->location = location;
     this->size = size;
 }
 
-std::string SegmentDef::getName()
-{
-    return name;
-}
-
-int SegmentDef::getLocation()
+USint SegmentDef::getLocation()
 {
     return location;
 }
 
-void SegmentDef::setSize(int size)
+void SegmentDef::setSize(USint size)
 {
     this->size = size;
 }
 
-int SegmentDef::getSize()
+USint SegmentDef::getSize()
 {
     return size;
 }
-
 
 void SegmentDef::setSymbol(Symbol * symbol)
 {

@@ -24,6 +24,10 @@
         "src/bin/sources/machine/Z808Response.cpp",
         "src/bin/sources/machine/Z808Machine.cpp",
       ],
+      'cflags!': ['-Wwrite-strings', 'Wreturn-type', '-Wall', '-Wextra','-Wsign-compare','-Wno-parentheses-equality', '-Wno-static-in-inline', '-Wno-tautological-compare', '-Wswitch'],
+      'ccflags!': ['-Wwrite-strings', 'Wreturn-type', '-Wall', '-Wextra','-Wsign-compare','-Wno-parentheses-equality', '-Wno-static-in-inline', '-Wno-tautological-compare', '-Wswitch'],
+      'WARNING_CFLAGS!': ['-Wwrite-strings', 'Wreturn-type', '-Wall', '-Wextra','-Wsign-compare','-Wno-parentheses-equality', '-Wno-static-in-inline', '-Wno-tautological-compare', '-Wswitch'],
+
       "include_dirs": [
         "<!(node -e \"require('nan')\")"
       ]

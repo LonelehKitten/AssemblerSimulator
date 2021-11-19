@@ -431,6 +431,14 @@ std::stack<std::string> *SyntaxAnalyzer::getMacroStack() const
     return macroStack;
 }
 
+bool SyntaxAnalyzer::getAuxFlag() {
+    return auxFlag;
+}
+
+void SyntaxAnalyzer::setAuxFlag(bool auxFlag) {
+    this->auxFlag = auxFlag;
+}
+
 void SyntaxAnalyzer::undoScan() {
     this->error = false;
     this->scanner->undo();

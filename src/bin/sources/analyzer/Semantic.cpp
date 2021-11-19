@@ -634,6 +634,10 @@ bool Dw::isArray() const {
     return length != nullptr;
 }
 
+bool Dw::isValueUndefined() const {
+    return defaultValue == nullptr;
+}
+
 std::set<std::string> * Dw::getSymbolSet() {
     
     if(defaultValue == nullptr || length == nullptr) return nullptr;

@@ -32,6 +32,11 @@ Z808Word* Z808Processor::getSR()
     return &Z808Registers[SR];
 }
 
+void Z808Processor::setIP(long i)
+{
+    Z808Registers[IP] = i;
+}
+
 bool Z808Processor::isInterrupt()
 {
     return Z808Registers[SR].test(IF);

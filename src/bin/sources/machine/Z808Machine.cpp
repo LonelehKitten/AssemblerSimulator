@@ -20,6 +20,11 @@ Z808Machine::Z808Machine()
     this->ioMode = 0;
 }
 
+void Z808Machine::setStartProgram(long i)
+{
+    processor->setIP(i);
+}
+
 void Z808Machine::memoryUpdate(std::vector<Z808Byte> *memory, std::vector<unsigned char> *programBytes)
 {
     this->memory = memory;

@@ -19,6 +19,11 @@ Assembler::Assembler(std::vector<Semantic *> *lines) : lines(lines)
 {
 }
 
+long Assembler::getStartProgram()
+{
+    return startProgram;
+}
+
 template <class T>
 void Assembler::tableArithmeticInstructions(T *t)
 {
@@ -108,8 +113,10 @@ void Assembler::tableVarInstruction(T *t, bool isConst)
 /**
  * TABELA OS SÍMBOLOS
  */
+ 
 int Assembler::basicoAssemblerStep1()
 {
+    
     programCounter = 0; // LC
     segmentCounter = 0;
     Instruction instruction;
@@ -152,7 +159,7 @@ int Assembler::basicoAssemblerStep1()
             LOG("iSegment (Etapa 1)");
             Segment *segment = (Segment *)line;
             segmentTable[segment->getName()] = new SegmentDef(segment->getName(), programCounter,0);
-            currentSegment = segmentTable.find(segment->getName())->second;
+            currentSegment = (SegmentDef *) segmentTable.find(segment->getName())->second;
 
             // mov ax, Var1
             // mov ax, const1
@@ -165,6 +172,7 @@ int Assembler::basicoAssemblerStep1()
         switch (instruction)
         {
         // aritmeticas e logicas
+        
         case Instruction::iADD:
             LOG("iAdd (Etapa 1)");
             tableArithmeticInstructions<Add>((Add *)line);
@@ -249,17 +257,17 @@ int Assembler::basicoAssemblerStep1()
             if (assume->getSegmentRegister() == "cs" &&
                 segmentTable.find(assume->getName()) != segmentTable.end())
             {
-                assumedProgramSegment = segmentTable.find(assume->getName())->second;
+                assumedProgramSegment = (SegmentDef *) segmentTable.find(assume->getName())->second;
             }
             else if (assume->getSegmentRegister() == "ds" &&
                      segmentTable.find(assume->getName()) != segmentTable.end())
             {
-                assumedDataSegment = segmentTable.find(assume->getName())->second;
+                assumedDataSegment = (SegmentDef *) segmentTable.find(assume->getName())->second;
             }
             else if (assume->getSegmentRegister() == "ss" &&
                      segmentTable.find(assume->getName()) != segmentTable.end())
             {
-                assumedStackSegment = segmentTable.find(assume->getName())->second;
+                assumedStackSegment = (SegmentDef *) segmentTable.find(assume->getName())->second;
             }
             else
             {
@@ -280,13 +288,15 @@ int Assembler::basicoAssemblerStep1()
 
         case Instruction::iDW:
         {
+            
             Dw *dw = (Dw *)line;
             if (currentSegment->getSymbol(dw->getName()) == nullptr)
             {
                 currentSegment->setSymbol(new Symbol(dw->getName(), std::string("??"), true, false));
             }
 
-            tableVarInstruction<Dw>(dw, false);
+            if(!dw->isValueUndefined()) 
+                tableVarInstruction<Dw>(dw, false);
 
             currentSegment->getSymbol(dw->getName())->value = std::to_string(segmentCounter);
 
@@ -329,7 +339,7 @@ int Assembler::basicoAssemblerStep1()
 
         case Instruction::iEND:
         {
-            LOG("iEND (Etapa 1)");
+            LOG("iEND (Etapa 2)");
             End * end = (End *) line;
             if (currentSegment->getSymbol(end->getName()) == nullptr)
                 return SUCCESS;
@@ -339,8 +349,11 @@ int Assembler::basicoAssemblerStep1()
         }
 
         case Instruction::iENDS:
+        {
+            LOG("iENDS (Etapa 1)");
+            End * end = (End *) line;
             currentSegment->setSize(segmentCounter);
-
+        } 
             break;
 
         case Instruction::iDIV:
@@ -357,6 +370,7 @@ int Assembler::basicoAssemblerStep1()
             break;
         }
     }
+    
     // cte1 EQU cte2+5
     // cte2 EQU cte3*3
     // cte3 EQU 4
@@ -390,7 +404,8 @@ int Assembler::basicoAssemblerStep1()
 */
 std::vector<byte> *Assembler::evaluate(Expression *expression, USint *valueHolder, bool * isConst)
 {
-    ExpressionEvaluator *evaluator = new ExpressionEvaluator(expression, assumedProgramSegment, assumedDataSegment);
+    ExpressionEvaluator *evaluator = 
+        new ExpressionEvaluator(expression, assumedProgramSegment, assumedDataSegment, &segmentTable);
     if (evaluator->couldNotSymbolBeResolved())
     {
         delete evaluator;
@@ -418,11 +433,6 @@ std::vector<byte> * Assembler::generateAssembly(T *line)
 
     // não depende de expressão
     if (line->getExpression() == nullptr)
-    /*
-      ../src/bin/sources/assembler/Assembler.cpp:419:15: error: ‘class Push’ has no member named ‘getExpression’
-  419 |     if (line->getExpression() == nullptr)
-      |         ~~~~~~^~~~~~~~~~~~~
-    */
     {
         segmentCounter += 2;
         programCounter += 2;
@@ -435,11 +445,6 @@ std::vector<byte> * Assembler::generateAssembly(T *line)
 
     // C.C. junta o opcode com o evaluate
     expressValue = evaluate(line->getExpression(), nullptr);
-    /*
-      ../src/bin/sources/assembler/Assembler.cpp:430:35: error: ‘class Push’ has no member named ‘getExpression’
-  430 |     expressValue = evaluate(line->getExpression(), nullptr);
-      |                             ~~~~~~^~~~~~~~~~~~~
-    */    
     opcode = line->getOpCode();
 
     for (int i = 0; expressValue != nullptr && i < expressValue->size(); i++)
@@ -533,7 +538,7 @@ int Assembler::basicoAssemblerStep2()
             
             segmentCounter = 0;
             
-            currentSegment = segmentTable.find(segment->getName())->second;
+            currentSegment = (SegmentDef *)segmentTable.find(segment->getName())->second;
             
             inSegment = true;
             
@@ -551,17 +556,17 @@ int Assembler::basicoAssemblerStep2()
             if (assume->getSegmentRegister() == "cs" &&
                 segmentTable.find(assume->getName()) != segmentTable.end())
             {
-                assumedProgramSegment = segmentTable.find(assume->getName())->second;
+                assumedProgramSegment = (SegmentDef *)segmentTable.find(assume->getName())->second;
             }
             else if (assume->getSegmentRegister() == "ds" &&
                      segmentTable.find(assume->getName()) != segmentTable.end())
             {
-                assumedDataSegment = segmentTable.find(assume->getName())->second;
+                assumedDataSegment = (SegmentDef *)segmentTable.find(assume->getName())->second;
             }
             else if (assume->getSegmentRegister() == "ss" &&
                      segmentTable.find(assume->getName()) != segmentTable.end())
             {
-                assumedStackSegment = segmentTable.find(assume->getName())->second;
+                assumedStackSegment = (SegmentDef *)segmentTable.find(assume->getName())->second;
             }
             break;
         }
@@ -593,12 +598,11 @@ int Assembler::basicoAssemblerStep2()
                 LOG("iEND: etapa 2")
                 return ERROR;
             }
-            else
-            {
-                std::cout << "stoi" << label->value << std::endl;
-                assemblyCode.emplace_back(0x00);
-                // startProgram = std::stoi(label->value);
-            }
+        
+            std::cout << "iEND:" << label->value << std::endl;
+            startProgram = std::stoi(currentSegment->value) + std::stoi(label->value);
+            assemblyCode.push_back(0xEE);
+        
             std::cout << "deu bom" << std::endl;
             LOG("deu bom etapa 2")
             return SUCCESS;
@@ -607,7 +611,7 @@ int Assembler::basicoAssemblerStep2()
         case Instruction::iENDS:
             endLabel = ((EndS *)line)->getName(); 
 
-            if (endLabel != currentSegment->getName())
+            if (endLabel != currentSegment->name)
             {
                 LOG("iENDS : etapa 2")
                 return ERROR;
@@ -624,6 +628,10 @@ int Assembler::basicoAssemblerStep2()
         case Instruction::iRET:
         case Instruction::iNOT:
         case Instruction::iMUL:
+        case Instruction::iPUSH:
+        case Instruction::iPUSHF:
+        case Instruction::iPOP:
+        case Instruction::iPOPF:
             LOG("casos especiais etapa 2");
             GetSpecialOpcode(line);
             break;
@@ -632,13 +640,15 @@ int Assembler::basicoAssemblerStep2()
         {
             LOG("iMOV : etapa 2")
 
-            //PENDENTE: segmentCounter += 2 / 3 / 4;
-            //PENDENTE: programCounter += 2 / 3 / 4;
-
             lineCode = line->getOpCode();
             Mov * mov = (Mov *) line;
             bool isConst;
 
+            /*
+                MOV <registrador>, <registrador>
+                MOV <indice>, <registrador>
+                MOV <registrador>, <indice>
+            */
             if (mov->getSymbolSet() == nullptr)
             {
                 for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
@@ -648,41 +658,40 @@ int Assembler::basicoAssemblerStep2()
                 segmentCounter += 2;
                 programCounter += 2;
             }
-            else
+            else                                    //Mov possui expressões
             {
+                // MOV <registrador>, <expressão><indice>
                 if (mov->getExpression1() == nullptr && mov->isIndexed())
                 {
-                    // MOV AX, [SI] -- check
-                    for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
-                    {
-                        assemblyCode.push_back(lineCode->at(i));
-                    }
-
-                    // MOV AX,mem[SI] -- usar evalute -- check
-                    expressionValue = evaluate(mov->getExpression2(), nullptr);
-                    for (int i = 0; expressionValue != nullptr && i < expressionValue->size(); i++)
-                    {
-                        assemblyCode.push_back(expressionValue->at(i)); //??????
-                    }
-
-                    segmentCounter += 4;
-                    programCounter += 4;
-                }
-                else if (mov->getExpression1() == nullptr)
-                {
-
-                    expressionValue = evaluate(mov->getExpression1(), nullptr, &isConst);
-
-                    assemblyCode.push_back(isConst ? 0xB8 : 0xA1);
 
                     for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
                     {
                          assemblyCode.push_back(lineCode->at(i));
                     }
 
+                    expressionValue = evaluate(mov->getExpression2(), nullptr);
+                    for (int i = 0; expressionValue != nullptr && i < expressionValue->size(); i++)
+                    {
+                        assemblyCode.push_back(expressionValue->at(i));
+                    }
+
+                    segmentCounter += 4;
+                    programCounter += 4;
+                }
+                // MOV <registrador>, <expressão>
+                else if (mov->getExpression1() == nullptr)
+                {
+
+                    expressionValue = evaluate(mov->getExpression1(), nullptr, &isConst);
+
+                    assemblyCode.push_back(isConst ? 0xB8 : 0xA1);
+                    assemblyCode.push_back(expressionValue->at(0));
+                    assemblyCode.push_back(expressionValue->at(1));
+
                     segmentCounter += 3;
                     programCounter += 3;
                 }
+                // MOV <expressão><indice>, <registrador>
                 else if (mov->getExpression2() == nullptr && mov->isIndexed())
                 {
                     // MOV mem[SI], AX -- check
@@ -700,21 +709,22 @@ int Assembler::basicoAssemblerStep2()
                     segmentCounter += 4;
                     programCounter += 4;
                 }
+                // MOV <expressão>, <registrador>
                 else if (mov->getExpression2() == nullptr)
                 {
-                    // MOV [SI], AX -- check
-                    if (mov->getExpression1()->empty())
+                    for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
                     {
-                        for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
-                        {
-                            assemblyCode.push_back(lineCode->at(i));
-                        }
+                        assemblyCode.push_back(lineCode->at(i));
+                    }
+                    
+                    expressionValue = evaluate(mov->getExpression2(), nullptr);
+                    for (int i = 0; expressionValue != nullptr && i < expressionValue->size(); i++)
+                    {
+                        assemblyCode.push_back(expressionValue->at(i));
                     }
 
                     segmentCounter += 3;
                     programCounter += 3;
-
-                    // MOV mem, AX
                 }
             }
 
@@ -877,53 +887,60 @@ int Assembler::basicoAssemblerStep2()
                 for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
                     assemblyCode.push_back(lineCode->at(i));
             break;
-            
-        case Instruction::iPUSH:
-            lineCode = generateAssembly<Push>((Push *)line);
-            if (lineCode == nullptr)
-                return ERROR;
-            else
-                for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
-                    assemblyCode.push_back(lineCode->at(i));
-            break;
-            
-        case Instruction::iPUSHF:
-            lineCode = generateAssembly<Pushf>((Pushf *)line);
-            if (lineCode == nullptr)
-                return ERROR;
-            else
-                for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
-                    assemblyCode.push_back(lineCode->at(i));
-            break;
-
-        case Instruction::iPOP:
-            lineCode = generateAssembly<Pop>((Pop *)line);
-            if (lineCode == nullptr)
-                return ERROR;
-            else
-                for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
-                    assemblyCode.push_back(lineCode->at(i));
-            break;
-            
-        case Instruction::iPOPF:
-            lineCode = generateAssembly<Popf>((Popf *)line);
-            if (lineCode == nullptr)
-                return ERROR;
-            else
-                for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
-                    assemblyCode.push_back(lineCode->at(i));
-            break;
 
         case Instruction::iHALT:
             assemblyCode.push_back(line->getOpCode()->at(0));
             break;
 
         case Instruction::iDW:
-            //Processar instrução
+        {
+            Dw * dw = (Dw *) line;
+
+            std::vector<byte> notInit = std::vector<byte>(2,0);
+
+            std::vector<byte> *defaultDUP;
+            USint counterDUP = 0;
+
+            // <identificador> DW <expressão>
+            // DW <expressão>
+            // <identificador> DW <expressão> DUP (<expressão>)
+            // DW <expressão> DUP (<expressão>)
+
+            if(dw->isArray())       //possui DUP
+            {
+                if (dw->isValueUndefined())
+                    defaultDUP = &notInit;
+                else
+                    defaultDUP = evaluate(dw->getDefaultValue(), nullptr);
+
+                evaluate(dw->getLength(), &counterDUP);
+                
+                for (int i = 0; i < counterDUP; i++)
+                    for (int j = 0; defaultDUP != nullptr && j < defaultDUP->size(); j++)
+                        assemblyCode.push_back(defaultDUP->at(j));
+
+                programCounter += counterDUP;
+                segmentCounter += counterDUP;
+            }
+            else                    //nao possui DUP
+            {
+                if (dw->isValueUndefined())
+                    expressionValue = &notInit;
+                else
+                    expressionValue = evaluate(dw->getDefaultValue(), nullptr);
+
+                for (int i = 0; expressionValue != nullptr && i < expressionValue->size(); i++)
+                {
+                    assemblyCode.push_back(expressionValue->at(i));
+                }
+                programCounter += 2;
+                segmentCounter += 2;
+            }
+        }
         break;
 
         case Instruction::iLABEL:
-            //Nada
+            // Não precisa
         break;
 
         default:

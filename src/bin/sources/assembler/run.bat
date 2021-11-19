@@ -1,1 +1,0 @@
-g++ test.cpp Semantic.cpp macro.cpp -o teste && teste

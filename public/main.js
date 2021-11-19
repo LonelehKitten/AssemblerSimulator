@@ -1,5 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
-const isDev = require('electron-is-dev');
+console.log(app);
+return;
+const isDev = true;//require('electron-is-dev');
 const path = require('path');
 
 app.commandLine.appendSwitch('js-flags', '--max-old-space-size=4096');
