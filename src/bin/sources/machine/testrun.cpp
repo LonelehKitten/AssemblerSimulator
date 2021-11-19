@@ -104,18 +104,18 @@ int main()
             std::cout << "FIM DA MEMORIA!!\n";
             break;
         }
-
-        std::cout << "\n0 para executar o programa a partir do IP\n1 para escolher o indice de uma instrucao\nPosicao da instrucao atual: " << std::dec << i << "\nDigite: ";
         std::cin >> choice;
-        if (choice)
-        {
-            std::cout << "Digite o indice: ";
-            std::cin >> choice;
-            incremento = processor.execute(memory,choice);
-            i = choice;
-        }
-        else
-            incremento = processor.execute(memory);
+        // std::cout << "\n0 para executar o programa a partir do IP\n1 para escolher o indice de uma instrucao\nPosicao da instrucao atual: " << std::dec << i << "\nDigite: ";
+        // std::cin >> choice;
+        // if (choice)
+        // {
+        //     std::cout << "Digite o indice: ";
+        //     std::cin >> choice;
+        //     incremento = processor.execute(memory,choice);
+        //     i = choice;
+        // }
+        // else
+        incremento = processor.execute(memory);
         //std::cout << "Instrucao executada: " << std::hex << (int)memory[i] << std::endl;
         //std::cout << "Deslocamento para somar com i: " << std::dec << incremento << std::endl;
         //std::cout << "Deu erro? " << procesros.instructionError() ? "true" : "false" << std::endl;
