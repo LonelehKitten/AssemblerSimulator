@@ -30,7 +30,6 @@ const load = ({ alertShow, addFile }, path = "") => {
             }
         } else {
             alertShow('success', 'Arquivo aberto');
-            console.log(path, code);
             addFile(path, code);
         }
     });
@@ -50,10 +49,10 @@ const close = ({ setListFiles, changeFile, currentFile }) => {
     }
 }
 
-const getTree = ({setTreeFiles},directory = "") => {
-    console.log(directory == "");
+const getTree = ({setTreeFiles,alertShow = null},directory = "") => {
     event("openTreeDir", [directory], (e, tree, path) => {
         localStorage.setItem("directory_root", path);
+        if(alertShow) alertShow('success', 'Diretório aberto');
         setTreeFiles(tree);
     });
 }

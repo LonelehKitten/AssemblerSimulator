@@ -7,7 +7,16 @@ const { ipcRenderer } = window.electron;
 
 
 const Global = ({ value, children }) => {
-    const [treeFiles,setTreeFiles] = useState(null);
+    // Configurações do Aplicativo
+    const [editorConfig, setEditorConfig] = useState(JSON.parse(localStorage.getItem("editor_config")) ?? { fontFamily: "Share Tech Mono", fontSize: 20 })
+    const [treeFiles, setTreeFiles] = useState(null);
+    const [listFiles, setListFiles] = useState(JSON.parse(window.localStorage.getItem('_listFiles')) ?? {});
+    const [currentFile, setCurrentFile] = useState(null);
+
+    // Configurações para o programa
+    const [stdin, setStdin] = useState(false);
+    const [byStep, setByStep] = useState(false);
+    const [playing, setPlaying] = useState(false); // Quando o programa está em execução
     const [memory, setMemory] = useState(() => {
         const memoryChanges = [];
         for (let b = 0; b < 128; b++) {
@@ -19,14 +28,6 @@ const Global = ({ value, children }) => {
         }
         return memoryChanges;
     });
-
-    const [listFiles, setListFiles] = useState(() => {
-        const list = JSON.parse(window.localStorage.getItem('_listFiles'));
-
-        return list || {};
-    });
-
-    const [stdin, setStdin] = useState(false);
     const [registers, setRegisters] = useState({
         AX: 0,
         DX: 0,
@@ -56,11 +57,7 @@ const Global = ({ value, children }) => {
         },
     });
 
-    const [byStep, setByStep] = useState(false);
-    const [playing, setPlaying] = useState(false); // Quando o programa está em execução
-    const [currentFile, setCurrentFile] = useState(null);
-
-
+    // Metodos
     const changeFile = (id) => {
         if (listFiles[id] !== undefined) {
             setCurrentFile(listFiles[id]);
@@ -106,6 +103,15 @@ const Global = ({ value, children }) => {
         }
     };
 
+    const changeEditorConfig = (name, value) => {
+        setEditorConfig((old) => {
+            const newValue = { ...old };
+            newValue[name] = value;
+            localStorage.setItem("editor_config", JSON.stringify(newValue));
+            return newValue;
+        })
+    }
+
     // Salvar
     useEffect(() => {
         window.localStorage.setItem('_listFiles', JSON.stringify(listFiles));
@@ -134,8 +140,8 @@ const Global = ({ value, children }) => {
             });
         });
         const directory = localStorage.getItem("directory_root") ?? null;
-        if(directory != null && directory != "undefined"){
-            file.getTree({setTreeFiles},directory);
+        if (directory != null && directory != "undefined") {
+            file.getTree({ setTreeFiles }, directory);
         }
     }, []);
 
@@ -157,7 +163,9 @@ const Global = ({ value, children }) => {
         byStep,
         setByStep,
         treeFiles,
-        setTreeFiles
+        setTreeFiles,
+        editorConfig,
+        changeEditorConfig
     };
 
     return <Context.Provider value={{ ...context, ...value }}>{children}</Context.Provider>

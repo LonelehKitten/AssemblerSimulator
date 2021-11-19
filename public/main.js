@@ -1,6 +1,8 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const isDev = require('electron-is-dev');
 const path = require('path');
+const fontList = require('font-list');
+const dirTree = require("directory-tree");
 
 app.commandLine.appendSwitch('js-flags', '--max-old-space-size=4096');
 
@@ -27,7 +29,7 @@ function createWindow() {
     },
     icon: path.join(__dirname, 'AS.ico'),
   }); //'http://localhost:3000'
-  //  window.setIcon(path.join(__dirname, '/AS.ico'));
+  window.setIcon(path.join(__dirname, 'AS.ico'));
 
   window.removeMenu();
   window.loadURL(
@@ -57,8 +59,6 @@ app.on('activate', function () {
 });
 
 
-const dirTree = require("directory-tree");
-
 ipcMain.on("openTreeDir", async (event, directory) => {
   if (directory == "") {
 
@@ -67,6 +67,15 @@ ipcMain.on("openTreeDir", async (event, directory) => {
     });
     if (result.canceled) return event.sender.send('openTreeDir', null, directory);
     directory = result.filePaths[0];
-  }
-  event.sender.send('openTreeDir', dirTree(directory, { attributes: ['extension', 'type', 'uid'], extensions: /\.asm/ }), directory);
+  }//, extensions: /\.asm/
+  event.sender.send('openTreeDir', dirTree(directory, { attributes: ['extension', 'type', 'uid'] }), directory);
 })
+
+ipcMain.on("getFonts",async(event) => {
+  const fonts = await fontList.getFonts({ disableQuoting: true });
+  event.sender.send("getFonts",fonts);
+});
+
+ipcMain.on("getVersion",async(event) => {
+  event.sender.send("getVersion",app.getVersion());
+});

@@ -6,11 +6,11 @@ import Menu from '../../components/menu';
 
 const options = [
     {
-        name: "2 Passos",
+        name: "Básico",
         value: 0
     },
     {
-        name: "Load-and-Go",
+        name: "Completo",
         value: 1
     }
 ];

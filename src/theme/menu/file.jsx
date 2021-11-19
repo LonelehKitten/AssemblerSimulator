@@ -17,7 +17,7 @@ const File = () => {
     };
 
     const handleOpenDirectory = () => {
-        file.getTree({setTreeFiles});
+        file.getTree({setTreeFiles,alertShow});
     }
 
     const handleCloseFile = () => {

@@ -4,6 +4,8 @@ import TreeView from '@material-ui/lab/TreeView';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import TreeItem from '@material-ui/lab/TreeItem';
+import Button from '@material-ui/core/Button'
+import Typography from '@material-ui/core/Typography';
 import { useContext } from '../../utils';
 import {file} from '../../utils';
 
@@ -17,21 +19,44 @@ const Item = ({value,nodeId,openFile}) => {
     );
     
 }
+
+const useStyles = makeStyles({
+    root:{
+        margin: "50px auto",
+        display: "block",
+        textAlign: "center",
+        "& button":{
+            marginTop: "1em",
+            backgroundColor: "#282a36",
+            color: "#f1f1f1",
+            borderRadius:0
+        }
+    }
+});
 //{value.children && <Item value={value.children[0]} />}
 
 const Tree = () => {
+    const classes = useStyles();
+    const {treeFiles,addFile, alertShow,setTreeFiles} = useContext();
 
-    const {treeFiles,addFile, alertShow} = useContext();
     const openFile = (item) => () => {
-        console.log("Load");    
         file.load({alertShow,addFile},item.path);
     };
+    const OpenDirectory = () => {
+        file.getTree({setTreeFiles,alertShow});
+    }
+
     return (
         <TreeView
             defaultCollapseIcon={<ExpandMoreIcon />}
             defaultExpandIcon={<ChevronRightIcon />}
         >   
-            {treeFiles != null && <Item nodeId={0} openFile={openFile} value={treeFiles} />}
+            {treeFiles != null ? <Item nodeId={0} openFile={openFile} value={treeFiles} /> : (
+                <div className={classes.root}>
+                    <Typography>Abra um diretório para visualiar a árvore de arquivos.</Typography>
+                    <Button variant="contained" onClick={OpenDirectory}>Abrir Diretório</Button>
+                </div>
+            )}
         </TreeView>
     )
 }
