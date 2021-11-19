@@ -24,6 +24,11 @@ long Assembler::getStartProgram()
     return startProgram;
 }
 
+long Assembler::getStartSegment()
+{
+    return std::stoi(currentSegment->value);
+}
+
 template <class T>
 void Assembler::tableArithmeticInstructions(T *t)
 {
@@ -89,11 +94,6 @@ void Assembler::tableIntInstruction(T *t)
 template <class T>
 void Assembler::tableVarInstruction(T *t, bool isConst)
 {
-    if (!isConst)
-    {
-        segmentCounter += 2;
-        programCounter += 2;
-    }
 
     std::set<std::string> *set;
 
@@ -108,6 +108,8 @@ void Assembler::tableVarInstruction(T *t, bool isConst)
         if (currentSegment->getSymbol(*it) == nullptr)
             currentSegment->setSymbol(new Symbol(*it, std::string("??"), true, false));
     }
+
+    
 }
 
 /**
@@ -121,6 +123,8 @@ int Assembler::basicoAssemblerStep1()
     segmentCounter = 0;
     Instruction instruction;
     USint value;
+
+    bool isEnd = false;
 
     std::vector<Token *> *expression;
     Symbol *s;
@@ -139,7 +143,7 @@ int Assembler::basicoAssemblerStep1()
     std::vector<PendingResolution *> dependencyMap;
 
     // for (File::iterator line = lines->begin(); line != lines->end(); ++line)
-    for (int i = 0; i < lines->size(); ++i)
+    for (int i = 0; !isEnd && i < lines->size(); ++i)
     {
         std::vector<Token *> *expression;
         line = lines->at(i);
@@ -300,6 +304,9 @@ int Assembler::basicoAssemblerStep1()
 
             currentSegment->getSymbol(dw->getName())->value = std::to_string(segmentCounter);
 
+            segmentCounter += 2;
+            programCounter += 2;
+
             break;
         }
 
@@ -339,10 +346,10 @@ int Assembler::basicoAssemblerStep1()
 
         case Instruction::iEND:
         {
-            LOG("iEND (Etapa 2)");
             End * end = (End *) line;
-            if (currentSegment->getSymbol(end->getName()) == nullptr)
-                return SUCCESS;
+            LOG(std::string("iEND (Etapa 1)") + end->getName())
+            if (currentSegment->getSymbol(end->getName()) != nullptr)
+                isEnd = true;
             else
                 return ERROR;
             break;
@@ -591,11 +598,12 @@ int Assembler::basicoAssemblerStep2()
 
         case Instruction::iEND:
             endLabel = ((End *)line)->getName();
+            LOG(std::string("iEND: etapa 2: endLabel") + endLabel)
             label = currentSegment->getSymbol(endLabel);
             
             if (label == nullptr)
             {
-                LOG("iEND: etapa 2")
+                LOG("iEND: etapa 2: ERROR")
                 return ERROR;
             }
         
@@ -682,7 +690,7 @@ int Assembler::basicoAssemblerStep2()
                 else if (mov->getExpression1() == nullptr)
                 {
 
-                    expressionValue = evaluate(mov->getExpression1(), nullptr, &isConst);
+                    expressionValue = evaluate(mov->getExpression2(), nullptr, &isConst);
 
                     assemblyCode.push_back(isConst ? 0xB8 : 0xA1);
                     assemblyCode.push_back(expressionValue->at(0));

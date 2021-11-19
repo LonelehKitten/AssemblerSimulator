@@ -83,6 +83,7 @@ public:
     int assemble(int assemblerType);
 
     long getStartProgram();
+    long getStartSegment();
 
     void init(bool willExecute);
     int preproccess (std::vector<Semantic *> * lines, int k);

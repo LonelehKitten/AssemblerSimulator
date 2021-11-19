@@ -38,7 +38,7 @@ public:
     //Reinicia a máquina
     void resetMachine();
     //Configura o início do programa
-    void setStartProgram(long);
+    void setStartProgram(long, long);
 
     /*
         - isBySteps - executa instruções qnd nextStepRequested for true

@@ -20,9 +20,10 @@ Z808Machine::Z808Machine()
     this->ioMode = 0;
 }
 
-void Z808Machine::setStartProgram(long i)
+void Z808Machine::setStartProgram(long i, long main)
 {
     processor->setIP(i);
+    processor->setCS(main);
 }
 
 void Z808Machine::memoryUpdate(std::vector<Z808Byte> *memory, std::vector<unsigned char> *programBytes)
@@ -32,8 +33,8 @@ void Z808Machine::memoryUpdate(std::vector<Z808Byte> *memory, std::vector<unsign
     for (int i = PROGRAM_BEGIN; programBytes != nullptr && i < programBytes->size(); i++)
         this->memory->at(i) = programBytes->at(i);
 
-    InterfaceBus::getInstance().dispatchProgramToMemory(memory);
-    while(InterfaceBus::getInstance().isUpdating());
+    //InterfaceBus::getInstance().dispatchProgramToMemory(memory);
+    //while(InterfaceBus::getInstance().isUpdating());
 }
 
 bool Z808Machine::isEnd()
@@ -162,8 +163,10 @@ int Z808Machine::run(bool isBySteps)
 
         if (processor->isInterrupt())
         {
-            if (ioMode == 0)
+            LOG(std::string("Interrupção ") + std::to_string(ioMode))
+            if (ioMode == 1)
             {
+                
                 ioData = 0;
                 ioData |= memory->at(2*ioAddr+1);
                 ioData <<= 8;
@@ -172,7 +175,7 @@ int Z808Machine::run(bool isBySteps)
                 Format->setStandardInput(false);
                 processor->resetInterruption();
             }
-            else if (ioMode == 1)
+            else if (ioMode == 0)
             {
                 Format->setStandardInput(true);
                 std::cout << "REQUESTED INPUT FROM USER" << std::endl;

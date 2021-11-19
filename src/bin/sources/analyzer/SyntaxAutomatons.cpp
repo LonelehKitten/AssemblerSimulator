@@ -396,7 +396,10 @@ namespace SyntaxAutomatons {
         transition->setState(qEnd);
         bool r = analyzer->q(transition);
         transition->~Transition();
-        if(!r && analyzer->getLastToken()->getName() == TokenNames::nRegAX) return false;
+        if(!r && analyzer->getLastToken()->getName() == TokenNames::nRegAX){
+            analyzer->setAux2("ax");
+            return false;
+        }
         analyzer->setError(true);
         return r;
     }

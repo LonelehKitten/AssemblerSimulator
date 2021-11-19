@@ -32,9 +32,14 @@ Z808Word* Z808Processor::getSR()
     return &Z808Registers[SR];
 }
 
+void Z808Processor::setCS(long main)
+{
+    Z808Registers[CS] = (Z808Word) main;
+}
+
 void Z808Processor::setIP(long i)
 {
-    Z808Registers[IP] = i;
+    Z808Registers[IP] = (Z808Word) i;
 }
 
 bool Z808Processor::isInterrupt()
