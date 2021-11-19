@@ -111,6 +111,8 @@ public:
     Z808Word getIP();
     //Pega o registrador SR - flags
     Z808Word* getSR();
+    //Inicializa o registrador IP - começo do programa
+    void setIP(long i);
     //Verifica se houve interrupção
     bool isInterrupt(); //Z808Registers[SR][IF];
     //Verifica se a última instrução foi de escrita na memória

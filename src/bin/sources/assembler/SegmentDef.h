@@ -3,24 +3,21 @@
 
 #include "../Enums.h"
 
-class SegmentDef
+class SegmentDef : public Symbol
 {
 private:
-    std::string name;
-    int location;
-    int size;
+    USint location;
+    USint size;
     
     SymbolTable symbolTable;
 public:
-    SegmentDef(std::string, int, int);
+    SegmentDef(std::string, USint, USint);
+    
+    void setSize(USint);
 
-    void setSize(int);
+    USint getSize();
 
-    int getSize();
-
-    std::string getName();
-
-    int getLocation();
+    USint getLocation();
 
     void setSymbol(Symbol *);
 

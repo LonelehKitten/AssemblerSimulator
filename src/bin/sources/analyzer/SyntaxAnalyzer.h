@@ -36,7 +36,7 @@ class SyntaxAnalyzer {
 
         std::string aux1, aux2, aux3;
         std::vector<std::string> * vaux;
-        bool isMacroContent;
+        bool isMacroContent, auxFlag;
         std::stack<std::string> * macroStack;
 
         std::vector<Token *> * getExpression(int it, int& pointer);
@@ -81,13 +81,14 @@ class SyntaxAnalyzer {
         Token * getLastToken();
         std::stack<std::string> *getMacroStack() const;
         std::vector<Token *> * getRawRow();
-
+        bool getAuxFlag();
 
         void setAux1(const std::string aux1);
         void setAux2(const std::string aux2);
         void setAux3(const std::string aux3);
         void setVAux(std::vector<std::string> * vaux);
         void setEndpoint(std::function<bool(SyntaxAnalyzer *)> endpoint);
+        void setAuxFlag(bool auxFlag);
 
 };
 

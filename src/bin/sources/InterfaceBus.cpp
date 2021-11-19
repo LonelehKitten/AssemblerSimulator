@@ -214,7 +214,7 @@ void InterfaceBus::runExpandMacros()
     delete assembler;
 }
 
-void InterfaceBus::runBuildAndRun(){
+void InterfaceBus::runBuildAndRun(){  //*****************
     std::cout << "build and run" << std::endl;
     std::vector<std::string> * files = &inputReport.files;
 
@@ -233,9 +233,12 @@ void InterfaceBus::runBuildAndRun(){
     //Linker
 }
 
-void InterfaceBus::runAssembleAndRun()
+void InterfaceBus::runAssembleAndRun()  //*****************
 {
-
+    if(inputReport.modeAssembler == 1){ // Executa o build and run, se modeAssembler = 1
+        runBuildAndRun();
+        return;
+    }
     std::cout << "assemble and run: begin : code:\n" << inputReport.code << std::endl;
     std::vector<Semantic *> *semantics = recognitionManager->analyzeText(inputReport.code);
     std::cout << "assemble and run: analyzer" << std::endl;
@@ -249,8 +252,8 @@ void InterfaceBus::runAssembleAndRun()
 
         machine->resetMachine();
         machine->memoryUpdate(&inputReport.memory, assembler->getAssemblyCode());
+        machine->setStartProgram(assembler->getStartProgram());
         machine->run(false);
-
         std::cout << "assemble and run: run" << std::endl;
 
         while (isUpdating());

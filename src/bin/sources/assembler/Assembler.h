@@ -18,7 +18,7 @@ private:
 
     std::vector<MacroDef *> macroList;
     std::unordered_map<std::string, MacroDef *> macroTable;
-    std::unordered_map<std::string, SegmentDef *> segmentTable;
+    SymbolTable segmentTable;
 
     SegmentDef * currentSegment;
     SegmentDef * assumedProgramSegment, * assumedDataSegment, * assumedStackSegment;
@@ -81,6 +81,8 @@ public:
     //"3" para montador completo de 2 passos
     //Retorna uma flag de erro.
     int assemble(int assemblerType);
+
+    long getStartProgram();
 
     void init(bool willExecute);
     int preproccess (std::vector<Semantic *> * lines, int k);
