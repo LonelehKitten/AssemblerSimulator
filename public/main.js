@@ -1,6 +1,5 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 console.log(app);
-return;
 const isDev = true;//require('electron-is-dev');
 const path = require('path');
 const fontList = require('font-list');
@@ -31,7 +30,6 @@ function createWindow() {
     },
     icon: path.join(__dirname, 'AS.ico'),
   }); //'http://localhost:3000'
-  window.setIcon(path.join(__dirname, 'AS.ico'));
 
   window.removeMenu();
   window.loadURL(

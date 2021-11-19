@@ -45,6 +45,7 @@ int main()
      * JZ 17
      * SUB AX, 511
      * JMP 2
+     * INT 2
      * HLT
      */
     
@@ -77,14 +78,16 @@ int main()
     memory.push_back(0xEB);     //Opcode da instrucao jmp opd
     memory.push_back(0xF2);
     memory.push_back(0xFF);
+    //Exemplo da instrucao INT 2
+    memory.push_back(0xCD);     //Opcode da instrucao int opd
+    memory.push_back(0x02);
+    memory.push_back(0x00);
     //Exemplo da instrucao hlt
     memory.push_back(0xEE);     //Opcode da instrucao hlt
 
     Z808Machine machine;
     machine.memoryUpdate(&memory);
-    machine.run(false);
-
-    /*
+    //machine.run(false);
 
     int choice;
     std::vector<Z808Word> registradores;
@@ -166,7 +169,6 @@ int main()
         //    break;
     }
 
-    */
 
     return 0;
 }

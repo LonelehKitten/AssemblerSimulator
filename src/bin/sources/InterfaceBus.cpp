@@ -241,18 +241,22 @@ void InterfaceBus::runAssembleAndRun()  //*****************
     }
     std::cout << "assemble and run: begin : code:\n" << inputReport.code << std::endl;
     std::vector<Semantic *> *semantics = recognitionManager->analyzeText(inputReport.code);
-    std::cout << "assemble and run: analyzer" << std::endl;
+    LOG("assemble and run: analyzer")
+    std::this_thread::sleep_for(this->getClock()*20);
     //return;
     assembler = new Assembler(semantics);
     assembler->init(true);
-    std::cout << "assemble and run: preprocess" << std::endl;
+    LOG("assemble and run: preprocess")
+    std::this_thread::sleep_for(this->getClock()*20);
+
     if(assembler->assemble(inputReport.modeAssembler) == 0) {
 
         std::cout << "assemble and run: assemble" << std::endl;
 
         machine->resetMachine();
         machine->memoryUpdate(&inputReport.memory, assembler->getAssemblyCode());
-        machine->setStartProgram(assembler->getStartProgram());
+        machine->setStartProgram(assembler->getStartProgram(), assembler->getStartSegment());
+        LOG(std::string("Start Program = ") + std::to_string(assembler->getStartProgram()))
         machine->run(false);
         std::cout << "assemble and run: run" << std::endl;
 
@@ -630,7 +634,6 @@ v8::Local<v8::Array> InterfaceBus::castByteArraytoV8(std::vector<byte> *array)
 
 InterfaceBus &InterfaceBus::getInstance()
 {
-
     static InterfaceBus nodeBus;
     return nodeBus;
 }
