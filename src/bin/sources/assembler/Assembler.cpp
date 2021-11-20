@@ -15,7 +15,18 @@ std::string Assembler::getOutput()
     return output;
 }
 
-Assembler::Assembler(std::vector<Semantic *> *lines) : lines(lines)
+Assembler::Assembler(std::vector<Semantic *> *lines) :
+    lines(lines),
+    currentSegment(nullptr), 
+    assumedProgramSegment(nullptr),
+    assumedDataSegment(nullptr),
+    assumedStackSegment(nullptr),
+    output(""),
+    lineCounter(0),
+    programCounter(0),
+    segmentCounter(0),
+    startProgram(0), 
+    assemblerError(0)
 {
 }
 
@@ -26,7 +37,9 @@ long Assembler::getStartProgram()
 
 long Assembler::getStartSegment()
 {
-    return std::stoi(currentSegment->value);
+    if (currentSegment != nullptr)
+        return std::stoi(currentSegment->value);
+    return 0;
 }
 
 template <class T>
@@ -112,6 +125,60 @@ void Assembler::tableVarInstruction(T *t, bool isConst)
     
 }
 
+void showLog(Instruction instruction, std::string line) {
+    switch (instruction) {
+        case Instruction::iADD: LOG("iADD "+line); break;
+        case Instruction::iASSUME: LOG("iASSUME "+line); break;
+        case Instruction::iSEGMENT: LOG("iSEGMENT "+line); break;
+        case Instruction::iMOV: LOG("iMOV "+line); break;
+        case Instruction::iJNZ: LOG("iJNZ "+line); break;
+        case Instruction::iENDS: LOG("iENDS "); break;
+        case Instruction::iEND: LOG("iEND "+line); break;
+        case Instruction::iEQU: LOG("iEQU "+line); break;
+        case Instruction::iDW: LOG("iDW "+line); break;
+        case Instruction::iLABEL: LOG("iLABEL "+line); break;
+        case Instruction::iSUB: LOG("iSUB "+line); break;
+        default: LOG(std::to_string(instruction)+line); break;
+    }
+}
+
+/*
+Step 1
+{"message": "iSEGMENT data SEGMENT
+", "status": 0}
+{"message": "iEQU max EQU 10
+", "status": 0}
+{"message": "iDW unit2 DW 1
+", "status": 0}
+{"message": "iDW unit DW 1
+", "status": 0}
+{"message": "iENDS ", "status": 0}
+{"message": "iSEGMENT program SEGMENT
+", "status": 0}
+{"message": "iASSUME ASSUME CS: program
+", "status": 0}
+{"message": "iASSUME ASSUME DS: data
+", "status": 0}
+{"message": "36main:
+", "status": 0}
+{"message": "iMOV mov ax, data
+", "status": 0}
+{"message": "iMOV mov ds, ax
+", "status": 0}
+{"message": "iADD add ax, max
+", "status": 0}
+{"message": "36loop1:
+", "status": 0}
+{"message": "iSUB sub ax, unit
+", "status": 0}
+{"message": "iJNZ jnz loop1
+", "status": 0}
+{"message": "iENDS ", "status": 0}
+{"message": "iEND END main
+", "status": 0}
+{"message": "ERROR", "status": 0}
+*/
+
 /**
  * TABELA OS SÍMBOLOS
  */
@@ -142,6 +209,8 @@ int Assembler::basicoAssemblerStep1()
 
     std::vector<PendingResolution *> dependencyMap;
 
+
+
     // for (File::iterator line = lines->begin(); line != lines->end(); ++line)
     for (int i = 0; !isEnd && i < lines->size(); ++i)
     {
@@ -157,10 +226,11 @@ int Assembler::basicoAssemblerStep1()
         // DW, EQU, ORG
 
         instruction = line->getType();
+        //showLog(instruction,line->getLine());
 
         if (!inSegment && instruction == Instruction::iSEGMENT)
         {
-            LOG("iSegment (Etapa 1)");
+            //LOG("iSegment (Etapa 1)");
             Segment *segment = (Segment *)line;
             segmentTable[segment->getName()] = new SegmentDef(segment->getName(), programCounter,0);
             currentSegment = (SegmentDef *) segmentTable.find(segment->getName())->second;
@@ -172,13 +242,12 @@ int Assembler::basicoAssemblerStep1()
             segmentCounter = 0;
             continue;
         }
-
         switch (instruction)
         {
         // aritmeticas e logicas
         
         case Instruction::iADD:
-            LOG("iAdd (Etapa 1)");
+            //LOG("iAdd (Etapa 1)");
             tableArithmeticInstructions<Add>((Add *)line);
             break;
         case Instruction::iSUB:
@@ -255,7 +324,7 @@ int Assembler::basicoAssemblerStep1()
 
         case Instruction::iASSUME:
         {
-            LOG("iAssume (Etapa 1)");
+            //LOG("iAssume (Etapa 1)");
             Assume *assume = (Assume *)line;
 
             if (assume->getSegmentRegister() == "cs" &&
@@ -275,7 +344,7 @@ int Assembler::basicoAssemblerStep1()
             }
             else
             {
-                LOG("iAssume ERRO");
+                //LOG("iAssume ERRO");
             }
             break;
         }
@@ -332,13 +401,13 @@ int Assembler::basicoAssemblerStep1()
 
         case Instruction::iLABEL:
         {
-            LOG("iLabel (Etapa 1)"); 
+            //LOG("iLabel (Etapa 1)"); 
             Label * label = (Label *) line;
             if (currentSegment->getSymbol(label->getName()) == nullptr)
             {
                 currentSegment->setSymbol(new Symbol(label->getName(), std::string("??")));
             }
-            LOG(label->getName() + std::string(":") + std::to_string(segmentCounter))
+            //LOG(label->getName() + std::string(":") + std::to_string(segmentCounter))
             currentSegment->getSymbol(label->getName())->value = std::to_string(segmentCounter);
             currentSegment->getSymbol(label->getName())->isLabel = true;
             break;
@@ -347,17 +416,22 @@ int Assembler::basicoAssemblerStep1()
         case Instruction::iEND:
         {
             End * end = (End *) line;
-            LOG(std::string("iEND (Etapa 1)") + end->getName())
-            if (currentSegment->getSymbol(end->getName()) != nullptr)
-                isEnd = true;
-            else
+            //LOG(std::string("iEND (Etapa 1)") + end->getName())
+                if (currentSegment->getSymbol(end->getName()) != nullptr)
+                {
+                    //LOG("Passou");
+                    isEnd = true;
+                }
+                else {
+                    //LOG("ERROR");
                 return ERRO;
+                }
             break;
         }
 
         case Instruction::iENDS:
         {
-            LOG("iENDS (Etapa 1)");
+            //LOG("iENDS (Etapa 1)");
             End * end = (End *) line;
             currentSegment->setSize(segmentCounter);
         } 
@@ -403,7 +477,7 @@ int Assembler::basicoAssemblerStep1()
         }
     } while ((int)dependencyMap.size() > 0);
 
-    return 0;
+    return SUCCESS;
 }
 
 /*

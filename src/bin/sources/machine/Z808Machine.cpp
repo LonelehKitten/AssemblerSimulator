@@ -33,8 +33,8 @@ void Z808Machine::memoryUpdate(std::vector<Z808Byte> *memory, std::vector<unsign
     for (int i = PROGRAM_BEGIN; programBytes != nullptr && i < programBytes->size(); i++)
         this->memory->at(i) = programBytes->at(i);
 
-    //InterfaceBus::getInstance().dispatchProgramToMemory(memory);
-    //while(InterfaceBus::getInstance().isUpdating());
+    InterfaceBus::getInstance().dispatchProgramToMemory(memory);
+    while(InterfaceBus::getInstance().isUpdating());
 }
 
 bool Z808Machine::isEnd()
@@ -113,7 +113,7 @@ int Z808Machine::run(bool isBySteps)
 
         if (increment == 0 && !processor->instructionError())       //Programa chegou em HALT
         {
-            std::cout << "\nFIM DE PROGRAMA\n\n\n";
+            std::cout << "\nFIM DO PROGRAMA\n\n\n";
             
             PRODUCTION(
             interfaceBus->dispatchLog(std::string("Fim do programa."), LogStatus::SUCCESS);

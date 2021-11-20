@@ -601,9 +601,11 @@ namespace SyntaxAutomatons {
         transition->~Transition();
         r = analyzer->q(transition);
         if(!r) {
+            analyzer->setState(qEnd);
             if(!analyzer->getLastToken()->isEndOfLine()) {
                 analyzer->setState(qBegin);
             }
+
             return false;
         }
 

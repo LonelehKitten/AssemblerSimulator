@@ -41,7 +41,7 @@
     "electron:deploy": "electron-builder --win --publish always -c.extraMetadata.main=build/main.js --config=electron-builder.yml",
     "dev": "npm run electron:serve",
     "deploy": "npm run react:build && npm run electron:deploy",
-    "c++:build2": "node-gyp rebuild --debug",
+    "c++:debug": "node-gyp clean && electron-rebuild --debug",
     "c++:build": "node-gyp clean && electron-rebuild",
     "test": "electron test.js"
   },

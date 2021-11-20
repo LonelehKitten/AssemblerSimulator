@@ -30,6 +30,7 @@ void MacroDef::setText(Semantic * line)
 
 std::string MacroDef::macroLine()
 {
+    return std::string("");
 }
 
 void MacroDef::updateMacro(std::vector<std::string> args)
