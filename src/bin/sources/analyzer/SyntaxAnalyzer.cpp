@@ -237,10 +237,10 @@ Semantic * SyntaxAnalyzer::getRow(int offset) {
                     return new Cmp(this->line, expression);
 
                 case TokenNames::nOpDIV:
-                    return new Mul(this->line, this->aux1);
+                    return new Div(this->line, this->aux1);
 
                 case TokenNames::nOpMUL:
-                    return new Div(this->line, this->aux1);
+                    return new Mul(this->line, this->aux1);
 
                 case TokenNames::nOpMOV:
                     if(t2->getType() == TokenTypes::tREGISTER) {
@@ -250,7 +250,7 @@ Semantic * SyntaxAnalyzer::getRow(int offset) {
                         expression = getExpression(offset+3, t);
                         return new Mov(this->line, this->aux1, expression, (t < (int) row.size()));
                     }
-                    expression = getExpression(offset+2, t);
+                    expression = getExpression(offset+1, t);
                     return new Mov(this->line, expression, this->aux2,
                         row[t]->getType() == TokenTypes::tINDEX_OP
                     );

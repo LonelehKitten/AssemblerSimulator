@@ -274,6 +274,7 @@ namespace SyntaxAutomatons {
                 analyzer->getLastToken()->getName() == TokenNames::nRegAX ||
                 analyzer->getLastToken()->getName() == TokenNames::nRegSI
         )) {
+            analyzer->setAux1(analyzer->getLastToken()->getToken());
             return false;
         }
         analyzer->setError(true);
@@ -356,6 +357,7 @@ namespace SyntaxAutomatons {
         transition->setState(qMov_3_i_si);
         bool r = analyzer->q(transition);
         if(!r) return false;
+        //analyzer->setState(qMov_3_i_si);
         transition->~Transition();
 
         analyzer->undoScan();

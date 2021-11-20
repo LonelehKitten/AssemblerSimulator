@@ -123,6 +123,7 @@ const Global = ({ value, children }) => {
         });
         ipcRenderer.on('cycle_memory', (evt, data) => {
             if (Object.keys(data).length === 0) return;
+            console.log('cycle_memory',data);
             setMemory((old) => {
                 if (Object.keys(old).includes(data.address.toString())) {
                     old[data.address] = data.newValue.toString(16).padStart(4, 0);

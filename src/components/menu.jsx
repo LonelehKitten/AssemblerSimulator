@@ -98,7 +98,7 @@ const Menu = ({ label, children,submenu = false }) => {
         <div className={[classes.root,submenu ? "submenu" : ""].join(" ")} ref={ref}>
             {submenu ? <MenuItem onClick={() => setOpen(!open)}>{label} <KeyboardArrowRightIcon className="submenuicon" /></MenuItem>: <Button onClick={() => setOpen(!open)} className={open && "active"}>{label}</Button>}
             <ul className={classes.menu + (open ? " " + classes.open : "")+ (submenu ? " submenu" : "")}>
-                {children}
+                {open && children}
             </ul>
         </div>
     )

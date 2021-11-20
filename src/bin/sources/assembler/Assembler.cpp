@@ -127,18 +127,18 @@ void Assembler::tableVarInstruction(T *t, bool isConst)
 
 void showLog(Instruction instruction, std::string line) {
     switch (instruction) {
-        case Instruction::iADD: LOG("iADD "+line); break;
-        case Instruction::iASSUME: LOG("iASSUME "+line); break;
-        case Instruction::iSEGMENT: LOG("iSEGMENT "+line); break;
-        case Instruction::iMOV: LOG("iMOV "+line); break;
-        case Instruction::iJNZ: LOG("iJNZ "+line); break;
-        case Instruction::iENDS: LOG("iENDS "); break;
-        case Instruction::iEND: LOG("iEND "+line); break;
-        case Instruction::iEQU: LOG("iEQU "+line); break;
-        case Instruction::iDW: LOG("iDW "+line); break;
-        case Instruction::iLABEL: LOG("iLABEL "+line); break;
-        case Instruction::iSUB: LOG("iSUB "+line); break;
-        default: LOG(std::to_string(instruction)+line); break;
+        case Instruction::iADD: std::cout << "iADD "+line << std::endl; break;
+        case Instruction::iASSUME: std::cout << "iASSUME "+line << std::endl; break;
+        case Instruction::iSEGMENT: std::cout << "iSEGMENT "+line << std::endl; break;
+        case Instruction::iMOV: std::cout << "iMOV "+line << std::endl; break;
+        case Instruction::iJNZ: std::cout << "iJNZ "+line << std::endl; break;
+        case Instruction::iENDS: std::cout << "iENDS " << std::endl; break;
+        case Instruction::iEND: std::cout << "iEND "+line << std::endl; break;
+        case Instruction::iEQU: std::cout << "iEQU "+line << std::endl; break;
+        case Instruction::iDW: std::cout << "iDW "+line << std::endl; break;
+        case Instruction::iLABEL: std::cout << "iLABEL "+line << std::endl; break;
+        case Instruction::iSUB: std::cout << "iSUB "+line << std::endl; break;
+        default: std::cout << std::to_string(instruction)+line << std::endl; break;
     }
 }
 
@@ -224,7 +224,6 @@ int Assembler::basicoAssemblerStep1()
         // DW, EQU, ORG
 
         instruction = line->getType();
-        //showLog(instruction,line->getLine());
 
         if (!inSegment && instruction == Instruction::iSEGMENT)
         {
@@ -294,7 +293,6 @@ int Assembler::basicoAssemblerStep1()
             
             Mov * mov = (Mov *) line;
             std::set<std::string> * set = mov->getSymbolSet();
-
             if(set != nullptr) {
                 for (std::set<std::string>::iterator it = set->begin(); it != set->end(); it++)
                 {
@@ -492,7 +490,6 @@ std::vector<byte> *Assembler::evaluate(Expression *expression, USint *valueHolde
     }
 
     USint value = evaluator->getValue();
-
     if (valueHolder != nullptr)
         *valueHolder = value;
 
@@ -546,7 +543,7 @@ std::vector<byte> * Assembler::generateAssemblyJumps(T *line) {
 
     // 3 - 6 = -3
     USint value = (USint) std::stoi(assumedProgramSegment->getSymbol(line->getLabel())->value);
-    value -= programCounter;
+    value -= segmentCounter;
     
     segmentCounter += 3;
     programCounter += 3;
@@ -557,16 +554,25 @@ std::vector<byte> * Assembler::generateAssemblyJumps(T *line) {
     return opcode;
 }
 
-void Assembler::GetSpecialOpcode(Semantic *line)
+void Assembler::GetSpecialOpcode(Semantic* line)
 {
     // assemblyCode.push_back(((Div *)line)->getOpcode());
-    segmentCounter += 2; 
+    segmentCounter += 2;
     programCounter += 2;
-    std::vector<byte> * lineCode = line->getOpCode();
+    std::cout << "----" << std::endl;
+    std::vector<byte>* lineCode = line->getOpCode();
+    if (line->getType() == Instruction::iMUL){
+        std::cout << "iMUL" << std::endl;
+    }
+    if(line->getType() == Instruction::iDIV) {
+        std::cout << "iDIV" << std::endl;
+    }
     for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
     {
+        std::cout << std::hex << (int)lineCode->at(i) << std::endl;
         assemblyCode.push_back(lineCode->at(i));
     }
+    std::cout << "----" << std::endl;
 }
 
 /*
@@ -610,7 +616,7 @@ int Assembler::basicoAssemblerStep2()
         //LOG(std::string("Loop: " + i));
         line = lines->at(i);
         instruction = line->getType();
-
+        showLog(instruction, std::string(""));
         if (!inSegment && instruction == Instruction::iSEGMENT)
         {
             Segment *segment = (Segment *)line;
@@ -780,7 +786,7 @@ int Assembler::basicoAssemblerStep2()
                          assemblyCode.push_back(lineCode->at(i));
                     }
                     
-                    expressionValue = evaluate(mov->getExpression1(), nullptr);
+                    expressionValue = evaluate(mov->getExpression1(), nullptr); 
                     for (int i = 0; expressionValue != nullptr && i < expressionValue->size(); i++)
                     {
                         assemblyCode.push_back(expressionValue->at(i));
@@ -792,12 +798,13 @@ int Assembler::basicoAssemblerStep2()
                 // MOV <expressão>, <registrador>
                 else if (mov->getExpression2() == nullptr)
                 {
+
                     for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
                     {
                         assemblyCode.push_back(lineCode->at(i));
                     }
-                    
-                    expressionValue = evaluate(mov->getExpression2(), nullptr);
+
+                    expressionValue = evaluate(mov->getExpression1(), nullptr); 
                     for (int i = 0; expressionValue != nullptr && i < expressionValue->size(); i++)
                     {
                         assemblyCode.push_back(expressionValue->at(i));
@@ -978,7 +985,7 @@ int Assembler::basicoAssemblerStep2()
 
             std::vector<byte> notInit = std::vector<byte>(2,0);
 
-            std::vector<byte> *defaultDUP;
+            std::vector<byte> *defaultDUP = nullptr;
             USint counterDUP = 0;
 
             // <identificador> DW <expressão>

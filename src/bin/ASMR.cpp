@@ -159,6 +159,11 @@ void moduleExports(v8::Local<v8::Object> exports) {
                Nan::New<v8::FunctionTemplate>(requestExpandMacros)
                    ->GetFunction(context)
                    .ToLocalChecked());
+  exports->Set(context,
+      Nan::New("requestSendInput").ToLocalChecked(),
+      Nan::New<v8::FunctionTemplate>(requestSendInput)
+      ->GetFunction(context)
+      .ToLocalChecked());
 
   exports->Set(context,
                Nan::New("requestBuildAndRun").ToLocalChecked(),

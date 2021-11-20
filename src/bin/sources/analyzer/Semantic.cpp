@@ -93,7 +93,7 @@ std::set<std::string> * Add::getSymbolSet() {
 
 //============================
 //            SUB
-//============================
+//============================std::cout << "AQUI Ó: " << expression1 << std::endl;
 Sub::Sub(std::string line, std::string operand2) :
     Semantic(line, Instruction::iSUB),
     operand2(operand2),
@@ -145,6 +145,7 @@ Div::Div(std::string line, std::string operand) :
 {
     opcode = new std::vector<byte>;
     opcode->push_back(0xF7);
+    std::cout << "OP:" << operand << std::endl;
     opcode->push_back(operand == "si" ? 0xF6 : 0xF0);
 }
 
@@ -426,6 +427,15 @@ Mov::Mov(std::string line, std::vector<Token *> * expression1, std::string opera
     indexed(indexed)
 {
     opcode = new std::vector<byte>;
+    /*
+    std::cout << "AQUI Ó: " << std::endl;
+    for(int i = 0; expression1 != nullptr && i < (int) expression1->size(); i++){
+        if(expression2->at(i)->getType() == TokenTypes::tIDENTIFIER){
+            //set->emplace(expression2->at(i)->getToken());
+            std::cout << expression1->at(i)->getToken() << std::endl;
+        }
+    }
+    std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;*/
 
     if(expression1->empty()) {
         opcode->push_back(0x89);

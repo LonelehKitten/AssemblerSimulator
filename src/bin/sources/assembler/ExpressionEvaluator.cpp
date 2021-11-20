@@ -63,6 +63,7 @@ ExpressionEvaluator::ExpressionEvaluator(Expression * expression,
     4. 'eq' 'ne' 'lt' 'le' 'gt' 'ge'
 
 */
+
 void ExpressionEvaluator::solve(int precedenceBegin, bool root) {
 
     if(expression->size() == 1) {
@@ -233,7 +234,7 @@ PseudoToken * ExpressionEvaluator::solveSymbol(Token * token) {
             if(segmentTable->find(token->getToken()) != segmentTable->end()) {
                 return new PseudoToken((USint) std::stoi(
                     segmentTable->find(token->getToken())->second->value
-                ), false);
+                ), true);
             }
             else if(programSegment->getSymbol(token->getToken()) != nullptr &&
                 programSegment->getSymbol(token->getToken())->value != "??") {

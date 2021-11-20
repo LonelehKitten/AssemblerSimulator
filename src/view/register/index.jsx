@@ -49,8 +49,9 @@ const Register = (props) => {
 
 
   useEffect(() => {
-    ipcRenderer.on('cycle_registers', (e, data) => {
-      setRegisters(data);
+      ipcRenderer.on('cycle_registers', (e, data) => {
+         // console.log(data);
+        setRegisters(data);
     });
   }, []);
 
