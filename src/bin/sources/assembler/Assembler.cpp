@@ -986,29 +986,24 @@ int Assembler::basicoAssemblerStep2()
             // <identificador> DW <expressão> DUP (<expressão>)
             // DW <expressão> DUP (<expressão>)
 
+            if (dw->isValueUndefined())
+                expressionValue = &notInit;
+            else
+                expressionValue = evaluate(dw->getDefaultValue(), nullptr);
+
             if(dw->isArray())       //possui DUP
             {
-                if (dw->isValueUndefined())
-                    defaultDUP = &notInit;
-                else
-                    defaultDUP = evaluate(dw->getDefaultValue(), nullptr);
-
                 evaluate(dw->getLength(), &counterDUP);
                 
                 for (int i = 0; i < counterDUP; i++)
                     for (int j = 0; defaultDUP != nullptr && j < defaultDUP->size(); j++)
                         assemblyCode.push_back(defaultDUP->at(j));
 
-                programCounter += counterDUP;
-                segmentCounter += counterDUP;
+                programCounter += 2 * counterDUP;
+                segmentCounter += 2 * counterDUP;
             }
             else                    //nao possui DUP
             {
-                if (dw->isValueUndefined())
-                    expressionValue = &notInit;
-                else
-                    expressionValue = evaluate(dw->getDefaultValue(), nullptr);
-
                 for (int i = 0; expressionValue != nullptr && i < expressionValue->size(); i++)
                 {
                     assemblyCode.push_back(expressionValue->at(i));
