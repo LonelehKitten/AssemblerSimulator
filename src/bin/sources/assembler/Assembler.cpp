@@ -125,60 +125,6 @@ void Assembler::tableVarInstruction(T *t, bool isConst)
     
 }
 
-void showLog(Instruction instruction, std::string line) {
-    switch (instruction) {
-        case Instruction::iADD: LOG("iADD "+line); break;
-        case Instruction::iASSUME: LOG("iASSUME "+line); break;
-        case Instruction::iSEGMENT: LOG("iSEGMENT "+line); break;
-        case Instruction::iMOV: LOG("iMOV "+line); break;
-        case Instruction::iJNZ: LOG("iJNZ "+line); break;
-        case Instruction::iENDS: LOG("iENDS "); break;
-        case Instruction::iEND: LOG("iEND "+line); break;
-        case Instruction::iEQU: LOG("iEQU "+line); break;
-        case Instruction::iDW: LOG("iDW "+line); break;
-        case Instruction::iLABEL: LOG("iLABEL "+line); break;
-        case Instruction::iSUB: LOG("iSUB "+line); break;
-        default: LOG(std::to_string(instruction)+line); break;
-    }
-}
-
-/*
-Step 1
-{"message": "iSEGMENT data SEGMENT
-", "status": 0}
-{"message": "iEQU max EQU 10
-", "status": 0}
-{"message": "iDW unit2 DW 1
-", "status": 0}
-{"message": "iDW unit DW 1
-", "status": 0}
-{"message": "iENDS ", "status": 0}
-{"message": "iSEGMENT program SEGMENT
-", "status": 0}
-{"message": "iASSUME ASSUME CS: program
-", "status": 0}
-{"message": "iASSUME ASSUME DS: data
-", "status": 0}
-{"message": "36main:
-", "status": 0}
-{"message": "iMOV mov ax, data
-", "status": 0}
-{"message": "iMOV mov ds, ax
-", "status": 0}
-{"message": "iADD add ax, max
-", "status": 0}
-{"message": "36loop1:
-", "status": 0}
-{"message": "iSUB sub ax, unit
-", "status": 0}
-{"message": "iJNZ jnz loop1
-", "status": 0}
-{"message": "iENDS ", "status": 0}
-{"message": "iEND END main
-", "status": 0}
-{"message": "ERROR", "status": 0}
-*/
-
 /**
  * TABELA OS SÍMBOLOS
  */
@@ -546,7 +492,7 @@ std::vector<byte> * Assembler::generateAssemblyJumps(T *line) {
 
     // 3 - 6 = -3
     USint value = (USint) std::stoi(assumedProgramSegment->getSymbol(line->getLabel())->value);
-    value -= programCounter;
+    value -= segmentCounter;
     
     segmentCounter += 3;
     programCounter += 3;
@@ -568,20 +514,6 @@ void Assembler::GetSpecialOpcode(Semantic *line)
         assemblyCode.push_back(lineCode->at(i));
     }
 }
-
-/*
-void GetAritmeticLogicOpcode(){
-    lineCode = generateAssembly<Add>((Add *) line);
-                if (lineCode == nullptr){
-                    return ERROR;
-                }else
-                {
-                    for(int i = 0; lineCode != nullptr && i < lineCode->size(); i++){
-                        assemblyCode.push_back(lineCode->at(i));
-                    }
-                }
-}
-*/
 
 // NECESSÁRIO PARA A ENTREGA 3
 int Assembler::basicoAssemblerStep2()
