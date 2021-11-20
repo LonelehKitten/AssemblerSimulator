@@ -10,13 +10,12 @@ run.exe
 */
 
 /** Minhas análises / sugestões para correção
- * Faltou um break na linha 1374 de Z808Processor.cpp
- * 
- * Nome de segmento (o símbolo) deve ser classificado como constante para a instrução mov ax, cte
- * Variável em um segmento deve receber segmentCounter / 2 no basicoAssemblerStep1, pra poder 
+ * 1 FEITO. Faltou um break na linha 1374 de Z808Processor.cpp
+ * 2 FEITO MAS REVISAR. Nome de segmento (o símbolo) deve ser classificado como constante para a instrução mov ax, cte
+ * 3 FEITO MAS REVISAR. Variável em um segmento deve receber segmentCounter / 2 no basicoAssemblerStep1, pra poder 
  * receber um endereço de palavra (1 posição na memória de 64K endereços, 2 bytes na memória de 128K 
  * índices)
- * Retirar o deslocamento com o registrador CS nos jumps em Z808Processor.cpp, pois a máquina já inicializa em referência ao CS
+ * 4 FEITO. Retirar o deslocamento com o registrador CS nos jumps em Z808Processor.cpp, pois a máquina já inicializa em referência ao CS
 */
 
 #include <iostream>

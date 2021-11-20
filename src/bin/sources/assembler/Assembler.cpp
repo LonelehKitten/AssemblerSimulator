@@ -209,8 +209,6 @@ int Assembler::basicoAssemblerStep1()
 
     std::vector<PendingResolution *> dependencyMap;
 
-
-
     // for (File::iterator line = lines->begin(); line != lines->end(); ++line)
     for (int i = 0; !isEnd && i < lines->size(); ++i)
     {
@@ -371,7 +369,7 @@ int Assembler::basicoAssemblerStep1()
             if(!dw->isValueUndefined()) 
                 tableVarInstruction<Dw>(dw, false);
 
-            currentSegment->getSymbol(dw->getName())->value = std::to_string(segmentCounter);
+            currentSegment->getSymbol(dw->getName())->value = std::to_string(segmentCounter/2);
 
             segmentCounter += 2;
             programCounter += 2;

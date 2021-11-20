@@ -398,7 +398,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
                 //Atualizando registrador de flags
                 setSR(operator1, operator2, MULT);
                
-            break;
+                break;
             }
             // mul AX
             case 0xE0:
@@ -805,7 +805,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
 
         opbytes = operator1;    //Novo deslocamento
 
-        Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes + Z808Registers[CS].to_ulong());
+        Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
     }
     break;
 
@@ -826,7 +826,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
         if (Z808Registers[SR].test(ZF) == 1)
             opbytes = operator1;    //Novo deslocamento
 
-        Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes + Z808Registers[CS].to_ulong());
+        Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
     }
     break;
 
@@ -847,7 +847,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
         if (Z808Registers[SR].test(ZF) != 1)
             opbytes = operator1;        //Novo deslocamento
 
-        Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes + Z808Registers[CS].to_ulong());
+        Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
     }
     break;
 
@@ -868,7 +868,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
         if (Z808Registers[SR].test(SF) == 0)
             opbytes = operator1;    //Novo deslocamento
 
-        Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes + Z808Registers[CS].to_ulong());
+        Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
     }
     break;
 
@@ -1372,6 +1372,7 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
 
         Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
     }
+    break;
 
     case 0xB8:  //mov AX, cte
     {
@@ -1517,7 +1518,6 @@ int Z808Processor::execute(std::vector<Z808Byte> memory, long int i)
             break;
         }
 
-        Z808Registers[IP] = (Z808Word) (Z808Registers[IP].to_ulong() + opbytes);
     }
     break;
 
