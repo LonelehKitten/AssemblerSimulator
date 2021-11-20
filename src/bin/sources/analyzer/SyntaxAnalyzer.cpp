@@ -134,7 +134,7 @@ Semantic * SyntaxAnalyzer::getRow(int offset) {
     int t;
     std::vector<std::vector<Token *> *> * params = new std::vector<std::vector<Token *> *>();
     std::vector<Token *> * expression;
-    Token * t1 = row[offset], * t2;
+    Token * t1 = row[offset], * t2 = nullptr;
     if((int) row.size() > offset+1) t2 = row[offset+1];
 
 

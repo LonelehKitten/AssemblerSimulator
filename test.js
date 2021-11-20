@@ -4,7 +4,7 @@ app.commandLine.appendSwitch('js-flags', '--max-old-space-size=4096');
 
 const bindings = require('bindings')
 const EventEmitter = require('events');
-
+/*
 let asmr;
 try {
     asmr = bindings('ASMR') ?? null; // Pega o ASMR se ele estiver compilado
@@ -12,6 +12,9 @@ try {
     asmr = null;
     console.log(e);
 }
+*/
+
+const asmr = require("./build/Debug/ASMR.node");
 
 console.log("Module C++: ", asmr);
 const isAsmr = asmr != null;
@@ -53,24 +56,54 @@ emitter.on('cycle', (data) => {
 
 });
 emitter.on('log', (data) => {
-    console.log(JSON.parse(data));
+    console.log(data);
 });
 
 const getEmitter = () => emitter.emit.bind(emitter);
 
 LogEventObserver = setInterval(() => asmr?.observeLogFiring(getEmitter()), 10);
 
-const run = () => {
+const memoryChanges = [];
+for (let b = 0; b < 128; b++) {
+    for (let i = 0; i < 32; i++) {
+        for (let j = 0; j < 16; j++) {
+            memoryChanges.push(parseInt(0).toString('16').padStart(4, 0));
+        }
+    }
+}
 
+const run = () => {
+    /*
     asmr.requestAssembleAndRun(`
-        Codigo SEGMENT
-        ASSUME CS: Codigo
-        ASSUME DS: Dados
-        Inicio:
-        ADD ax, 10
-        CODIGO ENDS
-        END Inicio
-    `, []);
+ADD AX, 1022
+ADD AX, AX
+SUB AX, 511
+SUB AX, 511
+JZ 9
+SUB AX, 511
+JMP -14
+INT 2
+    `, memoryChanges);*/
+    asmr.requestAssembleAndRun(`
+data SEGMENT
+  max EQU 10
+  unit2 DW 1
+  unit DW 1
+data ENDS
+
+program SEGMENT
+ASSUME CS: program
+ASSUME DS: data
+main:
+mov ax, data
+mov ds, ax
+add ax, max
+loop1:
+sub ax, unit
+jnz loop1
+program ENDS
+END main
+`, memoryChanges);
     ProgramToMemoryEventObserver = setInterval(() => asmr.observeProgramToMemoryFiring(getEmitter()), 10);
 }
 

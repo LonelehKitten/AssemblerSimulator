@@ -252,11 +252,16 @@ void InterfaceBus::runAssembleAndRun()  //*****************
     if(assembler->assemble(inputReport.modeAssembler) == 0) {
 
         std::cout << "assemble and run: assemble" << std::endl;
-
         machine->resetMachine();
+
+        std::cout << "**First**" << std::endl;
         machine->memoryUpdate(&inputReport.memory, assembler->getAssemblyCode());
+
+        std::cout << std::string("**Second**") << std::to_string(assembler->getStartProgram()) << std::endl;
+        std::cout << std::string("**Three**") << std::to_string(assembler->getStartSegment()) << std::endl;
         machine->setStartProgram(assembler->getStartProgram(), assembler->getStartSegment());
-        LOG(std::string("Start Program = ") + std::to_string(assembler->getStartProgram()))
+        
+        std::cout << std::string("Start Program = ") + std::to_string(assembler->getStartProgram()) << std::endl;
         machine->run(false);
         std::cout << "assemble and run: run" << std::endl;
 
@@ -291,7 +296,7 @@ void InterfaceBus::runRunBySteps()
     machine->memoryUpdate(&inputReport.memory, &inputReport.bytecode);
     machine->run(true);
 
-    while (isUpdating())
+    while (isUpdating()) // mas o que que é isso?????
         ;
     setWaiting(false);
 }
@@ -621,9 +626,15 @@ std::vector<byte> InterfaceBus::castV8toByteArray(V8Var jsNumberArray)
 
 v8::Local<v8::Array> InterfaceBus::castByteArraytoV8(std::vector<byte> *array)
 {
+
     std::cout << "dpm: 1" << std::endl;
     v8::Local<v8::Array> jsArray = Nan::New<v8::Array>();
+    if (array == nullptr) {
+        std::cout << "array null " << std::endl;
+        return jsArray;
+    }
     std::cout << "dpm: 2" << std::endl;
+    std::cout << array->size() << std::endl;
     for (int i = 0; i < (int)array->size(); i++)
     {
         Nan::Set(jsArray, i, Nan::New<v8::Number>(array->at(i)));

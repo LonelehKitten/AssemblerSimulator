@@ -1,4 +1,4 @@
-#include "Assembler.h"
+//#include "Assembler.h"
 #include "../analyzer/RecognitionManager.h"
 
 int main() {

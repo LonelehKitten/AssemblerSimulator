@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <bitset>
+#include <iostream>
 
             /*
             result = operator1 & operator2; //and
