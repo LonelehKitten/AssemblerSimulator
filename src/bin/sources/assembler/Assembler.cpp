@@ -142,43 +142,6 @@ void showLog(Instruction instruction, std::string line) {
     }
 }
 
-/*
-Step 1
-{"message": "iSEGMENT data SEGMENT
-", "status": 0}
-{"message": "iEQU max EQU 10
-", "status": 0}
-{"message": "iDW unit2 DW 1
-", "status": 0}
-{"message": "iDW unit DW 1
-", "status": 0}
-{"message": "iENDS ", "status": 0}
-{"message": "iSEGMENT program SEGMENT
-", "status": 0}
-{"message": "iASSUME ASSUME CS: program
-", "status": 0}
-{"message": "iASSUME ASSUME DS: data
-", "status": 0}
-{"message": "36main:
-", "status": 0}
-{"message": "iMOV mov ax, data
-", "status": 0}
-{"message": "iMOV mov ds, ax
-", "status": 0}
-{"message": "iADD add ax, max
-", "status": 0}
-{"message": "36loop1:
-", "status": 0}
-{"message": "iSUB sub ax, unit
-", "status": 0}
-{"message": "iJNZ jnz loop1
-", "status": 0}
-{"message": "iENDS ", "status": 0}
-{"message": "iEND END main
-", "status": 0}
-{"message": "ERROR", "status": 0}
-*/
-
 /**
  * TABELA OS SÍMBOLOS
  */
@@ -574,20 +537,6 @@ void Assembler::GetSpecialOpcode(Semantic* line)
     }
     std::cout << "----" << std::endl;
 }
-
-/*
-void GetAritmeticLogicOpcode(){
-    lineCode = generateAssembly<Add>((Add *) line);
-                if (lineCode == nullptr){
-                    return ERROR;
-                }else
-                {
-                    for(int i = 0; lineCode != nullptr && i < lineCode->size(); i++){
-                        assemblyCode.push_back(lineCode->at(i));
-                    }
-                }
-}
-*/
 
 // NECESSÁRIO PARA A ENTREGA 3
 int Assembler::basicoAssemblerStep2()
