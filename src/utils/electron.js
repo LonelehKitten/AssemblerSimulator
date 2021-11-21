@@ -1,5 +1,5 @@
 import event from './event';
-
+import { getTree } from './file';
 // Para chamar o module do C++
 
 const getBytecodeFromEditor = (currentFile) => {
@@ -21,7 +21,7 @@ const getAllFiles = (tree,array = []) => {
     }
     return array;
 }
-const play = ({ type, memory, currentFile, setPlaying, setByStep, treeFiles }) => {
+const play = async ({ type, memory, currentFile, setPlaying, setByStep, treeFiles, modeAssembler }) => {
     let memoryToBytes = [];
     for (let i = 0; i < memory.length; i++) {
         let string = String(memory[i]).padStart(4, 0);
@@ -41,12 +41,14 @@ const play = ({ type, memory, currentFile, setPlaying, setByStep, treeFiles }) =
             let arr = getBytecodeFromEditor(currentFile)
             params.push(arr);
         }
-        if(['requestBuildAndRun'].includes(type)){
-            const files = getAllFiles(treeFiles);
+        if (['requestBuildAndRun'].includes(type) || modeAssembler == 1) {
+            let files = treeFiles;
+            if (files == null) files = await getTree();
+            files = getAllFiles(files).map(({ path }) => path);
             console.log(files);
             params.push(files);
         }
-        if (['requestExpandMacros', 'requestAssembleAndRun', 'requestAssembleAndRunBySteps'].includes(type)) {
+        if (['requestExpandMacros', 'requestAssembleAndRun', 'requestAssembleAndRunBySteps'].includes(type) && modeAssembler == 0) {
             params.push(currentFile?.code);
         }
         if (['requestAssembleAndRun', 'requestAssembleAndRunBySteps', 'requestRun', 'requestRunBySteps'].includes(type)) {

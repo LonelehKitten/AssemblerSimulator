@@ -47,7 +47,7 @@ enum Service {
 
 typedef struct InputReport {
     bool ready;
-    std::vector<std::string> files;
+    std::vector<std::string> * files;
     std::string code;
     std::vector<byte> bytecode;
     std::vector<byte> memory;
@@ -89,9 +89,11 @@ class InterfaceBus {
          void trigger(char * event, v8::Local<v8::Array> data);
 
          std::string castV8toString(V8Var jsString);
+         std::vector<std::string> * castV8toStringArray(V8Var jsStringArray);
+         
          int castV8toInt(V8Var jsNumber);
          std::vector<byte> castV8toByteArray(V8Var jsNumberArray);
-         std::vector<std::string> castV8toStringArray(V8Var jsNumberArray);
+         //std::vector<std::string> castV8toStringArray(V8Var jsNumberArray);
          v8::Local<v8::Array> castByteArraytoV8(std::vector<byte> * array);
 
          EventEmitter getEventEmitter();
