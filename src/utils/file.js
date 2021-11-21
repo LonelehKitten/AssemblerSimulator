@@ -49,12 +49,16 @@ const close = ({ setListFiles, changeFile, currentFile }) => {
     }
 }
 
-const getTree = ({setTreeFiles,alertShow = null},directory = "") => {
-    event("openTreeDir", [directory], (e, tree, path) => {
-        localStorage.setItem("directory_root", path);
-        if(alertShow) alertShow('success', 'Diretório aberto');
-        setTreeFiles(tree);
-    });
+const getTree = async({ setTreeFiles, alertShow = null }, directory = "") => {
+    return new Promise((resolve) => {
+
+        event("openTreeDir", [directory], (e, tree, path) => {
+            localStorage.setItem("directory_root", path);
+            if(alertShow) alertShow('success', 'Diretório aberto');
+            setTreeFiles(tree);
+            resolve();
+        });
+    })
 }
 
 export { save, load, close,getTree };

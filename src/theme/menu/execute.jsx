@@ -19,10 +19,10 @@ const requests = {
 
 
 const Execute = () => {
-    const { memory, currentFile, setPlaying, setByStep, treeFiles } = useContext();
+    const { memory, currentFile, setPlaying, setByStep, treeFiles, modeAssembler } = useContext();
 
     const handleClick = (type) => () => {
-        electron.request.play({ type, memory, currentFile, setPlaying, setByStep, treeFiles });
+        electron.request.play({ type, memory, currentFile, setPlaying, setByStep, treeFiles, modeAssembler });
     }
 
     return (

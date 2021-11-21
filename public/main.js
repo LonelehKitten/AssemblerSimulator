@@ -1,5 +1,4 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
-console.log(app);
 const isDev = true;//require('electron-is-dev');
 const path = require('path');
 const fontList = require('font-list');

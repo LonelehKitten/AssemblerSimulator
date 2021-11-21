@@ -216,20 +216,22 @@ void InterfaceBus::runExpandMacros()
 
 void InterfaceBus::runBuildAndRun(){  //*****************
     std::cout << "build and run" << std::endl;
-    std::vector<std::string> * files = &inputReport.files;
-
+    std::vector<std::string> * files = inputReport.files;
+    for (unsigned int i = 0; i < files->size(); i++) {
+        std::cout << "File: " << files->at(i) << std::endl;
+    }
     Assembler * assembler;
-    std::vector<Assembler *> listAssemblers = std::vector<Assembler *>();
+    std::vector<Assembler *> * listAssemblers = new std::vector<Assembler *>();
     for(unsigned int i = 0;i < files->size(); i++){
         std::vector<Semantic *> *semantics = recognitionManager->analyzeFile(files->at(i));
         assembler = new Assembler(semantics);
-        listAssemblers.emplace_back(assembler);
         assembler->init(true);
         if(assembler->assemble(inputReport.modeAssembler) == 0) {
-        
+            listAssemblers->emplace_back(assembler);
         }
         // assembler
     }
+    std::cout << "Total: " << listAssemblers->size() << std::endl;
     //Linker
 }
 
@@ -445,7 +447,7 @@ void InterfaceBus::serviceBuildAndRun(NodeInfo *info, V8Var files, V8Var memory)
 {
     this->info = info;
     
-    //std::cout << "Request: " << castV8toString(code) << std::endl;
+    std::cout << "Request: "<< std::endl;
     inputReport.files = castV8toStringArray(files);
     inputReport.memory = castV8toByteArray(memory);
     service = Service::BUILD_AND_RUN;
@@ -458,6 +460,10 @@ void InterfaceBus::serviceBuildAndRun(NodeInfo *info, V8Var files, V8Var memory)
  */
 void InterfaceBus::serviceAssembleAndRun(NodeInfo *info, V8Var code, V8Var memory)
 {
+    if (inputReport.modeAssembler == 1) {
+        serviceBuildAndRun(info,code,memory);
+        return;
+    }
     this->info = info;
     //std::cout << "Request: " << castV8toString(code) << std::endl;
     inputReport.code = castV8toString(code);
@@ -600,16 +606,20 @@ int InterfaceBus::castV8toInt(V8Var jsNumber)
 {
     return (int)jsNumber->NumberValue(info->GetIsolate()->GetCurrentContext()).FromJust();
 }
-std::vector<std::string> InterfaceBus::castV8toStringArray(V8Var jsNumberArray){
+std::vector<std::string> * InterfaceBus::castV8toStringArray(V8Var jsStringArray){
  
-    v8::Local<v8::Array> jsArray = v8::Local<v8::Array>::Cast(jsNumberArray);   
+    v8::Local<v8::Array> jsArray = v8::Local<v8::Array>::Cast(jsStringArray);   
     unsigned int length = (unsigned int)jsArray->Length();
-    std::string *array = (std::string *)malloc(sizeof(std::string) * length);
+
+    //std::string *array = (std::string *)malloc(sizeof(std::string) * length);
+    std::vector<std::string> * arrayString = new std::vector<std::string>();
     for (unsigned int i = 0; i < length; i++)
     {
-        array[i] = (std::string)castV8toString(Nan::Get(jsArray, i).ToLocalChecked());
+        std::cout << castV8toString(Nan::Get(jsArray, i).ToLocalChecked()) << std::endl;
+        arrayString->emplace_back(castV8toString(Nan::Get(jsArray, i).ToLocalChecked()));
     }
-    return std::vector<std::string>(array, array + length);
+    return arrayString;
+    //return std::vector<std::string>(array, array + length);
 }
 
 std::vector<byte> InterfaceBus::castV8toByteArray(V8Var jsNumberArray)
