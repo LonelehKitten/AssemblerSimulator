@@ -1,7 +1,7 @@
 #ifndef LINKER_TABLES_H
 #define LINKER_TABLES_H
 
-#include "../assembler/Symbol.h"
+#include "../compiler/Symbol.h"
 
 struct ExternalSymbol{
     //- Símbolo

@@ -498,7 +498,7 @@ class Name : public Semantic{
         std::string moduleName;
     public:
         Name(std::string line, std::string moduleName);
-        std::string getModuleName();
+        std::string getModuleName() const;
 };
 
 // usar Org como referencia
@@ -506,16 +506,16 @@ class  Public : public Semantic{
     private:
         std::vector<std::string> * externalSymbols;
     public:
-        Public(std::string line, std::vector<std::string *> *  externalSymbols);
-        std::vector<std::string *> * getExternalSymbols() const;
+        Public(std::string line, std::vector<std::string> *  externalSymbols);
+        std::vector<std::string> * getExternalSymbols() const;
 };
 //usar Org
 class  Extrn : public Semantic{
     private:
         std::vector<std::string> * externalSymbols;
     public:
-        Extrn(std::string line, std::vector<std::string *> *  externalSymbols);
-        std::vector<std::string *> * getExternalSymbols() const;
+        Extrn(std::string line, std::vector<std::string> *  externalSymbols);
+        std::vector<std::string> * getExternalSymbols() const;
 };
 
 #endif // SEMANTIC_H

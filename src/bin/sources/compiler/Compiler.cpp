@@ -4,8 +4,27 @@ Compiler::PendingResolution::PendingResolution(Symbol *symbol, SegmentDef *segme
     symbol(symbol), segment(segment), semantic(semantic)
 {}
 
+
+Compiler::Compiler(std::vector<Semantic *> *file) :
+    file(file),
+    currentSegment(nullptr),
+    assumedProgramSegment(nullptr),
+    assumedDataSegment(nullptr),
+    assumedStackSegment(nullptr),
+    lineCounter(0),
+    programCounter(0),
+    segmentCounter(0),
+    startProgram(nullptr),
+    inSegment(false),
+    error(false)
+{
+}
+
 // protected
 bool Compiler::resolveDependencies(std::vector<PendingResolution *> &dependenciesMap) {
+
+    if(dependenciesMap.empty()) return true;
+
     PendingResolution * dep;
     bool symbolWasResolved = false;
     USint value;
@@ -61,7 +80,7 @@ std::vector<byte> *Compiler::evaluate(Expression *expression, USint *valueHolder
     return new std::vector<byte>({(byte)(value & 0xFF), (byte)(value >> 8)});
 }
 
-bool Compiler::tableInstructions() {
+bool Compiler::stepTableInstructions() {
 
     error = true;
 
@@ -72,7 +91,7 @@ bool Compiler::tableInstructions() {
 
     Semantic * line;
 
-    for (int i = 0; i < file->size(); ++i)
+    for (int i = 0; i < (int) file->size(); ++i)
     {
         line = file->at(i);
 
@@ -86,7 +105,7 @@ bool Compiler::tableInstructions() {
 
 }
 
-bool Compiler::generateBytecode() {
+bool Compiler::stepGenerateBytecode() {
 
     error = false;
 
@@ -98,7 +117,7 @@ bool Compiler::generateBytecode() {
 
     Semantic * line;
 
-    for (int i = 0; !error && i < file->size(); ++i)
+    for (int i = 0; !error && i < (int) file->size(); ++i)
     {
         line = file->at(i);
 
@@ -110,4 +129,17 @@ bool Compiler::generateBytecode() {
 
     return false;
 
+}
+
+std::vector<byte> * Compiler::getBytecode() {
+    return &bytecode;
+}
+
+int Compiler::getStartProgram() {
+    if(startProgram == nullptr) return 0;
+    return std::stoi(currentSegment->value) + std::stoi(startProgram->value);
+}
+
+bool Compiler::containsStartProgram() {
+    return startProgram != nullptr;
 }

@@ -1,39 +1,30 @@
 #ifndef LINKER_H
 #define LINKER_H
 
-#include <unordered_map>
-#include <vector>
 #include <string>
+#include <vector>
 
-#include "../assembler/SegmentDef.h"
-#include "LinkerTables.h"
+#include "../compiler/Compiler.h"
+#include "../assembler/Assembler.h"
 
-#include "../Utils.h"
-
-class Linker
+class Linker : public Compiler
 {
-private:
-    //Declaração das Tabelas
-    typedef std::unordered_map<std::string, SegmentDef *> SegmentMap;
-    typedef std::unordered_map<std::string, ExternalSymbol *> ExternalSymbolMap;
-    typedef std::unordered_map<std::string, ExternalUse *> ExternalUseMap;
+    private:
 
-    ExternalSymbolMap tableGlobalSymbol;
-    
-    SegmentMap * segmentTable;
-    ExternalSymbolMap * tableDefinition;
-    ExternalUseMap * tableUse;
-    
-    //Os 2 passos do ligador
-    void linkerStep1();
-    void linkerStep2();
+        std::vector<Assembler *> * assembledCodes;
 
-    std::vector<byte> memory;
+    protected:
 
-public:
-    Linker(SegmentMap * segmentTable, ExternalSymbolMap * tableDefinition, ExternalUseMap * tableUse);
 
-    
+
+        virtual bool tableInstructions(Semantic * line, bool &error) override;
+        virtual bool generateBytecode(Semantic * line, bool &error) override;
+
+    public:
+        Linker(std::vector<Assembler *> * assembledCodes);
+
+        // retorna flag de erro (sucesso: true, erro: false)
+        bool link();
 };
 
 #endif // LINKER_H

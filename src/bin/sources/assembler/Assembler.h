@@ -6,9 +6,9 @@
 #include <iostream>
 #include <string>
 #include "MacroDef.h"
-#include "Symbol.h"
-#include "ExpressionEvaluator.h"
-#include "SegmentDef.h"
+#include "../compiler/Symbol.h"
+#include "../compiler/ExpressionEvaluator.h"
+#include "../compiler/SegmentDef.h"
 #include "../Utils.h"
 #include "../compiler/Compiler.h"
 
@@ -30,10 +30,12 @@ private:
     template <class T> void tableArithmeticInstructions(T *t);
     template <class T> void tableJumpsInstruction(T *t);
     template <class T> void tableIntInstruction(T *t);
-    template <class T> void tableVarInstruction(T *t, bool isConst);
+    template <class T> void tableVarInstruction(T *t);
 
-    virtual bool tableInstructions(Semantic * line, bool &error);
-    virtual bool generateBytecode(Semantic * line, bool &error);
+protected:
+
+    virtual bool tableInstructions(Semantic * line, bool &error) override;
+    virtual bool generateBytecode(Semantic * line, bool &error) override;
 
 public:
 
@@ -44,13 +46,11 @@ public:
     //Retorna true se montado com sucesso
     bool assemble(bool assemblerType);
 
-    long getStartProgram();
     long getStartSegment();
 
     void init(bool willExecute);
     int preproccess (std::vector<Semantic *> * lines, int k);
 
-    std::vector<byte> * getAssemblyCode();
 
     // debug only
     std::string getOutput();

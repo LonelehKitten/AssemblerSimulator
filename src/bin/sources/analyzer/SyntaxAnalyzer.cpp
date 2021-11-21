@@ -161,7 +161,7 @@ Semantic * SyntaxAnalyzer::getRow(int offset) {
                         return new EndS(this->line, this->getAux1());
                     }
                     else if(t2->getName() == TokenNames::nDirENDP) {
-                        return new EndP(this->line, this->getAux1());
+                        return new Endp(this->line, this->getAux1());
                     }
                     break;
                 case TokenTypes::tIDENTIFIER:

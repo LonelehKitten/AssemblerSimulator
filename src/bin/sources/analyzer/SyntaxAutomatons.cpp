@@ -662,13 +662,19 @@ namespace SyntaxAutomatons {
         if(!r) return false; // '?'
         // com expressao?
         analyzer->undoScan();
-        analyzer->setEndpoint(q1_dw_valor_dup);
+        analyzer->setEndpoint(q1_dw_valor_maybedup);
         r = ExpressionAutomaton::qBegin_Expression(analyzer);
         bool eol = analyzer->getLastToken()->isEndOfLine();
         if(!r && eol) {
             analyzer->setState(qEnd);
         }
         return r;
+    }
+
+    bool q1_dw_valor_maybedup(SyntaxAnalyzer * analyzer) {
+        bool eol = analyzer->getLastToken()->isEndOfLine();
+        analyzer->setState(eol ? qEnd : q1_dw_valor_dup);
+        return false;
     }
 
     bool q1_dw_valor_dup(SyntaxAnalyzer * analyzer) {

@@ -70,8 +70,13 @@ namespace SyntaxAutomatons {
     bool qJ(SyntaxAnalyzer * analyzer);
     bool q1(SyntaxAnalyzer * analyzer);
     bool q1_stack(SyntaxAnalyzer * analyzer);
+    bool q1_extrn_label(SyntaxAnalyzer * analyzer);
+    bool q1_extrn_label_c(SyntaxAnalyzer * analyzer);
+    bool q1_extrn_label_c_t(SyntaxAnalyzer * analyzer);
+    bool q1_extrn_label_c_t_s(SyntaxAnalyzer * analyzer);
     bool q1_label(SyntaxAnalyzer * analyzer);
     bool q1_dw_valor(SyntaxAnalyzer * analyzer);
+    bool q1_dw_valor_maybedup(SyntaxAnalyzer * analyzer);
     bool q1_dw_valor_dup(SyntaxAnalyzer * analyzer);
     bool q1_dw_valor_dup_p(SyntaxAnalyzer * analyzer);
     bool q1_dw_valor_dup_p_valor(SyntaxAnalyzer * analyzer);

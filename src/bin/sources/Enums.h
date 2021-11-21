@@ -4,7 +4,7 @@
 #include <string>
 #include <unordered_map>
 #include "analyzer/Token.h"
-#include "assembler/Symbol.h"
+#include "compiler/Symbol.h"
 
 typedef unsigned short int USint;
 typedef std::string JSON;

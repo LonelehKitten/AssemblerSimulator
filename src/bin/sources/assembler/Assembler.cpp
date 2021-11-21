@@ -14,23 +14,9 @@ std::string Assembler::getOutput()
 }
 
 Assembler::Assembler(std::vector<Semantic *> *lines) :
-    lines(lines),
-    currentSegment(nullptr), 
-    assumedProgramSegment(nullptr),
-    assumedDataSegment(nullptr),
-    assumedStackSegment(nullptr),
-    output(""),
-    lineCounter(0),
-    programCounter(0),
-    segmentCounter(0),
-    startProgram(0), 
-    assemblerError(0)
+    Compiler(lines),
+    output("")
 {
-}
-
-long Assembler::getStartProgram()
-{
-    return startProgram;
 }
 
 long Assembler::getStartSegment()
@@ -98,7 +84,7 @@ void Assembler::tableIntInstruction(T *t)
 }
 
 template <class T>
-void Assembler::tableVarInstruction(T *t, bool isConst)
+void Assembler::tableVarInstruction(T *t)
 {
 
     std::set<std::string> *set;
@@ -144,17 +130,12 @@ bool Assembler::tableInstructions(Semantic * line, bool &error)
     
     USint value;
 
-    std::vector<Token *> *expression;
-    Symbol *s;
-
-    std::vector<PendingResolution *> dependencyMap;
-
-        // aritmeticos exceto DIV e MUL
-        // logicos exceto NOT
-        // desvio exceto RET
-        // declaração de procedimento
-        // movimentação
-        // DW, EQU, ORG
+    // aritmeticos exceto DIV e MUL
+    // logicos exceto NOT
+    // desvio exceto RET
+    // declaração de procedimento
+    // movimentação
+    // DW, EQU, ORG
 
     // DENTRO DO FOR
 
@@ -168,7 +149,7 @@ bool Assembler::tableInstructions(Semantic * line, bool &error)
         currentSegment = (SegmentDef *) segmentTable.find(segment->getName())->second;
 
         segmentCounter = 0;
-        return true;
+        return false;
     }
     switch (instruction)
     {
@@ -316,7 +297,7 @@ bool Assembler::tableInstructions(Semantic * line, bool &error)
                 return false;
             }
             
-            USint location = ((SegmentDef *) currentSegment->getSymbol(endp->getName()))->setLocation(segmentCounter);
+            USint location = ((SegmentDef *) currentSegment->getSymbol(endp->getName()))->getLocation();
             ((SegmentDef *)currentSegment->getSymbol(endp->getName()))->setSize(segmentCounter - location);
         
             break;
@@ -332,7 +313,7 @@ bool Assembler::tableInstructions(Semantic * line, bool &error)
             }
 
             if(!dw->isValueUndefined()) 
-                tableVarInstruction<Dw>(dw, false);
+                tableVarInstruction<Dw>(dw);
 
             currentSegment->getSymbol(dw->getName())->value = std::to_string(segmentCounter/2);
 
@@ -350,7 +331,7 @@ bool Assembler::tableInstructions(Semantic * line, bool &error)
                 currentSegment->setSymbol(new Symbol(equ->getName(), std::string("??"), false, false));
             }
 
-            tableVarInstruction<Equ>(equ, true);
+            tableVarInstruction<Equ>(equ);
 
             if (evaluate(equ->getExpression(), &value) != nullptr)
             {
@@ -358,7 +339,7 @@ bool Assembler::tableInstructions(Semantic * line, bool &error)
                 break;
             }
 
-            dependencyMap.emplace_back(new PendingResolution(currentSegment->getSymbol(equ->getName()), currentSegment, equ));                                                                                      
+            dependenciesMap.emplace_back(new PendingResolution(currentSegment->getSymbol(equ->getName()), currentSegment, equ));
             break;
         }
 
@@ -399,7 +380,7 @@ bool Assembler::tableInstructions(Semantic * line, bool &error)
         case Instruction::iENDS:
         {
             //LOG("iENDS (Etapa 1)");
-            End * end = (End *) line;
+
             currentSegment->setSize(segmentCounter);
         } 
             break;
@@ -449,7 +430,7 @@ std::vector<byte> * Assembler::generateAssembly(T *line)
     expressValue = evaluate(line->getExpression(), nullptr);
     opcode = line->getOpCode();
 
-    for (int i = 0; expressValue != nullptr && i < expressValue->size(); i++)
+    for (int i = 0; expressValue != nullptr && i < (int) expressValue->size(); i++)
     {
         std::cout << "#" << i << ":  " << (int) expressValue->at(i) << std::endl;
         opcode->push_back(expressValue->at(i));
@@ -493,10 +474,10 @@ void Assembler::GetSpecialOpcode(Semantic* line)
     if(line->getType() == Instruction::iDIV) {
         std::cout << "iDIV" << std::endl;
     }
-    for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+    for (int i = 0; lineCode != nullptr && i < (int) lineCode->size(); i++)
     {
         std::cout << std::hex << (int)lineCode->at(i) << std::endl;
-        assemblyCode.push_back(lineCode->at(i));
+        bytecode.push_back(lineCode->at(i));
     }
     std::cout << "----" << std::endl;
 }
@@ -529,7 +510,7 @@ bool Assembler::generateBytecode(Semantic * line, bool &error)
         
         inSegment = true;
         
-        return true;
+        return false;
     }
 
     switch (instruction)
@@ -581,7 +562,7 @@ bool Assembler::generateBytecode(Semantic * line, bool &error)
         case Instruction::iEND:
             endLabel = ((End *)line)->getName();
             LOG(std::string("iEND: etapa 2: endLabel") + endLabel)
-            label = currentSegment->getSymbol(endLabel);
+            startProgram = currentSegment->getSymbol(endLabel);
             
             if (label == nullptr)
             {
@@ -590,7 +571,7 @@ bool Assembler::generateBytecode(Semantic * line, bool &error)
                 return false;
             }
         
-            startProgram = std::stoi(currentSegment->value) + std::stoi(label->value);
+            //startProgram = std::stoi(currentSegment->value) + std::stoi(label->value);
             bytecode.push_back(0xEE);
         
             return true;
@@ -639,7 +620,7 @@ bool Assembler::generateBytecode(Semantic * line, bool &error)
             */
             if (mov->getSymbolSet() == nullptr)
             {
-                for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+                for (int i = 0; lineCode != nullptr && i < (int) lineCode->size(); i++)
                 {
                     bytecode.push_back(lineCode->at(i));
                 }
@@ -652,13 +633,13 @@ bool Assembler::generateBytecode(Semantic * line, bool &error)
                 if (mov->getExpression1() == nullptr && mov->isIndexed())
                 {
 
-                    for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+                    for (int i = 0; lineCode != nullptr && i < (int) lineCode->size(); i++)
                     {
                          bytecode.push_back(lineCode->at(i));
                     }
 
                     expressionValue = evaluate(mov->getExpression2(), nullptr);
-                    for (int i = 0; expressionValue != nullptr && i < expressionValue->size(); i++)
+                    for (int i = 0; expressionValue != nullptr && i < (int) expressionValue->size(); i++)
                     {
                         bytecode.push_back(expressionValue->at(i));
                     }
@@ -683,13 +664,13 @@ bool Assembler::generateBytecode(Semantic * line, bool &error)
                 else if (mov->getExpression2() == nullptr && mov->isIndexed())
                 {
                     // MOV mem[SI], AX -- check
-                    for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+                    for (int i = 0; lineCode != nullptr && i < (int) lineCode->size(); i++)
                     {
                          bytecode.push_back(lineCode->at(i));
                     }
                     
                     expressionValue = evaluate(mov->getExpression1(), nullptr); 
-                    for (int i = 0; expressionValue != nullptr && i < expressionValue->size(); i++)
+                    for (int i = 0; expressionValue != nullptr && i < (int) expressionValue->size(); i++)
                     {
                         bytecode.push_back(expressionValue->at(i));
                     }
@@ -701,13 +682,13 @@ bool Assembler::generateBytecode(Semantic * line, bool &error)
                 else if (mov->getExpression2() == nullptr)
                 {
 
-                    for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+                    for (int i = 0; lineCode != nullptr && i < (int) lineCode->size(); i++)
                     {
                         bytecode.push_back(lineCode->at(i));
                     }
 
                     expressionValue = evaluate(mov->getExpression1(), nullptr); 
-                    for (int i = 0; expressionValue != nullptr && i < expressionValue->size(); i++)
+                    for (int i = 0; expressionValue != nullptr && i < (int) expressionValue->size(); i++)
                     {
                         bytecode.push_back(expressionValue->at(i));
                     }
@@ -730,7 +711,7 @@ bool Assembler::generateBytecode(Semantic * line, bool &error)
             }
             else
             {
-                for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+                for (int i = 0; lineCode != nullptr && i < (int) lineCode->size(); i++)
                 {
                     bytecode.push_back(lineCode->at(i));
                 }
@@ -747,7 +728,7 @@ bool Assembler::generateBytecode(Semantic * line, bool &error)
             }
             else
             {
-                for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+                for (int i = 0; lineCode != nullptr && i < (int) lineCode->size(); i++)
                 {
                     bytecode.push_back(lineCode->at(i));
                 }
@@ -763,7 +744,7 @@ bool Assembler::generateBytecode(Semantic * line, bool &error)
             }
             else
             {
-                for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+                for (int i = 0; lineCode != nullptr && i < (int) lineCode->size(); i++)
                 {
                     bytecode.push_back(lineCode->at(i));
                 }
@@ -779,7 +760,7 @@ bool Assembler::generateBytecode(Semantic * line, bool &error)
             }
             else
             {
-                for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+                for (int i = 0; lineCode != nullptr && i < (int) lineCode->size(); i++)
                 {
                     bytecode.push_back(lineCode->at(i));
                 }
@@ -795,7 +776,7 @@ bool Assembler::generateBytecode(Semantic * line, bool &error)
             }
             else
             {
-                for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+                for (int i = 0; lineCode != nullptr && i < (int) lineCode->size(); i++)
                 {
                     bytecode.push_back(lineCode->at(i));
                 }
@@ -811,7 +792,7 @@ bool Assembler::generateBytecode(Semantic * line, bool &error)
             }
             else
             {
-                for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+                for (int i = 0; lineCode != nullptr && i < (int) lineCode->size(); i++)
                 {
                     bytecode.push_back(lineCode->at(i));
                 }
@@ -826,7 +807,7 @@ bool Assembler::generateBytecode(Semantic * line, bool &error)
                 return false;
             }
             else
-                for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+                for (int i = 0; lineCode != nullptr && i < (int) lineCode->size(); i++)
                     bytecode.push_back(lineCode->at(i));
             break;
             
@@ -837,7 +818,7 @@ bool Assembler::generateBytecode(Semantic * line, bool &error)
                 return false;
             }
             else
-                for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+                for (int i = 0; lineCode != nullptr && i < (int) lineCode->size(); i++)
                     bytecode.push_back(lineCode->at(i));
             break;
             
@@ -848,7 +829,7 @@ bool Assembler::generateBytecode(Semantic * line, bool &error)
                 return false;
             }
             else
-                for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+                for (int i = 0; lineCode != nullptr && i < (int) lineCode->size(); i++)
                     bytecode.push_back(lineCode->at(i));
             break;
 
@@ -859,7 +840,7 @@ bool Assembler::generateBytecode(Semantic * line, bool &error)
                 return false;
             }
             else
-                for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+                for (int i = 0; lineCode != nullptr && i < (int) lineCode->size(); i++)
                     bytecode.push_back(lineCode->at(i));
             break;
 
@@ -870,7 +851,7 @@ bool Assembler::generateBytecode(Semantic * line, bool &error)
                 return false;
             }
             else
-                for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+                for (int i = 0; lineCode != nullptr && i < (int) lineCode->size(); i++)
                     bytecode.push_back(lineCode->at(i));
             break;
             
@@ -882,7 +863,7 @@ bool Assembler::generateBytecode(Semantic * line, bool &error)
                 return false;
             }
             else
-                for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+                for (int i = 0; lineCode != nullptr && i < (int) lineCode->size(); i++)
                     bytecode.push_back(lineCode->at(i));
             break;
             
@@ -893,7 +874,7 @@ bool Assembler::generateBytecode(Semantic * line, bool &error)
                 return false;
             }
             else
-                for (int i = 0; lineCode != nullptr && i < lineCode->size(); i++)
+                for (int i = 0; lineCode != nullptr && i < (int) lineCode->size(); i++)
                     bytecode.push_back(lineCode->at(i));
             break;
 
@@ -925,7 +906,7 @@ bool Assembler::generateBytecode(Semantic * line, bool &error)
                 evaluate(dw->getLength(), &counterDUP);
                 
                 for (int i = 0; i < counterDUP; i++)
-                    for (int j = 0; defaultDUP != nullptr && j < defaultDUP->size(); j++)
+                    for (int j = 0; defaultDUP != nullptr && j < (int) defaultDUP->size(); j++)
                         bytecode.push_back(defaultDUP->at(j));
 
                 programCounter += 2 * counterDUP;
@@ -933,7 +914,7 @@ bool Assembler::generateBytecode(Semantic * line, bool &error)
             }
             else                    //nao possui DUP
             {
-                for (int i = 0; expressionValue != nullptr && i < expressionValue->size(); i++)
+                for (int i = 0; expressionValue != nullptr && i < (int) expressionValue->size(); i++)
                 {
                     bytecode.push_back(expressionValue->at(i));
                 }
@@ -967,16 +948,16 @@ bool Assembler::generateBytecode(Semantic * line, bool &error)
             break;
     }
 
-    return true;
+    return false;
 }
 
 bool Assembler::assemble(bool isBasic)
 {
 
-    if(tableInstructions()) 
+    if(stepTableInstructions())
     {
         std::cout << "Step 2" << std::endl;
-        if (isBasic && generateBytecode()) 
+        if (isBasic && stepGenerateBytecode())
         {
 
             LOG(std::string("assemble: code size: ") + std::to_string(bytecode.size()))
@@ -1023,7 +1004,7 @@ int Assembler::macroExpandParams(MacroCall *macrocall, int k)
         macrocontent = "";
 
         // insere espaços do lado dos caracteres especiais
-        for (int j = 0; j < aux.size(); j++)
+        for (int j = 0; j < (int) aux.size(); j++)
         {
             char c = aux[j];
             if (!Utils::isSpecialCharactere(c))
@@ -1161,7 +1142,7 @@ void Assembler::init(bool willExecute)
 {
 
     PRODUCTION(double startTime = InterfaceBus::getInstance().getMilliseconds());
-    this->preproccess(lines, 0);
+    this->preproccess(file, 0);
     PRODUCTION(double totalTime = (InterfaceBus::getInstance().getMilliseconds() - startTime) / 1000);
 
     TEST(std::cout << "============ INIT ==========" << std::endl);
@@ -1181,7 +1162,3 @@ void Assembler::init(bool willExecute)
 /*
 
 */
-
-std::vector<byte> * Assembler::getAssemblyCode() {
-    return &assemblyCode;
-}

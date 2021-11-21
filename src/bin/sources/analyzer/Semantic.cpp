@@ -952,41 +952,41 @@ std::set<std::string> * Org::getSymbolSet() {
 //            Name
 //============================
 Name::Name(std::string line, std::string moduleName) : 
-    line(line),
+    Semantic(line, Instruction::iNAME),
     moduleName(moduleName)
 {
     
 
 }
 
-std::vector<string *> * Name::getModuleName() const{
+std::string Name::getModuleName() const{
     return moduleName;
 }
 
 //============================
 //            Public
 //============================
-Public::Public(std::string line, std::vector<string *> * externalSymbols) :
-    line(line),
+Public::Public(std::string line, std::vector<std::string> * externalSymbols) :
+    Semantic(line, Instruction::iPUBLIC),
     externalSymbols(externalSymbols)
 {
     
 }
 
-std::vector<std::string *> * Public::getExternalSymbols() const { 
+std::vector<std::string> * Public::getExternalSymbols() const {
     return externalSymbols;
 }
 
 //============================
 //            EXTRN
 //============================
-Extrn::Extrn(std::string line, std::vector<string *> * externalSymbols) :
-    line(line),
+Extrn::Extrn(std::string line, std::vector<std::string> * externalSymbols) :
+    Semantic(line, Instruction::iEXTRN),
     externalSymbols(externalSymbols)
 {
 
     
 }
-std::vector<std::string *> * Extrn::getExternalSymbols() const{
+std::vector<std::string> * Extrn::getExternalSymbols() const{
     return externalSymbols; 
 }
