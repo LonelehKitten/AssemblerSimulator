@@ -12,7 +12,7 @@ try {
 }
 //const asmr = require('../build/Debug/ASMR');
 
-console.log("Module C++: ", asmr);
+console.log("Module C++: ", asmr != null);
 const isAsmr = asmr != null;
 if (isAsmr) asmr.init();
 const emitter = new EventEmitter();
@@ -67,6 +67,7 @@ LogEventObserver = setInterval(() => asmr?.observeLogFiring(getEmitter()), 10);
 const requests = [
     'requestExpandMacros',
     'requestTest',
+    'requestModeAssembler',
     'requestBuildAndRun',
     'requestAssembleAndRun',
     'requestAssembleAndRunBySteps',

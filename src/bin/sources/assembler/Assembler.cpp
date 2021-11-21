@@ -469,6 +469,9 @@ int Assembler::basicoAssemblerStep1()
         }
         if (!symbolWasResolved)
         {
+            //mensagem de erro no console, jogar oq tem no dependencyMap
+            LOG("Houve um erro de símbolo não resolvido:", std::vector<PendingResolution *>dependencyMap);
+
             break;
         }
     } while ((int)dependencyMap.size() > 0);
@@ -685,12 +688,12 @@ int Assembler::basicoAssemblerStep2()
                 return ERRO;
             }
         
-            std::cout << "iEND:" << label->value << std::endl;
+            //std::cout << "iEND:" << label->value << std::endl;
             startProgram = std::stoi(currentSegment->value) + std::stoi(label->value);
             assemblyCode.push_back(0xEE);
         
-            std::cout << "deu bom" << std::endl;
-            LOG("deu bom etapa 2")
+            //std::cout << "deu bom" << std::endl;
+            //LOG("deu bom etapa 2")
             return SUCCESS;
             break;
 

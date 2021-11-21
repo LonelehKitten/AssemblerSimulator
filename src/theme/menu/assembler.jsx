@@ -3,6 +3,8 @@ import MenuItem from '@material-ui/core/MenuItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import CheckIcon from '@material-ui/icons/Check';
 import Menu from '../../components/menu';
+import { useContext } from '../../utils';
+import event from '../../utils/event';
 
 const options = [
     {
@@ -16,11 +18,12 @@ const options = [
 ];
 
 const Assembler = () => {
-
-    const [checked, setChecked] = useState("");
+    const { modeAssembler, setModeAssembler } = useContext();
+    //const [checked, setChecked] = useState("");
 
     const handleChangeCheck = (value) => (e) => {
-        setChecked(value);
+        setModeAssembler(value);
+        event('play', ['requestModeAssembler',[value]]);
     }
 
     return (
@@ -28,7 +31,7 @@ const Assembler = () => {
             {options.map((item) =>
                 <MenuItem button onClick={handleChangeCheck(item.value)}>
                     <ListItemIcon>
-                        {item.value == checked && <CheckIcon color="inherit" fontSize="small" />}
+                        {item.value == modeAssembler && <CheckIcon color="inherit" fontSize="small" />}
                     </ListItemIcon>
                     {item.name}
                 </MenuItem>

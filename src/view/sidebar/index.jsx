@@ -64,13 +64,14 @@ const SideBar = () => {
     setPlaying,
     byStep,
     setByStep,
-    treeFiles
+    treeFiles,
+    modeAssembler
   } = useContext();
 
   const [anchorEl, setAnchorEl] = useState(null);
 
   const handlePlay = (type) => () => {
-    electron.request.play({type,memory, currentFile, setPlaying, setByStep, treeFiles });
+    electron.request.play({type,memory, currentFile, setPlaying, setByStep, treeFiles, modeAssembler });
   };
 
   const handleClickDebug = (type) => () => {
@@ -89,10 +90,10 @@ const SideBar = () => {
           <AllOutIcon style={{ color: !playing ? '#169dff' : '#169dff55' }} />
         </Button>
       </Tooltip>
-      <Tooltip title='Executar (requestRun)'>
+      <Tooltip title='Executar (requestAssembleAndRun)'>
         <Button
           color='inherit'
-          onClick={handlePlay('requestRun')}
+          onClick={handlePlay('requestAssembleAndRun')}
           disabled={playing}
           className={classes.button}
         >

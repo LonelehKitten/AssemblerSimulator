@@ -14,6 +14,7 @@ const Global = ({ value, children }) => {
     const [currentFile, setCurrentFile] = useState(null);
 
     // Configurações para o programa
+    const [modeAssembler, setModeAssembler] = useState(0);
     const [stdin, setStdin] = useState(false);
     const [byStep, setByStep] = useState(false);
     const [playing, setPlaying] = useState(false); // Quando o programa está em execução
@@ -166,7 +167,9 @@ const Global = ({ value, children }) => {
         treeFiles,
         setTreeFiles,
         editorConfig,
-        changeEditorConfig
+        changeEditorConfig,
+        modeAssembler,
+        setModeAssembler
     };
 
     return <Context.Provider value={{ ...context, ...value }}>{children}</Context.Provider>
