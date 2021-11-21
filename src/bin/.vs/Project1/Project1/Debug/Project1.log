@@ -1,2 +1,40 @@
-﻿  SyntaxAutomatons.cpp
+﻿  Assembler.cpp
+C:\Users\lucas\source\repos\LonelehKitten\AssemblerSimulator\src\bin\sources\assembler\Assembler.cpp(213,33): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\lucas\source\repos\LonelehKitten\AssemblerSimulator\src\bin\sources\assembler\Assembler.cpp(197,13): warning C4101: 's': variável local não referenciada
+C:\Users\lucas\source\repos\LonelehKitten\AssemblerSimulator\src\bin\sources\assembler\Assembler.cpp(196,27): warning C4101: 'expression': variável local não referenciada
+C:\Users\lucas\source\repos\LonelehKitten\AssemblerSimulator\src\bin\sources\assembler\Assembler.cpp(215,31): warning C4101: 'expression': variável local não referenciada
+C:\Users\lucas\source\repos\LonelehKitten\AssemblerSimulator\src\bin\sources\assembler\Assembler.cpp(563,46): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\lucas\source\repos\LonelehKitten\AssemblerSimulator\src\bin\sources\assembler\Assembler.cpp(605,23): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\lucas\source\repos\LonelehKitten\AssemblerSimulator\src\bin\sources\assembler\Assembler.cpp(731,58): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\lucas\source\repos\LonelehKitten\AssemblerSimulator\src\bin\sources\assembler\Assembler.cpp(744,62): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\lucas\source\repos\LonelehKitten\AssemblerSimulator\src\bin\sources\assembler\Assembler.cpp(750,69): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\lucas\source\repos\LonelehKitten\AssemblerSimulator\src\bin\sources\assembler\Assembler.cpp(775,62): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\lucas\source\repos\LonelehKitten\AssemblerSimulator\src\bin\sources\assembler\Assembler.cpp(781,69): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\lucas\source\repos\LonelehKitten\AssemblerSimulator\src\bin\sources\assembler\Assembler.cpp(793,62): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\lucas\source\repos\LonelehKitten\AssemblerSimulator\src\bin\sources\assembler\Assembler.cpp(799,69): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\lucas\source\repos\LonelehKitten\AssemblerSimulator\src\bin\sources\assembler\Assembler.cpp(821,58): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\lucas\source\repos\LonelehKitten\AssemblerSimulator\src\bin\sources\assembler\Assembler.cpp(837,58): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\lucas\source\repos\LonelehKitten\AssemblerSimulator\src\bin\sources\assembler\Assembler.cpp(852,58): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\lucas\source\repos\LonelehKitten\AssemblerSimulator\src\bin\sources\assembler\Assembler.cpp(867,58): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\lucas\source\repos\LonelehKitten\AssemblerSimulator\src\bin\sources\assembler\Assembler.cpp(882,58): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\lucas\source\repos\LonelehKitten\AssemblerSimulator\src\bin\sources\assembler\Assembler.cpp(897,58): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\lucas\source\repos\LonelehKitten\AssemblerSimulator\src\bin\sources\assembler\Assembler.cpp(910,58): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\lucas\source\repos\LonelehKitten\AssemblerSimulator\src\bin\sources\assembler\Assembler.cpp(919,58): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\lucas\source\repos\LonelehKitten\AssemblerSimulator\src\bin\sources\assembler\Assembler.cpp(928,58): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\lucas\source\repos\LonelehKitten\AssemblerSimulator\src\bin\sources\assembler\Assembler.cpp(937,58): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\lucas\source\repos\LonelehKitten\AssemblerSimulator\src\bin\sources\assembler\Assembler.cpp(946,58): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\lucas\source\repos\LonelehKitten\AssemblerSimulator\src\bin\sources\assembler\Assembler.cpp(956,58): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\lucas\source\repos\LonelehKitten\AssemblerSimulator\src\bin\sources\assembler\Assembler.cpp(965,58): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\lucas\source\repos\LonelehKitten\AssemblerSimulator\src\bin\sources\assembler\Assembler.cpp(997,64): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\lucas\source\repos\LonelehKitten\AssemblerSimulator\src\bin\sources\assembler\Assembler.cpp(1005,65): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\lucas\source\repos\LonelehKitten\AssemblerSimulator\src\bin\sources\assembler\Assembler.cpp(1085,27): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\lucas\source\repos\LonelehKitten\AssemblerSimulator\src\bin\sources\assembler\Assembler.cpp(526,50): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\lucas\source\repos\LonelehKitten\AssemblerSimulator\src\bin\sources\assembler\Assembler.cpp(814): message : consulte a referência à instanciação 'std::vector<byte,std::allocator<byte>> *Assembler::generateAssembly<Add>(T *)' do modelo que está sendo compilada
+          with
+          [
+              T=Add
+          ]
+  ExpressionEvaluator.cpp
+C:\Users\lucas\source\repos\LonelehKitten\AssemblerSimulator\src\bin\sources\assembler\ExpressionEvaluator.cpp(230,11): warning C4101: 'value': variável local não referenciada
+  Gerando Código...
   Project1.vcxproj -> C:\Users\lucas\source\repos\LonelehKitten\AssemblerSimulator\src\bin\.vs\Project1\Debug\Project1.exe

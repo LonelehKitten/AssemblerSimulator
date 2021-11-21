@@ -119,19 +119,21 @@ const Console = ({ dragger, ...props }) => {
       //   type: 'SETCELL',
       //   payload: { index: parseInt(registers.AX), value: input },
       // });
-      setMemory((memory) => {
-        if (registers?.AX) {
-          memory[parseInt(registers.AX)] = input;
-        }
-        return memory;
-      });
+      if (registers?.AX != null) {
+        setMemory((memory) => {
+            const newVal = [...memory];
+            newVal[parseInt(registers.AX)] = input;
+            return newVal;
+        });
+      }
       const message = e.target.value;
       if (message === '') return;
       const data = [{ message, status: 0 }];
-      console.log(data);
+      //console.log(data);
       setHistory((oldValue) => [...oldValue, ...data]);
       e.target.value = '';
       ipcRenderer.send('play', 'requestSendInput', [message]);
+      setStdin(false);
       // ipcRenderer.send('play', 'requestSendInput', [input]);
     }
   };
@@ -176,6 +178,12 @@ end VALEUSEGMENT
       });
       setPlaying(false);
     });
+
+      return () => {
+          ipcRenderer.off('console');
+          ipcRenderer.off('cycle_stdin');
+          ipcRenderer.off('macroExpanded');
+      }
   }, []);
 
   return (

@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <set>
+#include <iostream>
 
 #include "Token.h"
 #include "../Enums.h"

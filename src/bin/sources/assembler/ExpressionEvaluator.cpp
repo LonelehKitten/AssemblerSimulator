@@ -63,6 +63,7 @@ ExpressionEvaluator::ExpressionEvaluator(Expression * expression,
     4. 'eq' 'ne' 'lt' 'le' 'gt' 'ge'
 
 */
+
 void ExpressionEvaluator::solve(int precedenceBegin, bool root) {
 
     if(expression->size() == 1) {

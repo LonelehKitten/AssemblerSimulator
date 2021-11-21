@@ -4,7 +4,7 @@ app.commandLine.appendSwitch('js-flags', '--max-old-space-size=4096');
 
 const bindings = require('bindings')
 const EventEmitter = require('events');
-/*
+
 let asmr;
 try {
     asmr = bindings('ASMR') ?? null; // Pega o ASMR se ele estiver compilado
@@ -12,11 +12,8 @@ try {
     asmr = null;
     console.log(e);
 }
-*/
 
-const asmr = require("./build/Debug/ASMR.node");
-
-console.log("Module C++: ", asmr);
+console.log("Module C++: ", asmr != null);
 const isAsmr = asmr != null;
 if (isAsmr) asmr.init();
 const emitter = new EventEmitter();
@@ -85,24 +82,17 @@ JMP -14
 INT 2
     `, memoryChanges);*/
     asmr.requestAssembleAndRun(`
-data SEGMENT
-  max EQU 10
-  unit2 DW 1
-  unit DW 1
-data ENDS
-
-program SEGMENT
-ASSUME CS: program
-ASSUME DS: data
-main:
-mov ax, data
-mov ds, ax
-add ax, max
-loop1:
-sub ax, unit
-jnz loop1
-program ENDS
-END main
+Dados SEGMENT
+    Mem1 DW ?
+    Mem2 DW ?
+Dados ENDS
+Codigo SEGMENT
+ASSUME CS:Codigo
+ASSUME DS:Dados
+Inicio:
+mov Mem1, AX
+Codigo ENDS
+END Inicio
 `, memoryChanges);
     ProgramToMemoryEventObserver = setInterval(() => asmr.observeProgramToMemoryFiring(getEmitter()), 10);
 }
