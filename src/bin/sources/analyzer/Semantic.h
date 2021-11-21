@@ -457,11 +457,11 @@ class Proc : public Semantic {
         std::string getName();
 };
 
-class EndP : public Semantic {
+class Endp : public Semantic {
     private:
         std::string name;
     public:
-        EndP(std::string line, std::string name);
+        Endp(std::string line, std::string name);
         std::string getName();
 };
 

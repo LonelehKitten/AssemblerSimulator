@@ -8,7 +8,7 @@
 /**
  * Se definido, indica que está no modo de compilação para integração com o Electron
 */
-#define PRODUCTION_MODE 1
+//#define PRODUCTION_MODE 1
 
 // Tudo que deve aparecer somente no teste unitário
 #ifdef TEST_MODE

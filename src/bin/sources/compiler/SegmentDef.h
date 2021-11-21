@@ -17,6 +17,8 @@ public:
 
     USint getSize();
 
+    void setLocation(USint location);
+
     USint getLocation();
 
     void setSymbol(Symbol *);

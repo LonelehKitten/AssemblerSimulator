@@ -13,6 +13,11 @@ SegmentDef::SegmentDef(std::string name, USint location, USint size) : Symbol::S
     this->size = size;
 }
 
+void SegmentDef::setLocation(USint location){
+    this->location = location;
+    value = std::to_string(location);
+}
+
 USint SegmentDef::getLocation()
 {
     return location;

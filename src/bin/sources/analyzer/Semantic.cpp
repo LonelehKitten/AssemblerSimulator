@@ -736,12 +736,12 @@ std::string Proc::getName() {
 //============================
 //            ENDP
 //============================
-EndP::EndP(std::string line, std::string name) :
+Endp::Endp(std::string line, std::string name) :
     Semantic(line, Instruction::iENDP),
     name(name)
 {}
 
-std::string EndP::getName() {
+std::string Endp::getName() {
     return name;
 }
 
@@ -951,7 +951,9 @@ std::set<std::string> * Org::getSymbolSet() {
 //============================
 //            Name
 //============================
-Name::Name(std::string line, std::vector<string *> *  externalSymbols)
+Name::Name(std::string line, std::string moduleName) : 
+    line(line),
+    moduleName(moduleName)
 {
     
 
@@ -964,18 +966,24 @@ std::vector<string *> * Name::getModuleName() const{
 //============================
 //            Public
 //============================
-Public::Public(std::string line, std::vector<string *> *  externalSymbols){
+Public::Public(std::string line, std::vector<string *> * externalSymbols) :
+    line(line),
+    externalSymbols(externalSymbols)
+{
     
 }
 
-std::vector<std::string *> * Public::getExternalSymbols() const{
+std::vector<std::string *> * Public::getExternalSymbols() const { 
     return externalSymbols;
 }
 
 //============================
 //            EXTRN
 //============================
-Extrn::Extrn(std::string line, std::vector<string *> * externalSymbols){
+Extrn::Extrn(std::string line, std::vector<string *> * externalSymbols) :
+    line(line),
+    externalSymbols(externalSymbols)
+{
 
     
 }

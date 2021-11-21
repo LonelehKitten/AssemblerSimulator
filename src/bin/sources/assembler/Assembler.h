@@ -10,36 +10,20 @@
 #include "ExpressionEvaluator.h"
 #include "SegmentDef.h"
 #include "../Utils.h"
+#include "../compiler/Compiler.h"
 
-class Assembler
+class Assembler : public Compiler
 {
 private:
-    std::vector<Semantic *> * lines;
 
     std::vector<MacroDef *> macroList;
     std::unordered_map<std::string, MacroDef *> macroTable;
-    SymbolTable segmentTable;
-
-    SegmentDef * currentSegment;
-    SegmentDef * assumedProgramSegment, * assumedDataSegment, * assumedStackSegment;
 
     std::string output;
-
-    std::vector<byte> assemblyCode;
-
-    int lineCounter;
-    int programCounter;
-    int segmentCounter;
-
-    int startProgram;
-
-    int assemblerError;
 
     template <class T> std::vector<byte> * generateAssembly(T * line);
     template <class T> std::vector<byte> * generateAssemblyJumps(T *line);
     void GetSpecialOpcode(Semantic * line);
-
-    Symbol * findSymbol();
 
     int macroExpandParams(MacroCall * macrocall, int k);
     
@@ -48,39 +32,17 @@ private:
     template <class T> void tableIntInstruction(T *t);
     template <class T> void tableVarInstruction(T *t, bool isConst);
 
-    int basicoAssemblerStep1();         //Está presente em Assembler.cpp
-    int basicoAssemblerStep2();         //Está presente em Assembler.cpp
-
-    int basicoAssemblerOneStep();       //Não está presente em Assembler.cpp
-    
-    int completoAssemblerStep1();       //Não está presente em Assembler.cpp
-    int completoAssemblerStep2();       //Não está presente em Assembler.cpp
-
-    int loadandgoAssembler();           //Não está presente em Assembler.cpp
-    //Concatenar com assemblyCode
-    //FAZER: Usar line->getOpcode() e concatenar com o vetor de bytecodes na posição
-    //POSIÇÃO AINDA NÃO ESTÁ DETECTÁVEL NO MÉTODO, PRECISA ADICIONAR O ÍNDICE COMO PARÂMETRO AQUI
-    //void generateAssembly(std::vector<unsigned char> bytecode);
-
-    std::vector<byte> * evaluate(Expression * expression, USint * valueHolder, bool * isConst = nullptr);
+    virtual bool tableInstructions(Semantic * line, bool &error);
+    virtual bool generateBytecode(Semantic * line, bool &error);
 
 public:
 
-    enum AssemblyFlags
-    {
-        SUCCESS,
-        ERRO
-    };
-
     Assembler(std::vector<Semantic *> * lines);
+
     //Método principal para chamar o montador (PRÉPROCESSADOR PRECISA SER CHAMADO ANTES)
-    //Recebe como parâmetro o tipo de montador que será executado
-    //"0" para montador simples de 1 passo
-    //"1" para montador load-and-go
-    //"2" para montador simples de 2 passos
-    //"3" para montador completo de 2 passos
-    //Retorna uma flag de erro.
-    int assemble(int assemblerType);
+    //Recebe como parâmetro o modo de montagem (basico: true, completo: false)
+    //Retorna true se montado com sucesso
+    bool assemble(bool assemblerType);
 
     long getStartProgram();
     long getStartSegment();
