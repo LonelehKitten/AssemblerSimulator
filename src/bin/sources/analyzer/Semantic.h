@@ -56,7 +56,10 @@ enum Instruction{
     iMACROCONTENT,
     iLABEL,
     iINVALID,
-    iHALT
+    iHALT,
+    iNAME,
+    iPUBLIC,
+    iEXTRN
 };
 
 /*
@@ -487,6 +490,32 @@ class Org : public Semantic, ISemantic {
         std::vector<Token *> * getExpression() const;
 
         std::set<std::string> * getSymbolSet();
+};
+
+// usar Label de referencia
+class Name : public Semantic{
+    private:
+        std::string moduleName;
+    public:
+        Name(std::string line, std::string moduleName);
+        std::string getModuleName();
+};
+
+// usar Org como referencia
+class  Public : public Semantic{
+    private:
+        std::vector<std::string> * externalSymbols;
+    public:
+        Public(std::string line, std::vector<std::string *> *  externalSymbols);
+        std::vector<std::string *> * getExternalSymbols() const;
+};
+//usar Org
+class  Extrn : public Semantic{
+    private:
+        std::vector<std::string> * externalSymbols;
+    public:
+        Extrn(std::string line, std::vector<std::string *> *  externalSymbols);
+        std::vector<std::string *> * getExternalSymbols() const;
 };
 
 #endif // SEMANTIC_H

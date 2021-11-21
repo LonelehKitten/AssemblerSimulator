@@ -43,7 +43,11 @@ enum class TokenTypes {
     tBINARY,
     tCHARACTERE,
     tMACROCONTENT,
-    tHALT
+    tHALT,
+    tNAME,
+    tPUBLIC,
+    tEXTRN,
+    tEXTRNTYPE
 };
 
 enum class TokenNames {
@@ -120,7 +124,13 @@ enum class TokenNames {
     nOFFSET,
     nSTACK,
     nMACROCONTENT,
-    nHALT
+    nHALT,
+    nNAME,
+    nPUBLIC,
+    nEXTRN,
+    nWORD,
+    nNEAR,
+    nABS
 };
 
 

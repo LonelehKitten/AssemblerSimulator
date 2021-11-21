@@ -213,6 +213,15 @@ Semantic * SyntaxAnalyzer::getRow(int offset) {
         case TokenTypes::tORG:
             return new Org(this->line, getExpression(offset+1, t));
 
+        case TokenTypes::tNAME:
+            return new Name(this->line, this->aux1);
+
+        case TokenTypes::tPUBLIC:
+            return new Public(this->line, this->vaux);
+
+        case TokenTypes::tEXTRN:
+            return new Public(this->line, this->vaux);
+
         case TokenTypes::tOPERATION:
             switch (t1->getName()) {
                 case TokenNames::nOpADD:

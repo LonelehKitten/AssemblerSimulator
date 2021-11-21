@@ -318,6 +318,52 @@ int Assembler::basicoAssemblerStep1()
 
             return ERRO;
 
+        case Instruction::iPROC: {
+            //armazenar nome, 
+            //tratamento como jump
+            Proc * proc = (Proc *) line;
+            //segmentTable.push_back(proc->getName());
+            //segmentTable.psuh_back(proc->getName()->getLine());
+
+            if (currentSegment->getSymbol(label->getName()) == nullptr)
+            {
+                currentSegment->setSymbol(new SegmentDef(label->getName(), 0, 0);
+            }
+            //LOG(label->getName() + std::string(":") + std::to_string(segmentCounter))
+            ((SegmentDef *) currentSegment->getSymbol(label->getName()))->setLocation(segmentCounter); //segmentdef
+            currentSegment->getSymbol(label->getName())->value = std::to_string(segmentCounter); //symbol
+            currentSegment->getSymbol(label->getName())->isLabel = true;
+            
+            programCounter += 3;
+            segmentCounter += 3;
+
+            /*
+                main:
+
+                
+                ; endereço do começo do procedimento
+                sum PROC -> jmp 6; (0, 6) reserva
+                add AX, DX
+                add ax, dx
+                sum ENDP -> 
+
+                call sum
+                END main
+            */
+            break;
+        }
+
+        case Instruction::iENDP: {
+            // ; endereço para o fim do procedimento
+            if(currentSegment->getSymbol(label->getName()) == nullptr)
+                return ERRO;
+            
+            USint location = ((SegmentDef *) currentSegment->getSymbol(label->getName()))->getLocation(SegmentCounter);
+            ((SegmentDef *)currentSegment->getSymbol(label->getName()))->setSize(segmentCounter - location);
+        
+            break;
+        }
+        
         case Instruction::iDW:
         {
             
@@ -970,9 +1016,22 @@ int Assembler::basicoAssemblerStep2()
         }
         break;
 
-        case Instruction::iLABEL:
-            // Não precisa
-        break;
+        case Instruction::iPROC:
+        {
+            Proc * proc = (Proc *) line;
+
+            if (currentSegment->getSymbol(proc->getName()) == nullptr)
+                return ERRO; 
+            USint size = currentSegment->getSymbol(proc->getName())->second->size;
+            
+            assemblycode.push_back(0xEB);           //jump para o final do procedimento
+            assemblycode.push_back((byte) (size & 0xFF));
+            assemblycode.push_back((byte)(size >> 8));
+            
+            segmentCounter += 3;
+            programCounter += 3;
+            break;
+        }
 
         default:
             //

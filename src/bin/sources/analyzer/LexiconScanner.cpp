@@ -115,10 +115,18 @@ void LexiconScanner::initTokenSet() {
     this->tokenSet[TokenNames::nPC]                 = new LexiconScanner::TokenSetUnit("$",         TokenTypes::tPC);
     this->tokenSet[TokenNames::nORG]                = new LexiconScanner::TokenSetUnit("org",       TokenTypes::tORG);
 
-    this->tokenSet[TokenNames::nOFFSET]             = new LexiconScanner::TokenSetUnit("offset",         TokenTypes::tOFFSET);
+    this->tokenSet[TokenNames::nOFFSET]             = new LexiconScanner::TokenSetUnit("offset",    TokenTypes::tOFFSET);
     this->tokenSet[TokenNames::nSTACK]              = new LexiconScanner::TokenSetUnit("stack",     TokenTypes::tSTACK);
 
-    this->tokenSet[TokenNames::nHALT]               = new LexiconScanner::TokenSetUnit("hlt",      TokenTypes::tHALT);
+    this->tokenSet[TokenNames::nHALT]               = new LexiconScanner::TokenSetUnit("hlt",       TokenTypes::tHALT);
+
+    // diretivas de linkagem
+    this->tokenSet[TokenNames::nNAME]               = new LexiconScanner::TokenSetUnit("name",      TokenTypes::tNAME);
+    this->tokenSet[TokenNames::nPUBLIC]             = new LexiconScanner::TokenSetUnit("public",    TokenTypes::tPUBLIC);
+    this->tokenSet[TokenNames::nEXTRN]              = new LexiconScanner::TokenSetUnit("extrn",     TokenTypes::tEXTRN);
+    this->tokenSet[TokenNames::nWORD]               = new LexiconScanner::TokenSetUnit("word",      TokenTypes::tEXTRNTYPE);
+    this->tokenSet[TokenNames::nNEAR]               = new LexiconScanner::TokenSetUnit("near",      TokenTypes::tEXTRNTYPE);
+    this->tokenSet[TokenNames::nABS]                = new LexiconScanner::TokenSetUnit("abs",       TokenTypes::tEXTRNTYPE);
 
 }
 

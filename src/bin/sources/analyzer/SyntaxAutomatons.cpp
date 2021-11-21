@@ -136,6 +136,26 @@ namespace SyntaxAutomatons {
         }
         // </macrocontent>
 
+        // linking
+        transition->setTokenType(TokenTypes::tNAME);
+        transition->setState(qJ);
+        transition->setLoad(false);
+        r = analyzer->q(transition);
+        if(!r) return false;
+
+        transition->setTokenType(TokenTypes::tPUBLIC);
+        transition->setState(q1_label);
+        transition->setLoad(false);
+        r = analyzer->q(transition);
+        if(!r) return false;
+
+        transition->setTokenType(TokenTypes::tEXTRN);
+        transition->setState(q2);
+        transition->setLoad(false);
+        r = analyzer->q(transition);
+        if(!r) return false;
+        // /linking
+
         transition->setTokenType(TokenTypes::tASSUME);
         transition->setState(q2);
         transition->setLoad(false);
@@ -678,6 +698,43 @@ namespace SyntaxAutomatons {
         bool r = analyzer->q(transition);
         transition->~Transition();
         return r;
+    }
+
+
+    bool q1_extrn_label(SyntaxAnalyzer * analyzer) {
+        Transition * transition = new Transition(AutomatonPattern::pLABEL);
+        transition->setState(q1_extrn_label_c);
+        transition->setId(true);
+        bool r = analyzer->q(transition);
+        if(!r) {
+            analyzer->getVAux()->emplace_back(analyzer->getLastToken()->getToken());
+        }
+        return r;
+    }
+
+    bool q1_extrn_label_c(SyntaxAnalyzer * analyzer) {
+        Transition * transition = new Transition(AutomatonPattern::pSYMBOL, TokenTypes::tCOLON);
+        transition->setState(q1_extrn_label_c_t);
+        return analyzer->q(transition);
+    }
+
+    bool q1_extrn_label_c_t(SyntaxAnalyzer * analyzer) {
+        Transition * transition = new Transition(AutomatonPattern::pLABEL, TokenTypes::tEXTRNTYPE);
+        transition->setState(q1_extrn_label_c_t_s);
+        bool r = analyzer->q(transition);
+        if(!r) {
+            analyzer->getVAux()->emplace_back(analyzer->getLastToken()->getToken());
+            if(analyzer->getLastToken()->isEndOfLine()) {
+                analyzer->setState(qEnd);
+            }
+        }
+        return r;
+    }
+
+    bool q1_extrn_label_c_t_s(SyntaxAnalyzer * analyzer) {
+        Transition * transition = new Transition(AutomatonPattern::pSYMBOL, TokenTypes::tSEPARATOR);
+        transition->setState(q1_extrn_label);
+        return analyzer->q(transition);
     }
 
 
