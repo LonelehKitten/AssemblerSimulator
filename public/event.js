@@ -7,7 +7,9 @@ const { BrowserWindow, ipcMain, dialog, webContents } = require('electron');
 let asmr;
 try {
     asmr = bindings('ASMR') ?? null; // Pega o ASMR se ele estiver compilado
+    console.log("Funcionou?", asmr);
 } catch (e) {
+    console.log("Error", e);
     asmr = null;
 }
 //const asmr = require('../build/Debug/ASMR');
@@ -82,8 +84,9 @@ const requests = [
 ipcMain.on("play", (event, type, params) => {
     try {
         // Executa as requisições após o evento do front
-        console.log(type, params);
+        console.log(type);
         if (requests.includes(type) && isAsmr) {
+            console.log("params",params);
             asmr[type].apply(asmr, params);
             playing = true;
 

@@ -10,9 +10,9 @@
 #include "../compiler/ExpressionEvaluator.h"
 #include "../compiler/SegmentDef.h"
 #include "../Utils.h"
-#include "../compiler/Compiler.h"
+#include "../compiler/AssemblerProto.h"
 
-class Assembler : public Compiler
+class Assembler : public AssemblerProto
 {
 private:
 
@@ -39,7 +39,7 @@ protected:
 
 public:
 
-    Assembler(std::vector<Semantic *> * lines);
+    Assembler(std::vector<Semantic *> * lines, int programCounter, SymbolTable * globalSymbols);
 
     //Método principal para chamar o montador (PRÉPROCESSADOR PRECISA SER CHAMADO ANTES)
     //Recebe como parâmetro o modo de montagem (basico: true, completo: false)
@@ -50,6 +50,8 @@ public:
 
     void init(bool willExecute);
     int preproccess (std::vector<Semantic *> * lines, int k);
+
+    std::vector<byte> *evaluate(Expression *expression, USint *valueHolder, bool * isConst = nullptr);
 
 
     // debug only

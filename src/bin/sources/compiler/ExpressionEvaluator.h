@@ -58,7 +58,7 @@ class ExpressionEvaluator {
         bool priority1, priority2, priority3, priority4;
         Expression * expression, * originalExpression;
         SegmentDef * programSegment, * dataSegment;
-        SymbolTable * segmentTable;
+        SymbolTable * segmentTable, * globalSymbols;
         bool symbolCouldNotBeResolved;
 
         void solve(int precedenceBegin, bool root);
@@ -75,7 +75,7 @@ class ExpressionEvaluator {
 
     public:
         ExpressionEvaluator(Expression * expression, SegmentDef * programSegment, 
-            SegmentDef * dataSegment, SymbolTable * segmentTable);
+            SegmentDef * dataSegment, SymbolTable * segmentTable, SymbolTable * globalSymbols);
 
         USint getValue();
         bool isConst();

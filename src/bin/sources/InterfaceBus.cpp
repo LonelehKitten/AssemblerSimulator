@@ -209,30 +209,55 @@ std::mutex &InterfaceBus::getMutex()
 void InterfaceBus::runExpandMacros()
 {
     std::vector<Semantic *> *semantics = recognitionManager->analyzeFile(inputReport.code);
-    assembler = new Assembler(semantics);
+    assembler = new Assembler(semantics, 0, new SymbolTable());
     assembler->init(false);
     delete assembler;
 }
 
 void InterfaceBus::runBuildAndRun(){  //*****************
+    std::vector<Assembler *> * listAssemblers = new std::vector<Assembler *>();
+    Assembler * assembler;
+    SymbolTable * globalSymbols = new SymbolTable();
+    bool error = false;
+    int programCounter = 0;
+
     std::cout << "build and run" << std::endl;
     std::vector<std::string> * files = inputReport.files;
     for (unsigned int i = 0; i < files->size(); i++) {
         std::cout << "File: " << files->at(i) << std::endl;
     }
-    Assembler * assembler;
-    std::vector<Assembler *> * listAssemblers = new std::vector<Assembler *>();
+    
+    
     for(unsigned int i = 0;i < files->size(); i++){
         std::vector<Semantic *> *semantics = recognitionManager->analyzeFile(files->at(i));
-        assembler = new Assembler(semantics);
+        assembler = new Assembler(semantics, programCounter,globalSymbols);
         assembler->init(true);
         if(assembler->assemble(inputReport.modeAssembler) == 0) {
+            programCounter = assembler->getProgramCounter();
+            globalSymbols = assembler->getGlobalSymbols();
             listAssemblers->emplace_back(assembler);
+        }else{
+            error = true;
+            break;
         }
-        // assembler
+        
     }
-    std::cout << "Total: " << listAssemblers->size() << std::endl;
-    //Linker
+    
+    std::cout << "Total Processado: " << listAssemblers->size() << std::endl;
+    if(error){
+        std::cout << "Error no assemble " << std::endl;
+    }else{
+        Linker linker(listAssemblers, programCounter, globalSymbols);
+
+        if(!linker.link()) {
+            LOG("Erro no linker");
+        }
+        
+        // Linker
+    }
+
+    while (isUpdating());
+    setWaiting(false);
 }
 
 void InterfaceBus::runAssembleAndRun()  //*****************
@@ -246,7 +271,7 @@ void InterfaceBus::runAssembleAndRun()  //*****************
     LOG("assemble and run: analyzer")
     std::this_thread::sleep_for(this->getClock()*20);
     //return;
-    assembler = new Assembler(semantics);
+    assembler = new Assembler(semantics, 0, new SymbolTable());
     assembler->init(true);
     LOG("assemble and run: preprocess")
     std::this_thread::sleep_for(this->getClock()*20);
@@ -257,7 +282,7 @@ void InterfaceBus::runAssembleAndRun()  //*****************
         machine->resetMachine();
 
         std::cout << "**First**" << std::endl;
-        machine->memoryUpdate(&inputReport.memory, assembler->getAssemblyCode());
+        machine->memoryUpdate(&inputReport.memory, assembler->getBytecode());
 
         std::cout << std::string("**Second**") << std::to_string(assembler->getStartProgram()) << std::endl;
         std::cout << std::string("**Three**") << std::to_string(assembler->getStartSegment()) << std::endl;

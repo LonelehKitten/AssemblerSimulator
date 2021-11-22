@@ -40,6 +40,7 @@ void requestBuildAndRun(const Nan::FunctionCallbackInfo<v8::Value> & info) {
  * @param 128Kb de memória em um array de int
  */
 void requestAssembleAndRun(const Nan::FunctionCallbackInfo<v8::Value> & info) {
+    std::cout << "Request Assemble And Run" << std::endl;
     InterfaceBus::getInstance().serviceAssembleAndRun((NodeInfo *) &info, info[0], info[1]);
 }
 /**

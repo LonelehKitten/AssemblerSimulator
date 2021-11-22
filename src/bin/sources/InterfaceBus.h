@@ -14,6 +14,7 @@
 
 #include "analyzer/RecognitionManager.h"
 #include "assembler/Assembler.h"
+#include "linker/Linker.h"
 #include "machine/Z808Machine.h"
 #include "machine/Z808Response.h"
 #include "ServiceBus.h"

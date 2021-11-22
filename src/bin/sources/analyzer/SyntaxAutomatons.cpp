@@ -166,7 +166,12 @@ namespace SyntaxAutomatons {
         transition->setState(q3);
         transition->setLoad(false);
         r = analyzer->q(transition);
-        if(!r) return false;
+        if(!r){
+            if(analyzer->getLastToken()->isEndOfLine()) {
+                transition->setState(qEnd);
+            }
+            return false;  
+        } 
 
         // variavel
         transition->setTokenType(TokenTypes::tVARDEF);

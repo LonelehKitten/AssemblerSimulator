@@ -10,7 +10,7 @@
 
 # testing
 /coverage
-/src/bin/test/*
+
 /src/bin/teste.pro
 /src/bin/teste.pro.user
 /src/bin/teste_analyzer.pro

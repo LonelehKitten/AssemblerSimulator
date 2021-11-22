@@ -13,8 +13,33 @@ std::string Assembler::getOutput()
     return output;
 }
 
-Assembler::Assembler(std::vector<Semantic *> *lines) :
-    Compiler(lines),
+/*
+    lida com o ExpressionEvaluator e retorna o vetor de bytes do valor resultante
+*/
+std::vector<byte> *Assembler::evaluate(Expression *expression, USint *valueHolder, bool * isConst)
+{
+    ExpressionEvaluator *evaluator =
+        new ExpressionEvaluator(expression, assumedProgramSegment, assumedDataSegment, &segmentTable, globalSymbols);
+    if (evaluator->couldNotSymbolBeResolved())
+    {
+        delete evaluator;
+        return nullptr;
+    }
+
+    USint value = evaluator->getValue();
+    if (valueHolder != nullptr)
+        *valueHolder = value;
+
+    if(isConst != nullptr)
+        *isConst = evaluator->isConst();
+
+    delete evaluator;
+
+    return new std::vector<byte>({(byte)(value & 0xFF), (byte)(value >> 8)});
+}
+
+Assembler::Assembler(std::vector<Semantic *> *lines, int programCounter, SymbolTable * globalSymbols) :
+    AssemblerProto(lines, programCounter, globalSymbols),
     output("")
 {
 }
@@ -141,6 +166,14 @@ bool Assembler::tableInstructions(Semantic * line, bool &error)
 
     Instruction instruction = line->getType();
 
+    // Se a primeira instrução não for declaração do nome do módulo, é disparado erro
+    if(instruction != Instruction::iNAME && moduleName == ""){
+        error = true;
+        return false;
+    }
+    if(instruction == Instruction::iNAME){
+        moduleName = ((Name *)line)->getModuleName();
+    }
     if (!inSegment && instruction == Instruction::iSEGMENT)
     {
         //LOG("iSegment (Etapa 1)");
@@ -154,7 +187,33 @@ bool Assembler::tableInstructions(Semantic * line, bool &error)
     switch (instruction)
     {
         // aritmeticas e logicas
+        case Instruction::iPUBLIC:
+        {
+            // quais símbolos do módulo são públicos
+            //tabelar simbolos publicos
+            //(Public *)line->getExternalSymbols
+            std::vector<std::string> *externalSymbols = ((Public *)line)->getExternalSymbols();
+
+            for(auto it_symbol = externalSymbols->begin(); it_symbol != externalSymbols->end(); it_symbol++ ){
+                pendingPublicSymbols.insert(*it_symbol);
+            }
+
+            
+            break;
+        }
         
+        case Instruction::iEXTRN:
+        {
+            std::vector<std::string> *externalSymbols = ((Extrn *)line)->getExternalSymbols();
+
+            for(int i = 0; i < (int)externalSymbols->size(); i += 2){
+                pendingExternalSymbols[externalSymbols->at(i)] = externalSymbols->at(i+1);
+            }
+
+            
+            break;
+        }
+
         case Instruction::iADD:
             //LOG("iAdd (Etapa 1)");
             tableArithmeticInstructions<Add>((Add *)line);
@@ -282,9 +341,15 @@ bool Assembler::tableInstructions(Semantic * line, bool &error)
 
             ((SegmentDef *) currentSegment->getSymbol(proc->getName()))->setLocation(segmentCounter); //segmentdef
             currentSegment->getSymbol(proc->getName())->isLabel = true;
+
+            if(pendingPublicSymbols.find(proc->getName()) != pendingPublicSymbols.end()) {
+                publicSymbols.insert(std::make_pair(proc->getName(), currentSegment->getSymbol(proc->getName())));
+                pendingPublicSymbols.erase(proc->getName());
+            }
             
             programCounter += 3;
             segmentCounter += 3;
+
 
             break;
         }
@@ -317,6 +382,11 @@ bool Assembler::tableInstructions(Semantic * line, bool &error)
 
             currentSegment->getSymbol(dw->getName())->value = std::to_string(segmentCounter/2);
 
+            if(pendingPublicSymbols.find(dw->getName()) != pendingPublicSymbols.end()) {
+                publicSymbols.insert(std::make_pair(dw->getName(), currentSegment->getSymbol(dw->getName())));
+                pendingPublicSymbols.erase(dw->getName());
+            }
+
             segmentCounter += 2;
             programCounter += 2;
 
@@ -339,6 +409,11 @@ bool Assembler::tableInstructions(Semantic * line, bool &error)
                 break;
             }
 
+            if(pendingPublicSymbols.find(equ->getName()) != pendingPublicSymbols.end()) {
+                publicSymbols.insert(std::make_pair(equ->getName(), currentSegment->getSymbol(equ->getName())));
+                pendingPublicSymbols.erase(equ->getName());
+            }
+
             dependenciesMap.emplace_back(new PendingResolution(currentSegment->getSymbol(equ->getName()), currentSegment, equ));
             break;
         }
@@ -354,6 +429,12 @@ bool Assembler::tableInstructions(Semantic * line, bool &error)
             //LOG(label->getName() + std::string(":") + std::to_string(segmentCounter))
             currentSegment->getSymbol(label->getName())->value = std::to_string(segmentCounter);
             currentSegment->getSymbol(label->getName())->isLabel = true;
+
+            if(pendingPublicSymbols.find(label->getName()) != pendingPublicSymbols.end()) {
+                publicSymbols.insert(std::make_pair(label->getName(), currentSegment->getSymbol(label->getName())));
+                pendingPublicSymbols.erase(label->getName());
+            }
+
             break;
         }
 
@@ -563,15 +644,7 @@ bool Assembler::generateBytecode(Semantic * line, bool &error)
             endLabel = ((End *)line)->getName();
             LOG(std::string("iEND: etapa 2: endLabel") + endLabel)
             startProgram = currentSegment->getSymbol(endLabel);
-            
-            if (label == nullptr)
-            {
-                LOG("iEND: etapa 2: ERROR")
-                error = true;
-                return false;
-            }
-        
-            //startProgram = std::stoi(currentSegment->value) + std::stoi(label->value);
+
             bytecode.push_back(0xEE);
         
             return true;
@@ -954,7 +1027,7 @@ bool Assembler::generateBytecode(Semantic * line, bool &error)
 bool Assembler::assemble(bool isBasic)
 {
 
-    if(stepTableInstructions())
+    if(stepTableInstructions(isBasic))
     {
         std::cout << "Step 2" << std::endl;
         if (isBasic && stepGenerateBytecode())
